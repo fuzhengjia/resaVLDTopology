@@ -19,11 +19,15 @@ public class TomVideoStreamReceiver {
     private int port;
     private byte[] queueName;
     private Jedis jedis = null;
+    private boolean isWin = false;
+    private String outputString = null;
 
-    public TomVideoStreamReceiver(String host, int port, String queueName){
+    public TomVideoStreamReceiver(String host, int port, String queueName, boolean isWin, String outputString) {
         this.host = host;
         this.port = port;
         this.queueName = queueName.getBytes();
+        this.isWin = isWin;
+        this.outputString = outputString;
     }
 
     public void VideoStreamReceiver() throws IOException, FrameGrabber.Exception, InterruptedException {
@@ -32,11 +36,16 @@ public class TomVideoStreamReceiver {
         //ProcessBuilder pb = new ProcessBuilder(
         //        "C:\\Users\\Tom.fu\\Downloads\\ffmpeg-20140824-git-1aa153d-win64-static\\bin\\ffmpeg.exe",
         //        "-f", "image2pipe", "-codec", "mjpeg", "-i", "pipe:0", "-r", "25", "-f", "mpegts", "\"udp://localhost:7777\"");
-        ProcessBuilder pb = new ProcessBuilder(
-                "ffmpeg.exe",
-                "-f", "image2pipe", "-codec", "mjpeg", "-i", "pipe:0", "-r", "25", "\"http://192.168.0.30:8090/feed2.ffm\"");
 
-	pb.redirectErrorStream(true);
+        String ffmpegCommandString = "ffmpeg.exe";
+        if (isWin == false){
+            ffmpegCommandString = "ffmpeg";
+        }
+        ProcessBuilder pb = new ProcessBuilder(
+                ffmpegCommandString,
+                "-f", "image2pipe", "-codec", "mjpeg", "-i", "pipe:0", "-r", "25", "\"" + outputString +"\"");
+
+        pb.redirectErrorStream(true);
         //pb.redirectInput(ProcessBuilder.Redirect.PIPE);
         Process p = pb.start();
 
@@ -77,12 +86,27 @@ public class TomVideoStreamReceiver {
     }
 
     public static void main(String args[]) {
+        if (args.length < 5) {
+            System.out.println("usage: TomVideoStreamSender <win or lin> <Redis host> <Redis port> <Redis Queue> <output>");
+            return;
+        }
+        boolean isWin = false;
 
-        TomVideoStreamReceiver tvsr = new TomVideoStreamReceiver("192.168.0.30", 6379, "tomQ");
+        if (args[0].equalsIgnoreCase("win")) {
+            isWin = true;
+        } else if (args[0].equalsIgnoreCase("lin")){
+            isWin = false;
+        } else {
+            System.out.println("first argument must be win or lin!");
+            return;
+        }
+        //TomVideoStreamReceiver tvsr = new TomVideoStreamReceiver("192.168.0.30", 6379, "tomQ");
+        TomVideoStreamReceiver tvsr = new TomVideoStreamReceiver(args[1], Integer.parseInt(args[2]), args[3], isWin, args[4]);
+
         try {
             tvsr.VideoStreamReceiver();
-        } catch (Exception e)
-        {}
+        } catch (Exception e) {
+        }
     }
 
     private Jedis getConnectedJedis() {
@@ -104,7 +128,6 @@ public class TomVideoStreamReceiver {
         }
         jedis = null;
     }
-
 
 
 }

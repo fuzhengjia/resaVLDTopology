@@ -18,7 +18,8 @@ import java.util.concurrent.BlockingQueue;
  * Created by Intern04 on 25/8/2014.
  */
 public class TomVideoStreamSender {
-    final static String fileName = "C:\\Users\\Tom.fu\\1.mp4";
+    //final static String fileName = "C:\\Users\\Tom.fu\\1.mp4";
+    static String fileName = null;
     FFmpegFrameGrabber grabber;
 
     private static final byte[] END = new String("END").getBytes();
@@ -52,7 +53,7 @@ public class TomVideoStreamSender {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ImageIO.write(bufferedImage, "JPEG", baos);
                     dataQueue.put(baos.toByteArray());
-                    totalSent ++;
+                    totalSent++;
                 }
                 long sleep = now + 1000 - System.currentTimeMillis();
                 if (sleep > 0) {
@@ -97,14 +98,18 @@ public class TomVideoStreamSender {
     }
 
     public static void main(String[] args) throws Exception {
-        //if (args.length < 5) {
-        //    System.out.println("usage: TomVideoStreamSender <Redis host> <Redis port> <Redis Queue> <fps> <totalFrames>");
-        //    return;
-        //}
-        //TomVideoStreamSender sender = new TomVideoStreamSender(args[0], Integer.parseInt(args[1]), args[2]);
-        TomVideoStreamSender sender = new TomVideoStreamSender("192.168.0.30", 6379, "tomQ");
-        System.out.println("start sender");
-        sender.send2Queue(25, 1000);
+        if (args.length < 6) {
+            System.out.println("usage: TomVideoStreamSender <videoFileName> <Redis host> <Redis port> <Redis Queue> <fps> <totalFrames>");
+            return;
+        }
+
+        fileName = args[0];
+
+        TomVideoStreamSender sender = new TomVideoStreamSender(args[1], Integer.parseInt(args[2]), args[3]);
+        //TomVideoStreamSender sender = new TomVideoStreamSender("192.168.0.30", 6379, "tomQ");
+        //sender.send2Queue(25, 10000);
+        System.out.println("start sender for file: " + fileName);
+        sender.send2Queue(Integer.parseInt(args[4]), Integer.parseInt(args[5]));
         System.out.println("end sender");
     }
 
