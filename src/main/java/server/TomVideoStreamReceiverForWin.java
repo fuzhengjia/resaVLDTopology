@@ -4,27 +4,24 @@ import org.bytedeco.javacv.FrameGrabber;
 import redis.clients.jedis.Jedis;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
 /**
  * Created by Intern04 on 25/8/2014.
  */
-public class TomVideoStreamReceiver {
+public class TomVideoStreamReceiverForWin {
 
     private String host;
     private int port;
     private byte[] queueName;
     private Jedis jedis = null;
-    private boolean isWin = false;
     private String outputString = null;
 
-    public TomVideoStreamReceiver(String host, int port, String queueName, boolean isWin, String outputString) {
+    public TomVideoStreamReceiverForWin(String host, int port, String queueName, String outputString) {
         this.host = host;
         this.port = port;
         this.queueName = queueName.getBytes();
-        this.isWin = isWin;
         this.outputString = outputString;
     }
 
@@ -37,15 +34,11 @@ public class TomVideoStreamReceiver {
 
         String ffmpegCommandString = "ffmpeg.exe";
         String pipeString = "pipe:0";
-        if (isWin == false){
-            ffmpegCommandString = "ffmpeg";
-            pipeString = "-";
-        }
 
-/*
+///*
         ProcessBuilder pb = new ProcessBuilder(
-                ffmpegCommandString,
-                "-f", "image2pipe", "-codec", "mjpeg", "-i", pipeString, "-r", "25", "-threads", "0", "\"" + outputString +"\"");
+                "ffmpeg.txt",
+                "-f", "image2pipe", "-codec", "mjpeg", "-i", "pipe:0", "-r", "25", "-threads", "0", "\"" + outputString +"\"");
 
         pb.redirectErrorStream(true);
         pb.redirectInput(ProcessBuilder.Redirect.PIPE);
@@ -71,10 +64,10 @@ public class TomVideoStreamReceiver {
                 }
             }
         }.start();
-*/
+//*/
         Jedis jedis = getConnectedJedis();
         byte[] baData = null;
-        //OutputStream ffmpegInput = p.getOutputStream();
+        OutputStream ffmpegInput = p.getOutputStream();
         int x = 0;
         long ts = System.currentTimeMillis();
         while (true) {
@@ -84,10 +77,10 @@ public class TomVideoStreamReceiver {
 
                 if (baData != null) {
                     BufferedImage bufferedImageRead = ImageIO.read(new ByteArrayInputStream(baData));
-                    //ImageIO.write(bufferedImageRead, "JPEG", ffmpegInput);
-                    ImageIO.write(bufferedImageRead, "JPEG", System.out);
+                    ImageIO.write(bufferedImageRead, "JPEG", ffmpegInput);
+                    //ImageIO.write(bufferedImageRead, "JPEG", System.out);
                     x++;
-                    //System.out.println(x);
+                    System.out.println(x);
                 }
             } catch (Exception e) {
                 System.out.println(e.getStackTrace());
@@ -97,22 +90,13 @@ public class TomVideoStreamReceiver {
     }
 
     public static void main(String args[]) {
-        if (args.length < 5) {
-            System.out.println("usage: TomVideoStreamSender <win or lin> <Redis host> <Redis port> <Redis Queue> <output>");
+        if (args.length < 4) {
+            System.out.println("usage: TomVideoStreamSenderForWin <Redis host> <Redis port> <Redis Queue> <output>");
             return;
         }
-        boolean isWin = false;
 
-        if (args[0].equalsIgnoreCase("win")) {
-            isWin = true;
-        } else if (args[0].equalsIgnoreCase("lin")){
-            isWin = false;
-        } else {
-            System.out.println("first argument must be win or lin!");
-            return;
-        }
-        //TomVideoStreamReceiver tvsr = new TomVideoStreamReceiver("192.168.0.30", 6379, "tomQ");
-        TomVideoStreamReceiver tvsr = new TomVideoStreamReceiver(args[1], Integer.parseInt(args[2]), args[3], isWin, args[4]);
+        //TomVideoStreamReceiverForLinux tvsr = new TomVideoStreamReceiverForLinux("192.168.0.30", 6379, "tomQ");
+        TomVideoStreamReceiverForWin tvsr = new TomVideoStreamReceiverForWin(args[1], Integer.parseInt(args[2]), args[3], args[4]);
 
         try {
             tvsr.VideoStreamReceiver();
