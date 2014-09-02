@@ -56,6 +56,7 @@ public class VLDTopology {
                 .setNumTasks(getInt(conf, "FrameAggregatorBolt.tasks"));
 
         StormTopology topology = builder.createTopology();
+
         /*
         LocalCluster cluster = new LocalCluster();
         cluster.submitTopology("first", conf, topology);
