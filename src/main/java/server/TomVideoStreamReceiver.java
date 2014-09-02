@@ -41,10 +41,9 @@ public class TomVideoStreamReceiver {
             pipeString = "-";
         }
 
-
         ProcessBuilder pb = new ProcessBuilder(
                 ffmpegCommandString,
-                "-f", "image2pipe", "-codec", "mjpeg", "-i", pipeString, "-r", "25", "\"" + outputString +"\"");
+                "-f", "image2pipe", "-codec", "mjpeg", "-i", pipeString, "-r", "25", "-threads", "0", "\"" + outputString +"\"");
 
         pb.redirectErrorStream(true);
         pb.redirectInput(ProcessBuilder.Redirect.PIPE);
