@@ -46,7 +46,7 @@ public class TomVideoStreamReceiver {
                 "-f", "image2pipe", "-codec", "mjpeg", "-i", "pipe:0", "-r", "25", "\"" + outputString +"\"");
 
         pb.redirectErrorStream(true);
-        //pb.redirectInput(ProcessBuilder.Redirect.PIPE);
+        pb.redirectInput(ProcessBuilder.Redirect.PIPE);
         Process p = pb.start();
 
         new Thread("Webcam Process ErrorStream Consumer") {
@@ -56,6 +56,7 @@ public class TomVideoStreamReceiver {
                     byte[] buf = new byte[1024];
                     while (!isInterrupted()) {
                         i.read(buf);
+                        System.out.println(i.toString());
                     }
                 } catch (IOException e) {
                 }
