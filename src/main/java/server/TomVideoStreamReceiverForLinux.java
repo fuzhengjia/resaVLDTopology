@@ -92,16 +92,6 @@ public class TomVideoStreamReceiverForLinux {
             System.out.println("usage: TomVideoStreamReceiverForLinux <Redis host> <Redis port> <Redis Queue>");
             return;
         }
-        boolean isWin = false;
-
-        if (args[0].equalsIgnoreCase("win")) {
-            isWin = true;
-        } else if (args[0].equalsIgnoreCase("lin")){
-            isWin = false;
-        } else {
-            System.out.println("first argument must be win or lin!");
-            return;
-        }
         //TomVideoStreamReceiverForLinux tvsr = new TomVideoStreamReceiverForLinux("192.168.0.30", 6379, "tomQ");
         TomVideoStreamReceiverForLinux tvsr = new TomVideoStreamReceiverForLinux(args[0], Integer.parseInt(args[1]), args[2]);
         try {

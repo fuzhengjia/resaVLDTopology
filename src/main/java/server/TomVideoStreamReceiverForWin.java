@@ -37,8 +37,8 @@ public class TomVideoStreamReceiverForWin {
 
 ///*
         ProcessBuilder pb = new ProcessBuilder(
-                "ffmpeg.txt",
-                "-f", "image2pipe", "-codec", "mjpeg", "-i", "pipe:0", "-r", "25", "-threads", "0", "\"" + outputString +"\"");
+                "ffmpeg.exe",
+                "-f", "image2pipe", "-codec", "mjpeg", "-i", "pipe:0", "-r", "25", "\"" + outputString +"\"");
 
         pb.redirectErrorStream(true);
         pb.redirectInput(ProcessBuilder.Redirect.PIPE);
@@ -96,7 +96,7 @@ public class TomVideoStreamReceiverForWin {
         }
 
         //TomVideoStreamReceiverForLinux tvsr = new TomVideoStreamReceiverForLinux("192.168.0.30", 6379, "tomQ");
-        TomVideoStreamReceiverForWin tvsr = new TomVideoStreamReceiverForWin(args[1], Integer.parseInt(args[2]), args[3], args[4]);
+        TomVideoStreamReceiverForWin tvsr = new TomVideoStreamReceiverForWin(args[0], Integer.parseInt(args[1]), args[2], args[3]);
 
         try {
             tvsr.VideoStreamReceiver();
