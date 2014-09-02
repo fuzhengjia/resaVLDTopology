@@ -5,10 +5,7 @@ import redis.clients.jedis.Jedis;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 /**
  * Created by Intern04 on 25/8/2014.
@@ -51,12 +48,19 @@ public class TomVideoStreamReceiver {
 
         new Thread("Webcam Process ErrorStream Consumer") {
             public void run() {
-                InputStream i = p.getInputStream();
+                //InputStream i = p.getInputStream();
+                //BufferedInputStream bis = new BufferedInputStream(p.getInputStream());
+                BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()), 4096);
+                String rdLine = null;
+
                 try {
-                    byte[] buf = new byte[1024];
+                    //char[] buf = new char[4096];
                     while (!isInterrupted()) {
-                        i.read(buf);
-                        System.out.println(i.toString());
+                        //i.read(buf);
+                        rdLine = br.readLine();
+                        if (rdLine != null) {
+                            System.out.println(rdLine);
+                        }
                     }
                 } catch (IOException e) {
                 }
