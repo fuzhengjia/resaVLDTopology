@@ -4,6 +4,7 @@ import org.bytedeco.javacv.FrameGrabber;
 import redis.clients.jedis.Jedis;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
@@ -40,7 +41,7 @@ public class TomVideoStreamReceiver {
             ffmpegCommandString = "ffmpeg";
             pipeString = "-";
         }
-
+/*
         ProcessBuilder pb = new ProcessBuilder(
                 ffmpegCommandString,
                 "-f", "image2pipe", "-codec", "mjpeg", "-i", pipeString, "-r", "25", "-threads", "0", "\"" + outputString +"\"");
@@ -69,10 +70,10 @@ public class TomVideoStreamReceiver {
                 }
             }
         }.start();
-
+*/
         Jedis jedis = getConnectedJedis();
         byte[] baData = null;
-        OutputStream ffmpegInput = p.getOutputStream();
+        //OutputStream ffmpegInput = p.getOutputStream();
         int x = 0;
         long ts = System.currentTimeMillis();
         while (true) {
@@ -82,9 +83,10 @@ public class TomVideoStreamReceiver {
 
                 if (baData != null) {
                     BufferedImage bufferedImageRead = ImageIO.read(new ByteArrayInputStream(baData));
-                    ImageIO.write(bufferedImageRead, "JPEG", ffmpegInput);
+                    //ImageIO.write(bufferedImageRead, "JPEG", ffmpegInput);
+                    ImageIO.write(bufferedImageRead, "JPEG", System.out);
                     x++;
-                    System.out.println(x);
+                    //System.out.println(x);
                 }
             } catch (Exception e) {
                 System.out.println(e.getStackTrace());
