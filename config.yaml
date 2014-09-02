@@ -1,6 +1,9 @@
 ########### Additional settings
 
-
+#Redis Settings
+redis.host: 192.168.0.30
+redis.port: 6379
+redis.queueName: tomQ
 
 # Do output debug in the detection algorithms?
 logoDetectionDebugOutput: false
@@ -17,11 +20,11 @@ videoSourceFile: '/home/storm/logo-dect/video/1.mp4'
 
 # First frame from which the detection should start (inclusive).
 # Video starts with 0th frame
-firstFrameId: 34000
+firstFrameId: 34500
 
 # Last frame where detection should end (exclusive).
 # Frames in range [firstFrameId, lastFrameId-1] will be processed
-lastFrameId: 36000
+lastFrameId: 37000
 
 # Filename to save the output file to
 videoDestinationFile: '/home/storm/logo-dect/video/2.mp4'
