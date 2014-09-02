@@ -1,0 +1,57 @@
+########### Additional settings
+
+
+
+# Do output debug in the detection algorithms?
+logoDetectionDebugOutput: false
+
+# Do output debug in the topology?
+topologyDebugOutput: true
+
+# List of file names from which to parse original logo templates
+originalTemplateFileNames:
+  - '/home/storm/logo-dect/logo/mc2.jpg'
+
+# Video file to read the video from
+videoSourceFile: '/home/storm/logo-dect/video/1.mp4'
+
+# First frame from which the detection should start (inclusive).
+# Video starts with 0th frame
+firstFrameId: 34000
+
+# Last frame where detection should end (exclusive).
+# Frames in range [firstFrameId, lastFrameId-1] will be processed
+lastFrameId: 36000
+
+# Filename to save the output file to
+videoDestinationFile: '/home/storm/logo-dect/video/2.mp4'
+
+# Amount of parallelism for FrameRetrieverSpout. Should be always 1, since it reads input file.
+FrameRetrieverSpout.parallelism: 1
+
+# Amount of parallelism for PatchProcessorBolt
+PatchProcessorBolt.parallelism: 26
+
+# Amount of parallelism for PatchAggregatorBolt
+PatchAggregatorBolt.parallelism: 4
+
+# Amount of parallelism for FrameAggregatorBolt. Should be always 1.
+FrameAggregatorBolt.parallelism: 1
+
+#
+FrameRetrieverSpout.tasks: 1
+
+#
+PatchProcessorBolt.tasks: 26
+
+#
+PatchAggregatorBolt.tasks: 4
+
+#
+FrameAggregatorBolt.tasks: 1
+
+# Number of workers in the topology
+numberOfWorkers: 8
+
+# Delay between input frames in milliseconds
+inputFrameDelay: 100
