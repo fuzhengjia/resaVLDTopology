@@ -35,12 +35,16 @@ public class TomVideoStreamReceiver {
         //        "-f", "image2pipe", "-codec", "mjpeg", "-i", "pipe:0", "-r", "25", "-f", "mpegts", "\"udp://localhost:7777\"");
 
         String ffmpegCommandString = "ffmpeg.exe";
+        String pipeString = "pipe:0";
         if (isWin == false){
             ffmpegCommandString = "ffmpeg";
+            pipeString = "-";
         }
+
+
         ProcessBuilder pb = new ProcessBuilder(
                 ffmpegCommandString,
-                "-f", "image2pipe", "-codec", "mjpeg", "-i", "pipe:0", "-r", "25", "\"" + outputString +"\"");
+                "-f", "image2pipe", "-codec", "mjpeg", "-i", pipeString, "-r", "25", "\"" + outputString +"\"");
 
         pb.redirectErrorStream(true);
         pb.redirectInput(ProcessBuilder.Redirect.PIPE);
