@@ -57,7 +57,7 @@ FrameAggregatorBolt.tasks: 1
 numberOfWorkers: 8
 
 # Delay between input frames in milliseconds
-inputFrameDelay: 100
+inputFrameDelay: 40
 
 # running command
 # storm jar target/resa-vld-1.0-SNAPSHOT-jar-with-dependencies.jar topology.ResaVLDTopology config.yaml
