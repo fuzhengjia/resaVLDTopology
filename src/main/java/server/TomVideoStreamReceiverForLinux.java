@@ -25,42 +25,11 @@ public class TomVideoStreamReceiverForLinux {
 
     public void VideoStreamReceiver() throws IOException, FrameGrabber.Exception, InterruptedException {
 
-        // ffmpeg -f image2pipe -codec mjpeg -i pipe:0 -f mpegts "udp://localhost:7777"
-        //ProcessBuilder pb = new ProcessBuilder(
-        //        "C:\\Users\\Tom.fu\\Downloads\\ffmpeg-20140824-git-1aa153d-win64-static\\bin\\ffmpeg.exe",
-        //        "-f", "image2pipe", "-codec", "mjpeg", "-i", "pipe:0", "-r", "25", "-f", "mpegts", "\"udp://localhost:7777\"");
+        // Caution for the command line usage!!! pipeline
+        //
+        // storm jar target/resa-vld-1.0-SNAPSHOT-jar-with-dependencies.jar server.TomVideoStreamReceiverForLinux 192.168.0.30 6379 tomQ
+        // | ffmpeg -f image2pipe -codec mjpeg -i pipe:0 -r 25 http://192.168.0.30:8090/feed2.ffm
 
-
-/*
-        ProcessBuilder pb = new ProcessBuilder(
-                ffmpegCommandString,
-                "-f", "image2pipe", "-codec", "mjpeg", "-i", pipeString, "-r", "25", "-threads", "0", "\"" + outputString +"\"");
-
-        pb.redirectErrorStream(true);
-        pb.redirectInput(ProcessBuilder.Redirect.PIPE);
-        Process p = pb.start();
-
-        new Thread("Webcam Process ErrorStream Consumer") {
-            public void run() {
-                //InputStream i = p.getInputStream();
-                //BufferedInputStream bis = new BufferedInputStream(p.getInputStream());
-                BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()), 4096);
-                String rdLine = null;
-
-                try {
-                    //char[] buf = new char[4096];
-                    while (!isInterrupted()) {
-                        //i.read(buf);
-                        rdLine = br.readLine();
-                        if (rdLine != null) {
-                            System.out.println(rdLine);
-                        }
-                    }
-                } catch (IOException e) {
-                }
-            }
-        }.start();
-*/
         Jedis jedis = getConnectedJedis();
         byte[] baData = null;
         //OutputStream ffmpegInput = p.getOutputStream();
