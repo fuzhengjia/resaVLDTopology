@@ -61,3 +61,7 @@ inputFrameDelay: 100
 
 # sample rate on frames to be processed
 frameSampleRateN: 5
+
+#running command
+#storm jar target/resa-vld-1.0-SNAPSHOT-jar-with-dependencies.jar topology.ResaVLDTopology config.yaml
+#
