@@ -76,6 +76,7 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
                 if (Debug.topologyDebugOutput)
                     System.out.println("Frame " + frameId + " received " + (list == null ? 0 : list.size()) + " logos were found");
 
+                //TODO: change here for adding detection rectangle
                 if (list != null) {
                     for (Serializable.Rect rect : list) {
                         Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
@@ -84,6 +85,7 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
                 if (Debug.topologyDebugOutput)
                     System.out.println("Frame " + frameId + " submitted to producer");
                 producer.addFrame(new StreamFrame(frameId, mat, list));
+                System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
                 frameMap.remove(frameId);
             } else {
                 processedFrames.put(frameId, list);
@@ -108,6 +110,7 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
                         }
                     }
                     producer.addFrame(new StreamFrame(frameId, mat, list));
+                    System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
                     processedFrames.remove(frameId);
                     frameMap.remove(frameId);
                 } else {

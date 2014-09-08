@@ -47,7 +47,6 @@ public class RedisStreamProducer implements Runnable {
         synchronized (stream) {
             stream.add(streamFrame);
         }
-        System.out.println("addto: " + System.currentTimeMillis() + streamFrame.frameId);
     }
 
     /**
@@ -73,6 +72,7 @@ public class RedisStreamProducer implements Runnable {
                 StreamFrame nextFrame = null;
                 if ( (nextFrame = getNextFrame()) != null ) {
                     long start = System.currentTimeMillis();
+                    //TODO: caution, the average processing time for each frame is about 20ms, which could be a bottleneck at certain cases.
                     //opencv_core.IplImage iplImage = nextFrame.image.asIplImage();
                     //BufferedImage bufferedImage = iplImage.getBufferedImage();
                     //ByteArrayOutputStream baos = new ByteArrayOutputStream();
