@@ -52,14 +52,6 @@ public class ResaVLDTopology {
 
         StormTopology topology = builder.createTopology();
 
-        /*
-        LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology("first", conf, topology);
-        Thread.sleep(4*60*1000);
-        cluster.killTopology("first");
-        cluster.shutdown();
-        */
-
         conf.setNumWorkers(getInt(conf, "numberOfWorkers"));
         StormSubmitter.submitTopology("first", conf, topology);
 

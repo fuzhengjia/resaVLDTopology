@@ -33,10 +33,8 @@ public class FrameRetrieverSpout extends BaseRichSpout {
     private long lastFrameTime;
     private int delayInMS;
 
-    int firstFrameId ;
-    int lastFrameId ;
-
-    int frameSampleRateN;
+    int firstFrameId;
+    int lastFrameId;
 
     @Override
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
@@ -49,9 +47,7 @@ public class FrameRetrieverSpout extends BaseRichSpout {
         opencv_features2d.KeyPoint kp = new opencv_features2d.KeyPoint();
         System.out.println("Created capture: " + SOURCE_FILE);
 
-        frameSampleRateN = Math.max(getInt(map, "frameSampleRateN"), 1);
-
-        delayInMS =  getInt(map, "inputFrameDelay");
+        delayInMS = getInt(map, "inputFrameDelay");
 
         this.collector = spoutOutputCollector;
         try {
@@ -76,13 +72,14 @@ public class FrameRetrieverSpout extends BaseRichSpout {
 
     opencv_core.IplImage image;
     opencv_core.Mat mat;
+
     @Override
     public void nextTuple() {
         long now = System.currentTimeMillis();
-        if (now - lastFrameTime < delayInMS){
+        if (now - lastFrameTime < delayInMS) {
             return;
-        }else {
-            lastFrameTime=now;
+        } else {
+            lastFrameTime = now;
         }
 
 
@@ -106,16 +103,14 @@ public class FrameRetrieverSpout extends BaseRichSpout {
                         patchCount++;
 
                 collector.emit(RAW_FRAME_STREAM, new Values(frameId, sMat, patchCount), frameId);
-                if (frameId % frameSampleRateN == 0) {
-                    for (int x = 0; x + w <= W; x += dx) {
-                        for (int y = 0; y + h <= H; y += dy) {
-                            Serializable.PatchIdentifier identifier = new
-                                    Serializable.PatchIdentifier(frameId, new Serializable.Rect(x, y, w, h));
-                            collector.emit(PATCH_STREAM, new Values(identifier, patchCount), identifier.toString());
-                        }
+                for (int x = 0; x + w <= W; x += dx) {
+                    for (int y = 0; y + h <= H; y += dy) {
+                        Serializable.PatchIdentifier identifier = new
+                                Serializable.PatchIdentifier(frameId, new Serializable.Rect(x, y, w, h));
+                        collector.emit(PATCH_STREAM, new Values(identifier, patchCount), identifier.toString());
                     }
                 }
-                frameId ++;
+                frameId++;
             } catch (FrameGrabber.Exception e) {
                 e.printStackTrace();
             }
@@ -128,7 +123,5 @@ public class FrameRetrieverSpout extends BaseRichSpout {
         outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, new Fields("frameId", "frameMat", "patchCount"));
     }
 
-
-    
 
 }
