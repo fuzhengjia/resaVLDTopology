@@ -82,7 +82,7 @@ public class RedisStreamProducer implements Runnable {
                 } else {
                     // if expected frame is not there yet, wait and try again.
                     Thread.sleep(10);
-                    System.out.println("STEmpty: " + System.currentTimeMillis() + ","  + ++count);
+                    System.out.println("STEmpty: " + System.currentTimeMillis() + count);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
