@@ -82,7 +82,6 @@ public class FrameRetrieverSpout extends BaseRichSpout {
             lastFrameTime = now;
         }
 
-
         if (frameId < lastFrameId) {
             try {
                 image = grabber.grab();
@@ -111,6 +110,7 @@ public class FrameRetrieverSpout extends BaseRichSpout {
                     }
                 }
                 frameId++;
+                System.out.printf("Sendout: " + System.currentTimeMillis() + "," + frameId);
             } catch (FrameGrabber.Exception e) {
                 e.printStackTrace();
             }

@@ -72,10 +72,10 @@ public class RedisStreamProducer implements Runnable {
                 StreamFrame nextFrame = null;
                 if ( (nextFrame = getNextFrame()) != null ) {
                     long start = System.currentTimeMillis();
-                    opencv_core.IplImage iplImage = nextFrame.image.asIplImage();
-                    BufferedImage bufferedImage = iplImage.getBufferedImage();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    ImageIO.write(bufferedImage, "JPEG", baos);
+                    //opencv_core.IplImage iplImage = nextFrame.image.asIplImage();
+                    //BufferedImage bufferedImage = iplImage.getBufferedImage();
+                    //ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    //ImageIO.write(bufferedImage, "JPEG", baos);
                     //jedis.rpush(this.queueName, baos.toByteArray());
                     System.out.println("ST: " + (System.currentTimeMillis() - start) + System.currentTimeMillis() + ","  + ++count);
 
