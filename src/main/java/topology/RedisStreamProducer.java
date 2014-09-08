@@ -77,12 +77,12 @@ public class RedisStreamProducer implements Runnable {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ImageIO.write(bufferedImage, "JPEG", baos);
                     //jedis.rpush(this.queueName, baos.toByteArray());
-                    System.out.println("ST: " + (System.currentTimeMillis() - start) + System.currentTimeMillis() + ","  + count);
+                    System.out.println("ST: " + (System.currentTimeMillis() - start) + System.currentTimeMillis() + ","  + ++count);
 
                 } else {
                     // if expected frame is not there yet, wait and try again.
                     Thread.sleep(10);
-                    System.out.println("STEmpty: " + System.currentTimeMillis() + ","  + count);
+                    System.out.println("STEmpty: " + System.currentTimeMillis() + ","  + ++count);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
