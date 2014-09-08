@@ -34,6 +34,7 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
     private String host;
     private int port;
     private String queueName;
+    private long count;
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -51,6 +52,7 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
         this.collector = outputCollector;
         producer = new RedisStreamProducer(host, port, queueName);
         new Thread(producer).start();
+        count = 0;
 
     }
 
@@ -115,6 +117,7 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
             }
         }
 
+        System.out.println("finished: " + System.currentTimeMillis() + ":" + ++count);
         collector.ack(tuple);
     }
 }
