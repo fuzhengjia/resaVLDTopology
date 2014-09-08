@@ -58,3 +58,6 @@ numberOfWorkers: 8
 
 # Delay between input frames in milliseconds
 inputFrameDelay: 100
+
+# sample rate on frames to be processed
+frameSampleRateN: 5

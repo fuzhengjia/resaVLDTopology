@@ -36,6 +36,8 @@ public class FrameRetrieverSpout extends BaseRichSpout {
     int firstFrameId ;
     int lastFrameId ;
 
+    int frameSampleRateN;
+
     @Override
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
 
@@ -46,6 +48,8 @@ public class FrameRetrieverSpout extends BaseRichSpout {
         grabber = new FFmpegFrameGrabber(SOURCE_FILE);
         opencv_features2d.KeyPoint kp = new opencv_features2d.KeyPoint();
         System.out.println("Created capture: " + SOURCE_FILE);
+
+        frameSampleRateN = Math.max(getInt(map, "frameSampleRateN"), 1);
 
         delayInMS =  getInt(map, "inputFrameDelay");
 
@@ -102,22 +106,20 @@ public class FrameRetrieverSpout extends BaseRichSpout {
                         patchCount++;
 
                 collector.emit(RAW_FRAME_STREAM, new Values(frameId, sMat, patchCount), frameId);
-                for (int x = 0; x + w <= W; x += dx) {
-                    for (int y = 0; y + h <= H; y += dy) {
-                        Serializable.PatchIdentifier identifier = new
-                                Serializable.PatchIdentifier(frameId, new Serializable.Rect(x, y, w, h));
-                        collector.emit(PATCH_STREAM, new Values(identifier, patchCount), identifier.toString());
+                if (frameId % frameSampleRateN == 0) {
+                    for (int x = 0; x + w <= W; x += dx) {
+                        for (int y = 0; y + h <= H; y += dy) {
+                            Serializable.PatchIdentifier identifier = new
+                                    Serializable.PatchIdentifier(frameId, new Serializable.Rect(x, y, w, h));
+                            collector.emit(PATCH_STREAM, new Values(identifier, patchCount), identifier.toString());
+                        }
                     }
                 }
                 frameId ++;
             } catch (FrameGrabber.Exception e) {
                 e.printStackTrace();
             }
-
-
         }
-
-
     }
 
     @Override

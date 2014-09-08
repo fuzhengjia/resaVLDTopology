@@ -19,7 +19,7 @@ public class RedisStreamProducer implements Runnable {
     private PriorityQueue<StreamFrame> stream;
 
     /** Currently expected frame */
-    private int nextExpectedFrame;
+    //private int nextExpectedFrame;
 
     /** Has the last expected frame come? */
     private boolean finished;
@@ -32,7 +32,7 @@ public class RedisStreamProducer implements Runnable {
     private Jedis jedis;
 
     /** Creates a producer expecting frames in range [firstFrameId, lastFrameId) */
-    public RedisStreamProducer(String host, int port, String queueName, int firstFrameID)  {
+    public RedisStreamProducer(String host, int port, String queueName)  {
 
         stream = new PriorityQueue<>();
         this.host = host;
@@ -40,7 +40,6 @@ public class RedisStreamProducer implements Runnable {
         this.queueName = queueName.getBytes();
         finished = false;
         jedis = new Jedis(host, port);
-        this.nextExpectedFrame = firstFrameID + 1;
     }
 
     /** Add frame to the queue if it is fully processed */
@@ -79,7 +78,7 @@ public class RedisStreamProducer implements Runnable {
 
                 } else {
                     // if expected frame is not there yet, wait and try again.
-                    Thread.sleep(40);
+                    Thread.sleep(10);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

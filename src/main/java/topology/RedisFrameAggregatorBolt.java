@@ -43,14 +43,13 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 
-        int firstFrameId = getInt(map, "firstFrameId");
         host = getString(map, "redis.host");
         port = getInt(map, "redis.port");
         queueName = getString(map, "redis.queueName");
         processedFrames = new HashMap<>();
         frameMap = new HashMap<>();
         this.collector = outputCollector;
-        producer = new RedisStreamProducer(host, port, queueName, firstFrameId);
+        producer = new RedisStreamProducer(host, port, queueName);
         new Thread(producer).start();
 
     }

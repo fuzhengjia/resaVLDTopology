@@ -12,6 +12,7 @@ import logodetection.Parameters;
 import logodetection.StormVideoLogoDetector;
 
 import java.util.*;
+import java.util.function.BooleanSupplier;
 
 import static topology.Constants.*;
 import static topology.StormConfigManager.getListOfStrings;
@@ -25,7 +26,10 @@ public class PatchProcessorBolt extends BaseRichBolt {
     /** Instance of detector */
     private StormVideoLogoDetector detector;
     /** This counts from which patches the update has been already received */
-    private HashSet<Serializable.PatchIdentifier> receivedUpdatesFrom;
+    //private HashSet<Serializable.PatchIdentifier> receivedUpdatesFrom;
+    //Modified by Tom on Sep 8, 2014
+    private Map<Serializable.PatchIdentifier, Boolean> receivedUpdatesFrom;
+    private static int MaxSizeOfReceivedUpdatesFrom = 4096;
     /** The receipt */
     private HashMap<Integer, Serializable.Mat> frameMap;
 
@@ -46,7 +50,15 @@ public class PatchProcessorBolt extends BaseRichBolt {
 
         List<String> templateFiles = getListOfStrings(map, "originalTemplateFileNames");
         detector = new StormVideoLogoDetector(parameters, templateFiles);
-        receivedUpdatesFrom = new HashSet<>();
+        //receivedUpdatesFrom = new HashSet<>();
+        //Modified by Tom on Sep 8, 2014
+        receivedUpdatesFrom = new LinkedHashMap<Serializable.PatchIdentifier, Boolean>(){
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<Serializable.PatchIdentifier, Boolean> eldest) {
+                return size() > MaxSizeOfReceivedUpdatesFrom;
+            }
+        };
+
         frameMap = new HashMap<>();
         patchQueue = new HashMap<>();
         templateQueue = new HashMap<>();
@@ -141,8 +153,10 @@ public class PatchProcessorBolt extends BaseRichBolt {
     private void processNewTemplate(Tuple tuple) {
         Serializable.PatchIdentifier receivedPatchIdentifier = (Serializable.PatchIdentifier)tuple.getValueByField("hostPatchIdentifier");
         // TODO: This container could become very large, need to clear it after some time
-        if ( !receivedUpdatesFrom.contains(receivedPatchIdentifier) ) {
-            receivedUpdatesFrom.add(receivedPatchIdentifier);
+        // Modified by Tom, use LinkedHashMap for receivedUpdatesFrom, it will automatically remove the oldest
+        // element when its size beyond some threshold.
+        if ( !receivedUpdatesFrom.containsKey(receivedPatchIdentifier) ) {
+            receivedUpdatesFrom.put(receivedPatchIdentifier, Boolean.TRUE);
             Serializable.Rect roi = (Serializable.Rect) tuple.getValueByField("detectedLogoRect");
             Serializable.PatchIdentifier parent = (Serializable.PatchIdentifier) tuple.getValueByField("parentIdentifier");
             int frameId = receivedPatchIdentifier.frameId;
@@ -157,8 +171,6 @@ public class PatchProcessorBolt extends BaseRichBolt {
                     templateQueue.put(frameId, new LinkedList<>());
                 templateQueue.get(frameId).add(new LogoTemplateUpdate(receivedPatchIdentifier, roi, parent));
             }
-
-
 
         } else {
             if (Debug.topologyDebugOutput)

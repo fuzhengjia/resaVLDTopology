@@ -19,7 +19,7 @@ import java.net.UnknownHostException;
  * Created by Intern04 on 25/8/2014.
  */
 public class VideoStream {
-    final static String fileName = "C:/Git-repos/VLDTopology/1.mp4";
+    final static String fileName = "C:/Git-repos/ResaVLDTopology/1.mp4";
 
     FFmpegFrameGrabber grabber;
     int frameNumber;
