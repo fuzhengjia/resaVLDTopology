@@ -90,8 +90,12 @@ public class FrameRetrieverSpout extends BaseRichSpout {
                 Serializable.Mat sMat = new Serializable.Mat(mat);
 
                 //TODO get params from config map
-                double fx = .25, fy = .25;
+                //double fx = .25, fy = .25;
+                //double fsx = .5, fsy = .5;
+
+                double fx = .5, fy = .5;
                 double fsx = .5, fsy = .5;
+
 
                 int W = sMat.getCols(), H = sMat.getRows();
                 int w = (int) (W * fx + .5), h = (int) (H * fy + .5);
