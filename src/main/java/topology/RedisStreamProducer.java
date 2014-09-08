@@ -47,6 +47,7 @@ public class RedisStreamProducer implements Runnable {
         synchronized (stream) {
             stream.add(streamFrame);
         }
+        System.out.println("addto: " + System.currentTimeMillis() + streamFrame.frameId);
     }
 
     /**
@@ -77,7 +78,8 @@ public class RedisStreamProducer implements Runnable {
                     //ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     //ImageIO.write(bufferedImage, "JPEG", baos);
                     //jedis.rpush(this.queueName, baos.toByteArray());
-                    System.out.println("ST: " + (System.currentTimeMillis() - start) + System.currentTimeMillis() + ","  + ++count);
+                    System.out.println("ST: " + (System.currentTimeMillis() - start)
+                            + System.currentTimeMillis() + ","  + ++count + ",Fid: " + nextFrame.frameId);
 
                 } else {
                     // if expected frame is not there yet, wait and try again.

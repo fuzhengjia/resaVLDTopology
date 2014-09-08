@@ -61,9 +61,8 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
         String streamId = tuple.getSourceStreamId();
+        int frameId = tuple.getIntegerByField("frameId");
         if (streamId.equals(PROCESSED_FRAME_STREAM)) {
-            int frameId = tuple.getIntegerByField("frameId");
-
             //if (frameId == firstFrameId)
             //    System.out.println("FIRST_FRAME=" + System.currentTimeMillis());
             //else if (frameId == lastFrameId - 1)
@@ -91,7 +90,7 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
             }
 
         } else if (streamId.equals(RAW_FRAME_STREAM)) {
-            int frameId = tuple.getIntegerByField("frameId");
+            //int frameId = tuple.getIntegerByField("frameId");
             if (frameMap.containsKey(frameId)) {
                 if (Debug.topologyDebugOutput)
                     System.err.println("FrameAggregator: Received duplicate message");
@@ -117,7 +116,7 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
             }
         }
 
-        System.out.println("finished: " + System.currentTimeMillis() + ":" + ++count);
+        System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId);
         collector.ack(tuple);
     }
 }
