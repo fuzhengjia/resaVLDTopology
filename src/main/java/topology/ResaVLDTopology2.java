@@ -44,7 +44,7 @@ public class ResaVLDTopology2 {
                 .fieldsGrouping("processor", DETECTED_LOGO_STREAM, new Fields("frameId"))
                 .setNumTasks(getInt(conf, "PatchAggregatorBolt.tasks"));
 
-        builder.setBolt("aggregator", new RedisFrameAggregatorBolt2(), getInt(conf, "FrameAggregatorBolt.parallelism"))
+        builder.setBolt("aggregator2", new RedisFrameAggregatorBolt2(), getInt(conf, "FrameAggregatorBolt.parallelism"))
                 .globalGrouping("intermediate", PROCESSED_FRAME_STREAM)
                 .globalGrouping("retriever", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "FrameAggregatorBolt.tasks"));
