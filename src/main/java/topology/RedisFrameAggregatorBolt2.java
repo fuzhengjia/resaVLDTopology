@@ -90,11 +90,11 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
                 }
             }
             producer.addFrame(new StreamFrame(frameId, mat));
-            //System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
+            System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
             processedFrames.remove(frameId);
             frameMap.remove(frameId);
         }
-        //System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId);
+        System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId);
         collector.ack(tuple);
     }
 }
