@@ -1,12 +1,14 @@
 package topology;
 
 import backtype.storm.Config;
+import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
+
 
 import java.io.FileNotFoundException;
 
@@ -22,11 +24,12 @@ public class VLDTopology {
 
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
-        if (args.length != 1) {
-            System.out.println("Enter path to config file!");
-            System.exit(0);
-        }
-        Config conf = readConfig(args[0]);
+        //if (args.length != 1) {
+        //    System.out.println("Enter path to config file!");
+        //    System.exit(0);
+        //}
+        //Config conf = readConfig(args[0]);
+        Config conf = readConfig("C:\\Users\\Tom.fu\\Desktop\\logo\\config.yaml");
 
         TopologyBuilder builder = new TopologyBuilder();
 
@@ -50,16 +53,17 @@ public class VLDTopology {
                 .setNumTasks(getInt(conf, "FrameAggregatorBolt.tasks"));
 
         StormTopology topology = builder.createTopology();
-        /*
+
+        ///*
         LocalCluster cluster = new LocalCluster();
         cluster.submitTopology("first", conf, topology);
         Thread.sleep(4*60*1000);
         cluster.killTopology("first");
         cluster.shutdown();
-        */
+        //*/
 
-        conf.setNumWorkers(getInt(conf, "numberOfWorkers"));
-        StormSubmitter.submitTopology("first", conf, topology);
+        //conf.setNumWorkers(getInt(conf, "numberOfWorkers"));
+        //StormSubmitter.submitTopology("first", conf, topology);
 
     }
 }

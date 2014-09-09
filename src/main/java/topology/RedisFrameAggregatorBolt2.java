@@ -34,10 +34,7 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
     private String host;
     private int port;
     private String queueName;
-    private long count;
     private int persistFrames;
-    private int lastChangedFrame;
-    private boolean firstChange;
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -55,10 +52,7 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
         this.collector = outputCollector;
         producer = new RedisStreamProducer(host, port, queueName);
         new Thread(producer).start();
-        count = 0;
         persistFrames = Math.max(getInt(map, "persistFrames"), 1);
-        lastChangedFrame = 0;
-        firstChange = true;
         listHistory = null;
     }
 

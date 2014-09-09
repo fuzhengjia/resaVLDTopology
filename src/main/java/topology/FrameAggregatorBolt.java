@@ -33,6 +33,9 @@ public class FrameAggregatorBolt extends BaseRichBolt {
     private HashMap<Integer, List<Serializable.Rect> > processedFrames;
     private HashMap<Integer, Serializable.Mat> frameMap;
 
+    private int persistFrames;
+    private List<Serializable.Rect> listHistory;
+
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
 
@@ -52,6 +55,9 @@ public class FrameAggregatorBolt extends BaseRichBolt {
         } catch (FrameRecorder.Exception e) {
             e.printStackTrace();
         }
+
+        persistFrames = Math.max(getInt(map, "persistFrames"), 1);
+        listHistory = null;
     }
 
     // Fields("frameId", "frameMat", "patchCount")
@@ -59,65 +65,48 @@ public class FrameAggregatorBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
         String streamId = tuple.getSourceStreamId();
+        int frameId = tuple.getIntegerByField("frameId");
+
         if (streamId.equals(PROCESSED_FRAME_STREAM)) {
-            int frameId = tuple.getIntegerByField("frameId");
-
-            if (frameId == firstFrameId)
-                System.out.println("FIRST_FRAME=" + System.currentTimeMillis());
-            else if (frameId == lastFrameId - 1)
-                System.out.println("LAST_FRAME=" + System.currentTimeMillis());
-
-            List<Serializable.Rect> list = (List<Serializable.Rect>)tuple.getValueByField("foundRectList");
-            opencv_core.Mat mat = null;
-            if (frameMap.containsKey(frameId)) {
-                mat = frameMap.get(frameId).toJavaCVMat();
-
-                if (Debug.topologyDebugOutput)
-                    System.out.println("Frame " + frameId + " received " + (list == null ? 0 : list.size()) + " logos were found");
-
-                if (list != null) {
-                    for (Serializable.Rect rect : list) {
-                        Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
-                    }
-                }
-                if (Debug.topologyDebugOutput)
-                    System.out.println("Frame " + frameId + " submitted to producer");
-                producer.addFrame(new StreamFrame(frameId, mat));
-                frameMap.remove(frameId);
-            } else {
+            List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField("foundRectList");
+            if (!processedFrames.containsKey(frameId)) {
                 processedFrames.put(frameId, list);
+                //System.out.println("addtoProcessedFrames: " + System.currentTimeMillis() + ":" + frameId);
             }
-
         } else if (streamId.equals(RAW_FRAME_STREAM)) {
-            int frameId = tuple.getIntegerByField("frameId");
-            if (frameMap.containsKey(frameId)) {
+            Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField("frameMat");
+            if (!frameMap.containsKey(frameId)) {
+                frameMap.put(frameId, sMat);
+                //System.out.println("addtoFrameMap: " + System.currentTimeMillis() + ":" + frameId);
+            } else {
                 if (Debug.topologyDebugOutput)
                     System.err.println("FrameAggregator: Received duplicate message");
-            } else {
-                Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField("frameMat");
-                if (processedFrames.containsKey(frameId)) {
-                    opencv_core.Mat mat = sMat.toJavaCVMat();
-
-                    List<Serializable.Rect> list = processedFrames.get(frameId);
-                    if (Debug.topologyDebugOutput)
-                        System.out.println("Frame " + frameId + " received " + (list == null ? 0 : list.size()) + " logos were found");
-                    if (list != null) {
-                        for (Serializable.Rect rect : list) {
-                            Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
-                        }
-                    }
-                    producer.addFrame(new StreamFrame(frameId, mat));
-                    processedFrames.remove(frameId);
-                    frameMap.remove(frameId);
-                } else {
-                    frameMap.put(frameId, sMat);
-                }
             }
-
         }
 
+        if (frameMap.containsKey(frameId) && processedFrames.containsKey(frameId)) {
+            opencv_core.Mat mat = frameMap.get(frameId).toJavaCVMat();
+            List<Serializable.Rect> list = processedFrames.get(frameId);
 
+            if (frameId % persistFrames == 0) {
+                listHistory = list;
+            } else if (listHistory == null) {
+                listHistory = list;
+            } else {
+                list = listHistory;
+            }
 
+            if (list != null) {
+                for (Serializable.Rect rect : list) {
+                    Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
+                }
+            }
+            producer.addFrame(new StreamFrame(frameId, mat));
+            //System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
+            processedFrames.remove(frameId);
+            frameMap.remove(frameId);
+        }
+        //System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId);
         collector.ack(tuple);
     }
 }
