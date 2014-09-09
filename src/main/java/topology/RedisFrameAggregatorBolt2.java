@@ -73,13 +73,13 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
             List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField("foundRectList");
             if (!processedFrames.containsKey(frameId)) {
                 processedFrames.put(frameId, list);
-                System.out.println("addtoProcessedFrames: " + System.currentTimeMillis() + ":" + frameId);
+                //System.out.println("addtoProcessedFrames: " + System.currentTimeMillis() + ":" + frameId);
             }
         } else if (streamId.equals(RAW_FRAME_STREAM)) {
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField("frameMat");
             if (!frameMap.containsKey(frameId)) {
                 frameMap.put(frameId, sMat);
-                System.out.println("addtoFrameMap: " + System.currentTimeMillis() + ":" + frameId);
+                //System.out.println("addtoFrameMap: " + System.currentTimeMillis() + ":" + frameId);
             } else {
                 if (Debug.topologyDebugOutput)
                     System.err.println("FrameAggregator: Received duplicate message");
@@ -89,6 +89,21 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
         if (frameMap.containsKey(frameId) && processedFrames.containsKey(frameId)){
             opencv_core.Mat mat = frameMap.get(frameId).toJavaCVMat();
             List<Serializable.Rect> list = processedFrames.get(frameId);
+
+            if (firstChange){
+                listHistory = list;
+                lastChangedFrame = frameId;
+                firstChange = false;
+                System.out.println("firstChange: " + System.currentTimeMillis() + ":" + frameId + ":" + persistFrames);
+            } else {
+                if (frameId - lastChangedFrame >= persistFrames){
+                    listHistory = list;
+                    lastChangedFrame = frameId;
+                } else {
+                    list = listHistory;
+                }
+            }
+
             if (list != null) {
                 for (Serializable.Rect rect : list) {
                     Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
@@ -99,7 +114,7 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
             processedFrames.remove(frameId);
             frameMap.remove(frameId);
         }
-        System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId);
+        //System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId);
         collector.ack(tuple);
     }
 }
