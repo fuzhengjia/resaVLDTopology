@@ -86,7 +86,7 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
             }
         }
 
-        if (frameMap.containsKey(frameId) && processedFrames.containsKey(frameId)){
+        if (frameMap.containsKey(frameId) && processedFrames.containsKey(frameId)) {
             opencv_core.Mat mat = frameMap.get(frameId).toJavaCVMat();
             List<Serializable.Rect> list = processedFrames.get(frameId);
 
@@ -106,6 +106,8 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
             }*/
 
             if (frameId % persistFrames == 0) {
+                listHistory = list;
+            } else if (listHistory == null) {
                 listHistory = list;
             } else {
                 list = listHistory;
