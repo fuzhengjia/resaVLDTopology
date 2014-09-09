@@ -73,11 +73,13 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
             List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField("foundRectList");
             if (!frameMap.containsKey(frameId)) {
                 processedFrames.put(frameId, list);
+                System.out.println("addtoProcessedFrames: " + System.currentTimeMillis() + ":" + frameId);
             }
         } else if (streamId.equals(RAW_FRAME_STREAM)) {
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField("frameMat");
             if (!processedFrames.containsKey(frameId)) {
                 frameMap.put(frameId, sMat);
+                System.out.println("addtoFrameMap: " + System.currentTimeMillis() + ":" + frameId);
             }
         }
 
