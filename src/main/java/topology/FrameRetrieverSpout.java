@@ -84,6 +84,7 @@ public class FrameRetrieverSpout extends BaseRichSpout {
 
         if (frameId < lastFrameId) {
             try {
+                long start = System.currentTimeMillis();
                 image = grabber.grab();
                 mat = new opencv_core.Mat(image);
 
@@ -110,7 +111,8 @@ public class FrameRetrieverSpout extends BaseRichSpout {
                     }
                 }
                 frameId++;
-                System.out.printf("Sendout: " + System.currentTimeMillis() + "," + frameId);
+                long nowTime = System.currentTimeMillis();
+                System.out.printf("Sendout: " + nowTime + "," + frameId + ",used: " + (nowTime -start));
             } catch (FrameGrabber.Exception e) {
                 e.printStackTrace();
             }
