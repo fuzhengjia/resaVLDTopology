@@ -11,18 +11,15 @@ import java.util.List;
 public class StreamFrame implements Comparable<StreamFrame> {
     final public int frameId;
     final public opencv_core.Mat image;
-    final public List<Serializable.Rect> detected;
 
     /**
      * creates a StreamFrame with given id, image matrix and list of rectangles corresponding to the detected logos.
      * @param frameId
      * @param image
-     * @param detected
      */
-    public StreamFrame(int frameId, opencv_core.Mat image, List<Serializable.Rect> detected) {
+    public StreamFrame(int frameId, opencv_core.Mat image) {
         this.frameId = frameId;
         this.image = image;
-        this.detected = detected;
     }
 
     @Override

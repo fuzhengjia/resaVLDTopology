@@ -84,8 +84,8 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
                 }
                 if (Debug.topologyDebugOutput)
                     System.out.println("Frame " + frameId + " submitted to producer");
-                producer.addFrame(new StreamFrame(frameId, mat, list));
-                System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
+                producer.addFrame(new StreamFrame(frameId, mat));
+                //System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
                 frameMap.remove(frameId);
             } else {
                 processedFrames.put(frameId, list);
@@ -109,8 +109,8 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
                             Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
                         }
                     }
-                    producer.addFrame(new StreamFrame(frameId, mat, list));
-                    System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
+                    producer.addFrame(new StreamFrame(frameId, mat));
+                    //System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
                     processedFrames.remove(frameId);
                     frameMap.remove(frameId);
                 } else {
@@ -119,7 +119,7 @@ public class RedisFrameAggregatorBolt extends BaseRichBolt {
             }
         }
 
-        System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId);
+        //System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId);
         collector.ack(tuple);
     }
 }

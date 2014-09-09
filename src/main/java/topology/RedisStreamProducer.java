@@ -73,18 +73,18 @@ public class RedisStreamProducer implements Runnable {
                 if ( (nextFrame = getNextFrame()) != null ) {
                     long start = System.currentTimeMillis();
                     //TODO: caution, the average processing time for each frame is about 20ms, which could be a bottleneck at certain cases.
-                    //opencv_core.IplImage iplImage = nextFrame.image.asIplImage();
-                    //BufferedImage bufferedImage = iplImage.getBufferedImage();
-                    //ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    //ImageIO.write(bufferedImage, "JPEG", baos);
-                    //jedis.rpush(this.queueName, baos.toByteArray());
-                    System.out.println("ST: " + (System.currentTimeMillis() - start)
-                            + System.currentTimeMillis() + ","  + ++count + ",Fid: " + nextFrame.frameId);
+                    opencv_core.IplImage iplImage = nextFrame.image.asIplImage();
+                    BufferedImage bufferedImage = iplImage.getBufferedImage();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ImageIO.write(bufferedImage, "JPEG", baos);
+                    jedis.rpush(this.queueName, baos.toByteArray());
+                    //System.out.println("ST: " + (System.currentTimeMillis() - start)
+                    //        + System.currentTimeMillis() + ","  + ++count + ",Fid: " + nextFrame.frameId);
 
                 } else {
                     // if expected frame is not there yet, wait and try again.
                     Thread.sleep(10);
-                    System.out.println("STEmpty: " + System.currentTimeMillis() + count);
+                    //System.out.println("STEmpty: " + System.currentTimeMillis() + count);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
