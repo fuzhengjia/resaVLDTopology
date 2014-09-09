@@ -90,21 +90,6 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
             opencv_core.Mat mat = frameMap.get(frameId).toJavaCVMat();
             List<Serializable.Rect> list = processedFrames.get(frameId);
 
-            /*
-            if (firstChange){
-                listHistory = list;
-                lastChangedFrame = frameId;
-                firstChange = false;
-                System.out.println("firstChange: " + System.currentTimeMillis() + ":" + frameId + ":" + persistFrames);
-            } else {
-                if (frameId - lastChangedFrame >= persistFrames){
-                    listHistory = list;
-                    lastChangedFrame = frameId;
-                } else {
-                    list = listHistory;
-                }
-            }*/
-
             if (frameId % persistFrames == 0) {
                 listHistory = list;
             } else if (listHistory == null) {
@@ -119,7 +104,7 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
                 }
             }
             producer.addFrame(new StreamFrame(frameId, mat));
-            System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
+            //System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
             processedFrames.remove(frameId);
             frameMap.remove(frameId);
         }
