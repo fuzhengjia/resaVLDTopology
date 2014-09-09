@@ -82,7 +82,7 @@ public class FrameAggregatorBolt extends BaseRichBolt {
                 }
                 if (Debug.topologyDebugOutput)
                     System.out.println("Frame " + frameId + " submitted to producer");
-                producer.addFrame(new StreamFrame(frameId, mat, list));
+                producer.addFrame(new StreamFrame(frameId, mat));
                 frameMap.remove(frameId);
             } else {
                 processedFrames.put(frameId, list);
@@ -106,7 +106,7 @@ public class FrameAggregatorBolt extends BaseRichBolt {
                             Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
                         }
                     }
-                    producer.addFrame(new StreamFrame(frameId, mat, list));
+                    producer.addFrame(new StreamFrame(frameId, mat));
                     processedFrames.remove(frameId);
                     frameMap.remove(frameId);
                 } else {
