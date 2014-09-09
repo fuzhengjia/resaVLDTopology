@@ -132,7 +132,7 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
             return true;
         if (!frameMap.containsKey(frameId))
             return false;
-        for (int i = Math.max(firstFrameId, frameId - persistFrames); i <= frameId ; i ++) {
+        for (int i = frameId - persistFrames; i <= frameId ; i ++) {
             if (!processedFrames.containsKey(i)) {
                 return false;
             }
