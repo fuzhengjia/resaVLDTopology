@@ -95,12 +95,14 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
         {
             int frameId = tuple.getIntegerByField("frameId");
             List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField("foundRectList");
-            processedFrames.put(frameId, list);
-            for (int i = frameId ; i <= frameId + persistFrames ; i ++) {
-                trySendingFrame(i);
-            }
-            for (int i = frameId ; i <= frameId + persistFrames ; i ++) {
-                tryRemovingList(i);
+            if (list != null) {
+                processedFrames.put(frameId, list);
+                for (int i = frameId; i <= frameId + persistFrames; i++) {
+                    trySendingFrame(i);
+                }
+                for (int i = frameId; i <= frameId + persistFrames; i++) {
+                    tryRemovingList(i);
+                }
             }
         } else if (streamId.equals(RAW_FRAME_STREAM))
         {
