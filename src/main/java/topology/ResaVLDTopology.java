@@ -1,7 +1,6 @@
 package topology;
 
 import backtype.storm.Config;
-import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
@@ -9,11 +8,11 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 
+import java.io.FileNotFoundException;
+
 import static topology.Constants.*;
 import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.readConfig;
-
-import java.io.FileNotFoundException;
 
 /**
  * Created by Intern04 on 4/8/2014.
@@ -45,7 +44,7 @@ public class ResaVLDTopology {
                 .fieldsGrouping("processor", DETECTED_LOGO_STREAM, new Fields("frameId"))
                 .setNumTasks(getInt(conf, "PatchAggregatorBolt.tasks"));
 
-        builder.setBolt("aggregator", new RedisFrameAggregatorBolt(), getInt(conf, "FrameAggregatorBolt.parallelism"))
+        builder.setBolt("aggregator2", new RedisFrameAggregatorBolt2(), getInt(conf, "FrameAggregatorBolt.parallelism"))
                 .globalGrouping("intermediate", PROCESSED_FRAME_STREAM)
                 .globalGrouping("retriever", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "FrameAggregatorBolt.tasks"));
@@ -53,7 +52,7 @@ public class ResaVLDTopology {
         StormTopology topology = builder.createTopology();
 
         conf.setNumWorkers(getInt(conf, "numberOfWorkers"));
-        StormSubmitter.submitTopology("first", conf, topology);
+        StormSubmitter.submitTopology("first2", conf, topology);
 
     }
 }
