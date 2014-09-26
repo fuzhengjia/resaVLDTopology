@@ -17,6 +17,7 @@ import static topology.Constants.*;
 public class tomPatchGenerateBolt extends BaseRichBolt {
     OutputCollector collector;
     private int taskIndex;
+    private int taskCnt;
     List<Integer> targetComponentTasks;
 
     @Override
@@ -24,6 +25,7 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
         this.collector = outputCollector;
 
         this.taskIndex = topologyContext.getThisTaskIndex();
+        this.taskCnt = topologyContext.getComponentTasks(topologyContext.getThisComponentId()).size();
         targetComponentTasks = new ArrayList<Integer>(topologyContext.getComponentTasks("processor"));
 
     }
@@ -56,7 +58,7 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
 
         for (int i = 0; i < targetComponentTasks.size(); i ++) {
             int tID = targetComponentTasks.get(i);
-            if (tID % this.taskIndex == 0) {
+            if (tID % this.taskCnt == this.taskIndex) {
                 collector.emitDirect(tID, RAW_FRAME_STREAM, tuple, new Values(frameId, sMat, patchCount));
             }
         }
