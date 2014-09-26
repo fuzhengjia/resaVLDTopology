@@ -12,16 +12,14 @@ import logodetection.Parameters;
 import logodetection.StormVideoLogoDetector;
 
 import java.util.*;
-import java.util.function.BooleanSupplier;
 
 import static topology.Constants.*;
-import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getListOfStrings;
 
 /**
  * Created by Intern04 on 5/8/2014.
  */
-public class PatchProcessorBolt extends BaseRichBolt {
+public class tomPatchGenerateBolt extends BaseRichBolt {
     OutputCollector collector;
 
     /** Instance of detector */
@@ -41,13 +39,12 @@ public class PatchProcessorBolt extends BaseRichBolt {
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-        int minNumberOfMatches = Math.min(getInt(map, "minNumberOfMatches"), 4);
         this.collector = outputCollector;
         // TODO: get path to logos & parameters from config
         Parameters parameters = new Parameters()
                 .withMatchingParameters(
                         new Parameters.MatchingParameters()
-                                .withMinimalNumberOfMatches(minNumberOfMatches)
+                                .withMinimalNumberOfMatches(4)
                 );
 
         List<String> templateFiles = getListOfStrings(map, "originalTemplateFileNames");

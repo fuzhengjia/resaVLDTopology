@@ -23,8 +23,7 @@ import static topology.StormConfigManager.getString;
 /**
  * Created by Intern04 on 4/8/2014.
  */
-//TODO: sampling on frames at the beginning.
-public class FrameRetrieverSpoutWithSample extends BaseRichSpout {
+public class tomFrameSpout extends BaseRichSpout {
     SpoutOutputCollector collector;
     private String SOURCE_FILE;
     private FFmpegFrameGrabber grabber;
@@ -43,7 +42,7 @@ public class FrameRetrieverSpoutWithSample extends BaseRichSpout {
         lastFrameId = getInt(map, "lastFrameId");
         SOURCE_FILE = getString(map, "videoSourceFile");
         grabber = new FFmpegFrameGrabber(SOURCE_FILE);
-        opencv_features2d.KeyPoint kp = new opencv_features2d.KeyPoint();
+        //opencv_features2d.KeyPoint kp = new opencv_features2d.KeyPoint();
         System.out.println("Created capture: " + SOURCE_FILE);
 
         delayInMS = getInt(map, "inputFrameDelay");
@@ -58,11 +57,10 @@ public class FrameRetrieverSpoutWithSample extends BaseRichSpout {
             e.printStackTrace();
         }
 
-        kp.deallocate();
+        //kp.deallocate();
 
         if (Debug.topologyDebugOutput)
             System.out.println("Grabber started");
-
 
         if (Debug.timer)
             System.out.println("TIME=" + System.currentTimeMillis());
@@ -86,29 +84,9 @@ public class FrameRetrieverSpoutWithSample extends BaseRichSpout {
                 long start = System.currentTimeMillis();
                 image = grabber.grab();
                 mat = new opencv_core.Mat(image);
-
                 Serializable.Mat sMat = new Serializable.Mat(mat);
 
-                //TODO get params from config map
-                double fx = .25, fy = .25;
-                double fsx = .5, fsy = .5;
-
-                int W = sMat.getCols(), H = sMat.getRows();
-                int w = (int) (W * fx + .5), h = (int) (H * fy + .5);
-                int dx = (int) (w * fsx + .5), dy = (int) (h * fsy + .5);
-                int patchCount = 0;
-                for (int x = 0; x + w <= W; x += dx)
-                    for (int y = 0; y + h <= H; y += dy)
-                        patchCount++;
-
-                collector.emit(RAW_FRAME_STREAM, new Values(frameId, sMat, patchCount), frameId);
-                for (int x = 0; x + w <= W; x += dx) {
-                    for (int y = 0; y + h <= H; y += dy) {
-                        Serializable.PatchIdentifier identifier = new
-                                Serializable.PatchIdentifier(frameId, new Serializable.Rect(x, y, w, h));
-                        collector.emit(PATCH_STREAM, new Values(identifier, patchCount), identifier.toString());
-                    }
-                }
+                collector.emit(RAW_FRAME_STREAM, new Values(frameId, sMat, 0), frameId);
                 frameId++;
                 long nowTime = System.currentTimeMillis();
                 System.out.printf("Sendout: " + nowTime + "," + frameId + ",used: " + (nowTime -start));
@@ -120,7 +98,6 @@ public class FrameRetrieverSpoutWithSample extends BaseRichSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(PATCH_STREAM, new Fields("patchIdentifier", "patchCount"));
         outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, new Fields("frameId", "frameMat", "patchCount"));
     }
 
