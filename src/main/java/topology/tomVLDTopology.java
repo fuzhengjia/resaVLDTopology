@@ -56,6 +56,8 @@ public class tomVLDTopology {
         StormTopology topology = builder.createTopology();
 
         conf.setNumWorkers(getInt(conf, "numberOfWorkers"));
+        conf.setMaxSpoutPending(getInt(conf, "MaxSpoutPending"));
+
         StormSubmitter.submitTopology("tomVLDTop", conf, topology);
 
     }
