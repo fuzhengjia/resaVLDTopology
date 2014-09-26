@@ -19,7 +19,9 @@ import static topology.StormConfigManager.readConfig;
  */
 public class tomVLDTopology {
 
-
+    //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
+    // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
+    //
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
