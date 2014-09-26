@@ -30,14 +30,18 @@ public class tomVLDTopology {
 
         TopologyBuilder builder = new TopologyBuilder();
 
-        builder.setSpout("retriever", new FrameRetrieverSpout(), getInt(conf, "FrameRetrieverSpout.parallelism"))
-                .setNumTasks(getInt(conf, "FrameRetrieverSpout.tasks"));
+        builder.setSpout("retriever", new tomFrameSpout(), getInt(conf, "TomFrameSpout.parallelism"))
+                .setNumTasks(getInt(conf, "TomFrameSpout.tasks"));
+
+        builder.setBolt("patchGen", new tomPatchGenerateBolt(), getInt(conf, "TomPatchGen.parallelism"))
+                .allGrouping("retriever", RAW_FRAME_STREAM)
+                .setNumTasks(getInt(conf, "TomPatchGen.tasks"));
 
         builder.setBolt("processor", new PatchProcessorBolt(), getInt(conf, "PatchProcessorBolt.parallelism"))
-                .shuffleGrouping("retriever", PATCH_STREAM)
+                .shuffleGrouping("patchGen", PATCH_STREAM)
                 .allGrouping("processor", LOGO_TEMPLATE_UPDATE_STREAM)
-                .allGrouping("retriever", RAW_FRAME_STREAM)
                 .allGrouping("intermediate", CACHE_CLEAR_STREAM)
+                .directGrouping("patchGen", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "PatchProcessorBolt.tasks"));
 
         builder.setBolt("intermediate", new PatchAggregatorBolt(), getInt(conf, "PatchAggregatorBolt.parallelism"))
