@@ -35,6 +35,7 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
     private int port;
     private String queueName;
     private int persistFrames;
+    private int accumulateFrameSize;
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -50,10 +51,13 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
         processedFrames = new HashMap<>();
         frameMap = new HashMap<>();
         this.collector = outputCollector;
-        producer = new RedisStreamProducer(host, port, queueName);
+
         new Thread(producer).start();
         persistFrames = Math.max(getInt(map, "persistFrames"), 1);
+        accumulateFrameSize = Math.max(getInt(map, "accumulateFrameSize"), 1);
         listHistory = null;
+
+        producer = new RedisStreamProducer(host, port, queueName, accumulateFrameSize);
     }
 
     // Fields("frameId", "frameMat", "patchCount")

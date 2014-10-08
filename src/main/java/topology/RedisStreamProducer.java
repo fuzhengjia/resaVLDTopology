@@ -7,8 +7,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.PriorityQueue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * This runnable class accepts stream frames, orders them and produces an ordered sequence of frames which is saved
@@ -30,6 +28,8 @@ public class RedisStreamProducer implements Runnable {
     private byte[] queueName;
     //private BlockingQueue<byte[]> dataQueue = new ArrayBlockingQueue<>(10000);
     private Jedis jedis;
+    /* keep accumulateFrameSize number of frames in the priorityQueue, so that frames can be in defined order */
+    private int accumulateFrameSize;
 
     /** Creates a producer expecting frames in range [firstFrameId, lastFrameId) */
     public RedisStreamProducer(String host, int port, String queueName)  {
@@ -40,6 +40,19 @@ public class RedisStreamProducer implements Runnable {
         this.queueName = queueName.getBytes();
         finished = false;
         jedis = new Jedis(host, port);
+        this.accumulateFrameSize = 1;
+    }
+
+    /** Creates a producer expecting frames in range [firstFrameId, lastFrameId), with an additional parameter qSize */
+    public RedisStreamProducer(String host, int port, String queueName, int qSize)  {
+
+        stream = new PriorityQueue<>();
+        this.host = host;
+        this.port = port;
+        this.queueName = queueName.getBytes();
+        finished = false;
+        jedis = new Jedis(host, port);
+        this.accumulateFrameSize = qSize;
     }
 
     /** Add frame to the queue if it is fully processed */
@@ -55,11 +68,11 @@ public class RedisStreamProducer implements Runnable {
      */
     public StreamFrame getNextFrame() {
         synchronized (stream) {
-            //if (stream.isEmpty() || stream.peek().frameId != nextExpectedFrame) {
-            //    return null;
-            //}
-            //nextExpectedFrame ++;
-            return stream.poll();
+            if (stream.size() >= this.accumulateFrameSize) {
+                return stream.poll();
+            } else {
+                return null;
+            }
         }
     }
 
