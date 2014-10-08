@@ -63,7 +63,7 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
 
         if (localComponentTasks.size() > 0) {
             for (int i = 0; i < localComponentTasks.size(); i++) {
-                int tID = targetComponentTasks.get(i);
+                int tID = localComponentTasks.get(i);
                 collector.emitDirect(tID, RAW_FRAME_STREAM, tuple, new Values(frameId, sMat, patchCount));
             }
         }
