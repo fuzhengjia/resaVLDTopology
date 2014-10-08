@@ -36,12 +36,12 @@ public class tomVLDTopology {
         builder.setSpout("retriever", new tomFrameSpout(), getInt(conf, "TomFrameSpout.parallelism"))
                 .setNumTasks(getInt(conf, "TomFrameSpout.tasks"));
 
-        //builder.setBolt("patchGen", new tomPatchGenerateBolt(), getInt(conf, "TomPatchGen.parallelism"))
-        //        .allGrouping("retriever", RAW_FRAME_STREAM)
-        //        .setNumTasks(getInt(conf, "TomPatchGen.tasks"));
-        builder.setBolt("patchGen", new tomPatchGenerateBolt(), numberOfWorkers)
+        builder.setBolt("patchGen", new tomPatchGenerateBolt(), getInt(conf, "TomPatchGen.parallelism"))
                 .allGrouping("retriever", RAW_FRAME_STREAM)
-                .setNumTasks(numberOfWorkers);
+                .setNumTasks(getInt(conf, "TomPatchGen.tasks"));
+        //builder.setBolt("patchGen", new tomPatchGenerateBolt(), numberOfWorkers)
+        //        .allGrouping("retriever", RAW_FRAME_STREAM)
+        //        .setNumTasks(numberOfWorkers);
 
         builder.setBolt("processor", new PatchProcessorBolt(), getInt(conf, "PatchProcessorBolt.parallelism"))
                 .shuffleGrouping("patchGen", PATCH_STREAM)

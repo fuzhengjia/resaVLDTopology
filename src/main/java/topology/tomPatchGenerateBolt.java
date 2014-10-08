@@ -20,8 +20,8 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
     private int taskIndex;
     private int taskCnt;
     List<Integer> targetComponentTasks;
-    List<Integer> commonWorkerTasks;
-    List<Integer> localComponentTasks;
+    //List<Integer> commonWorkerTasks;
+    //List<Integer> localComponentTasks;
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -30,9 +30,9 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
         this.taskIndex = topologyContext.getThisTaskIndex();
         this.taskCnt = topologyContext.getComponentTasks(topologyContext.getThisComponentId()).size();
         targetComponentTasks = topologyContext.getComponentTasks("processor");
-        commonWorkerTasks = topologyContext.getThisWorkerTasks();
-        localComponentTasks = new ArrayList<Integer>(targetComponentTasks);
-        localComponentTasks.retainAll(commonWorkerTasks);
+        //commonWorkerTasks = topologyContext.getThisWorkerTasks();
+        //localComponentTasks = new ArrayList<Integer>(targetComponentTasks);
+        //localComponentTasks.retainAll(commonWorkerTasks);
     }
 
     @Override
@@ -61,9 +61,18 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
             }
         }
 
+        /*
         if (localComponentTasks.size() > 0) {
             for (int i = 0; i < localComponentTasks.size(); i++) {
                 int tID = localComponentTasks.get(i);
+                collector.emitDirect(tID, RAW_FRAME_STREAM, tuple, new Values(frameId, sMat, patchCount));
+            }
+        }
+        */
+
+        for (int i = 0; i < targetComponentTasks.size(); i ++) {
+            int tID = targetComponentTasks.get(i);
+            if (tID % this.taskCnt == this.taskIndex) {
                 collector.emitDirect(tID, RAW_FRAME_STREAM, tuple, new Values(frameId, sMat, patchCount));
             }
         }
