@@ -52,7 +52,7 @@ public class ResaVLDTopology {
         StormTopology topology = builder.createTopology();
 
         conf.setNumWorkers(getInt(conf, "numberOfWorkers"));
-        StormSubmitter.submitTopology("first2", conf, topology);
+        StormSubmitter.submitTopology("resaVLD", conf, topology);
 
     }
 }
