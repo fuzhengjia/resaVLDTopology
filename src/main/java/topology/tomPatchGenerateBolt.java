@@ -7,6 +7,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+
 import java.util.*;
 
 import static topology.Constants.*;
@@ -19,6 +20,8 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
     private int taskIndex;
     private int taskCnt;
     List<Integer> targetComponentTasks;
+    List<Integer> commonWorkerTasks;
+    List<Integer> localComponentTasks;
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -26,8 +29,10 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
 
         this.taskIndex = topologyContext.getThisTaskIndex();
         this.taskCnt = topologyContext.getComponentTasks(topologyContext.getThisComponentId()).size();
-        targetComponentTasks = new ArrayList<Integer>(topologyContext.getComponentTasks("processor"));
-
+        targetComponentTasks = topologyContext.getComponentTasks("processor");
+        commonWorkerTasks = topologyContext.getThisWorkerTasks();
+        localComponentTasks = new ArrayList<Integer>(targetComponentTasks);
+        localComponentTasks.retainAll(commonWorkerTasks);
     }
 
     @Override
@@ -56,9 +61,9 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
             }
         }
 
-        for (int i = 0; i < targetComponentTasks.size(); i ++) {
-            int tID = targetComponentTasks.get(i);
-            if (tID % this.taskCnt == this.taskIndex) {
+        if (localComponentTasks.size() > 0) {
+            for (int i = 0; i < localComponentTasks.size(); i++) {
+                int tID = targetComponentTasks.get(i);
                 collector.emitDirect(tID, RAW_FRAME_STREAM, tuple, new Values(frameId, sMat, patchCount));
             }
         }

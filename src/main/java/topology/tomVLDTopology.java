@@ -29,15 +29,19 @@ public class tomVLDTopology {
             System.exit(0);
         }
         Config conf = readConfig(args[0]);
+        int numberOfWorkers = getInt(conf, "numberOfWorkers");
 
         TopologyBuilder builder = new TopologyBuilder();
 
         builder.setSpout("retriever", new tomFrameSpout(), getInt(conf, "TomFrameSpout.parallelism"))
                 .setNumTasks(getInt(conf, "TomFrameSpout.tasks"));
 
-        builder.setBolt("patchGen", new tomPatchGenerateBolt(), getInt(conf, "TomPatchGen.parallelism"))
+        //builder.setBolt("patchGen", new tomPatchGenerateBolt(), getInt(conf, "TomPatchGen.parallelism"))
+        //        .allGrouping("retriever", RAW_FRAME_STREAM)
+        //        .setNumTasks(getInt(conf, "TomPatchGen.tasks"));
+        builder.setBolt("patchGen", new tomPatchGenerateBolt(), numberOfWorkers)
                 .allGrouping("retriever", RAW_FRAME_STREAM)
-                .setNumTasks(getInt(conf, "TomPatchGen.tasks"));
+                .setNumTasks(numberOfWorkers);
 
         builder.setBolt("processor", new PatchProcessorBolt(), getInt(conf, "PatchProcessorBolt.parallelism"))
                 .shuffleGrouping("patchGen", PATCH_STREAM)
@@ -57,7 +61,7 @@ public class tomVLDTopology {
 
         StormTopology topology = builder.createTopology();
 
-        conf.setNumWorkers(getInt(conf, "numberOfWorkers"));
+        conf.setNumWorkers(numberOfWorkers);
         conf.setMaxSpoutPending(getInt(conf, "MaxSpoutPending"));
 
         StormSubmitter.submitTopology("tomVLDTop", conf, topology);
