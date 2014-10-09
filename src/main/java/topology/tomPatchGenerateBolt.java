@@ -53,11 +53,15 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
             for (int y = 0; y + h <= H; y += dy)
                 patchCount++;
 
+        int pCnt = 0;
         for (int x = 0; x + w <= W; x += dx) {
             for (int y = 0; y + h <= H; y += dy) {
-                Serializable.PatchIdentifier identifier = new
-                        Serializable.PatchIdentifier(frameId, new Serializable.Rect(x, y, w, h));
-                collector.emit(PATCH_STREAM, tuple, new Values(identifier, patchCount));
+                if (pCnt % this.taskCnt == this.taskIndex) {
+                    Serializable.PatchIdentifier identifier = new
+                            Serializable.PatchIdentifier(frameId, new Serializable.Rect(x, y, w, h));
+                    collector.emit(PATCH_STREAM, tuple, new Values(identifier, patchCount));
+                }
+                pCnt ++;
             }
         }
 
