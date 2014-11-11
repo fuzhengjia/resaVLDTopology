@@ -42,7 +42,8 @@ public class SimpleImageSender {
         Jedis jedis = new Jedis(host, port);
 
         for (int i = st; i < end; i ++) {
-            String fileName = path + "testdata\\" + String.format("frame%06d.jpg", (i + 1));
+            String fileName = path + "testdata" + System.getProperty("file.separator")
+                                    + String.format("frame%06d.jpg", (i + 1));
             File f = new File(fileName);
             if (f.exists() == false) {
                 System.out.println("File not exist: " + fileName);
