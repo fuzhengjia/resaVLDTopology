@@ -38,6 +38,14 @@ public class SimpleImageSender {
         this.path = getString(conf, "sourceFilePath");
     }
 
+    public SimpleImageSender(String confile, String qName) throws FileNotFoundException {
+        Config conf = readConfig(confile);
+        this.host = getString(conf, "redis.host");
+        this.port = getInt(conf, "redis.port");
+        this.queueName = qName.getBytes();
+        this.path = getString(conf, "sourceFilePath");
+    }
+
     public void send2Queue(int st, int end) throws IOException {
         Jedis jedis = new Jedis(host, port);
 
@@ -60,11 +68,11 @@ public class SimpleImageSender {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 3) {
-            System.out.println("usage: ImageSender <confFile> <st> <end>");
+        if (args.length < 4) {
+            System.out.println("usage: ImageSender <confFile> <st> <end> queueName");
             return;
         }
-        SimpleImageSender sender = new SimpleImageSender(args[0]);
+        SimpleImageSender sender = new SimpleImageSender(args[0], args[3]);
         System.out.println("start sender");
         sender.send2Queue(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
         System.out.println("end sender");
