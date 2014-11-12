@@ -14,8 +14,6 @@ import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getString;
 import static showTraj.Constant.*;
 
-import org.bytedeco.javacpp.opencv_core;
-
 /**
  * Created by Intern04 on 5/8/2014.
  */
