@@ -12,6 +12,7 @@ import java.util.Map;
 
 import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getString;
+import static showTraj.Constant.*;
 
 /**
  * Created by Intern04 on 5/8/2014.
@@ -50,8 +51,8 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
     // Fields("frameId", "foundRectList")
     @Override
     public void execute(Tuple tuple) {
-        int frameId = tuple.getIntegerByField("frameId");
-        Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField("frameMat");
+        int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
+        Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
         producer.addFrame(new StreamFrame(frameId, sMat.toJavaCVMat()));
 
         System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);

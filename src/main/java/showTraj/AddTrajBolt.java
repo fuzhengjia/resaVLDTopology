@@ -148,7 +148,7 @@ public class AddTrajBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(STREAM_FRAME_OUTPUT, new Fields("frameId", "frameMat"));
+        outputFieldsDeclarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
     }
 
     static ArrayList<Integer> getIndexArrayFromMLDouble(MLDouble input) {

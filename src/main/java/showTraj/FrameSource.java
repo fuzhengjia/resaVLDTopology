@@ -16,7 +16,7 @@ import static showTraj.Constant.*;
  */
 public class FrameSource extends RedisQueueSpout {
 
-    private long frameId;
+    private int frameId;
     //private String idPrefix;
 
     public FrameSource(String host, int port, String queue) {
@@ -35,7 +35,7 @@ public class FrameSource extends RedisQueueSpout {
     protected void emitData(Object data) {
         //String id = idPrefix + frameId++;
         String id = String.valueOf(frameId);
-        collector.emit(STREAM_FRAME_OUTPUT, new Values(id, data), id);
+        collector.emit(STREAM_FRAME_OUTPUT, new Values(frameId, data), id);
 
         long nowTime = System.currentTimeMillis();
         System.out.printf("Sendout: " + nowTime + "," + frameId);

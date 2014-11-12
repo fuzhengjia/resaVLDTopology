@@ -11,6 +11,8 @@ public interface Constant {
 
     public static String FIELD_FRAME_BYTES = "frm-bytes";
 
+    public static String FIELD_FRAME_MAT = "frm-mat";
+
 //    public static String FIELD_POINT_X = "pt-x";
 //
 //    public static String FIELD_POINT_Y = "pt-y";
