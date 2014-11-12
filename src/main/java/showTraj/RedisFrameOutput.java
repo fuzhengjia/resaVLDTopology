@@ -58,9 +58,9 @@ public class RedisFrameOutput extends BaseRichBolt {
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-        byte[] imgBytes = sMat.toString().getBytes();
-        //opencv_core.IplImage image = new opencv_core.IplImage();
-        opencv_core.IplImage image = cvDecodeImage(cvMat(1, imgBytes.length, CV_8UC1, new BytePointer(imgBytes)));
+        //byte[] imgBytes = sMat.toString().getBytes();
+        opencv_core.IplImage image = new opencv_core.IplImage();
+        //opencv_core.IplImage image = cvDecodeImage(cvMat(1, imgBytes.length, CV_8UC1, new BytePointer(imgBytes)));
         //opencv_core.Mat mat = sMat.toJavaCVMat();
         producer.addFrame(new StreamFrame(frameId, sMat.toJavaCVMat()));
 
