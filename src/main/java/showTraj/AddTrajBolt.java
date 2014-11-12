@@ -144,6 +144,7 @@ public class AddTrajBolt extends BaseRichBolt {
         Serializable.Mat sMat = new Serializable.Mat(matNew);
         collector.emit(STREAM_FRAME_OUTPUT, tuple, new Values(frameId, sMat));
         collector.ack(tuple);
+
     }
 
     @Override
