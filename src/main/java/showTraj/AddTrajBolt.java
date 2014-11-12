@@ -26,6 +26,7 @@ import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
 import static org.bytedeco.javacpp.opencv_core.cvMat;
 import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
 import static showTraj.Constant.*;
+import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getString;
 
 /**
@@ -35,12 +36,14 @@ public class AddTrajBolt extends BaseRichBolt {
     OutputCollector collector;
 
     private ArrayList<ArrayList<Float>> frameTraj = new  ArrayList<ArrayList<Float>>();
+    private ArrayList<ArrayList<Float>> frameTrajIpnut = new  ArrayList<ArrayList<Float>>();
     private BufferedReader reader;
     private ArrayList<int[]> groupColor;
     private int maxFrameID;
     private ArrayList<Integer> groupIDs;
 
     private String path;
+    private int repeatCount;
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -48,6 +51,7 @@ public class AddTrajBolt extends BaseRichBolt {
 
         //String path = "C:\\Users\\Tom.fu\\Desktop\\fromPeiYong\\";
         path = getString(map, "sourceFilePath");
+        repeatCount = getInt(map, "repeatCount");
         String file1 = path + "traj_bend_0001_trajectory_group_1.mat";
         String file2 = path + "traj_bend_0001_trajectory_group_2.mat";
         String trajFile = path + "traj_bend_0001.txt";
@@ -82,13 +86,28 @@ public class AddTrajBolt extends BaseRichBolt {
                 ArrayList<String> rdLineResults = new ArrayList<String>(Arrays.asList(rdLine.split(" ")));
                 ArrayList<Float> rdResults = (ArrayList<Float>) rdLineResults.stream().map(item -> Float.valueOf(item))
                         .collect(Collectors.toList());
-                frameTraj.add(rdResults);
+                frameTrajIpnut.add(rdResults);
             }
             reader.close();
         } catch (Exception e) {
             System.out.println(e.getStackTrace());
         }
-        maxFrameID = frameTraj.stream().mapToInt(item->item.get(0).intValue()).reduce(Integer::max).getAsInt();
+
+        int maxFrameIDOff = frameTrajIpnut.stream().mapToInt(item->item.get(0).intValue()).reduce(Integer::max).getAsInt();
+        frameTraj.addAll(frameTrajIpnut);
+
+        for (int  i = 0; i < repeatCount; i ++) {
+            maxFrameID = i * maxFrameIDOff;
+            ArrayList<ArrayList<Float>> tmp = (ArrayList<ArrayList<Float>>)frameTrajIpnut.stream().map(item ->
+            {
+                int newID = item.get(0).intValue() + maxFrameID;
+                ArrayList<Float> newArray = new ArrayList<Float>();
+                newArray.addAll(item);
+                newArray.set(0, (float)newID);
+                return newArray;
+            }).collect(Collectors.toList());
+            frameTraj.addAll(tmp);
+        }
     }
 
     @Override
