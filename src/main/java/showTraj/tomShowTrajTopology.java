@@ -40,7 +40,7 @@ public class tomShowTrajTopology {
                 .shuffleGrouping("fSource", STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, "AddTraj.tasks"));
 
-        builder.setBolt("aggregator2", new RedisFrameAggregatorBolt2(), getInt(conf, "ShowTrajAggregatorBolt.parallelism"))
+        builder.setBolt("aggregator2", new RedisFrameOutput(), getInt(conf, "ShowTrajAggregatorBolt.parallelism"))
                 .globalGrouping("addTraj", STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, "ShowTrajAggregatorBolt.tasks"));
 

@@ -18,7 +18,7 @@ import static showTraj.Constant.*;
 /**
  * Created by Intern04 on 5/8/2014.
  */
-public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
+public class RedisFrameOutput extends BaseRichBolt {
     OutputCollector collector;
 
     RedisStreamProducer producer;
