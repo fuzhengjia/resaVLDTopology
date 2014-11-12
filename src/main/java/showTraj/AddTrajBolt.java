@@ -96,6 +96,9 @@ public class AddTrajBolt extends BaseRichBolt {
         int maxFrameIDOff = frameTrajIpnut.stream().mapToInt(item->item.get(0).intValue()).reduce(Integer::max).getAsInt();
         frameTraj.addAll(frameTrajIpnut);
 
+        ArrayList<Integer> groupIDClone = new ArrayList<Integer>();
+        groupIDClone.addAll(groupIDs);
+
         for (int  i = 0; i < repeatCount; i ++) {
             maxFrameID = i * maxFrameIDOff;
             ArrayList<ArrayList<Float>> tmp = (ArrayList<ArrayList<Float>>)frameTrajIpnut.stream().map(item ->
@@ -107,6 +110,7 @@ public class AddTrajBolt extends BaseRichBolt {
                 return newArray;
             }).collect(Collectors.toList());
             frameTraj.addAll(tmp);
+            groupIDs.addAll(groupIDClone);
         }
     }
 
