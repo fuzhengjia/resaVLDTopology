@@ -63,7 +63,7 @@ public class RedisFrameOutput extends BaseRichBolt {
         opencv_core.Mat mat = sMat.toJavaCVMat();
         producer.addFrame(new StreamFrame(frameId, sMat.toJavaCVMat()));
 
-        System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
+        System.out.println("producerAdd: " + System.currentTimeMillis() + ":" + frameId);
         collector.ack(tuple);
     }
 }
