@@ -5,7 +5,6 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import org.bytedeco.javacpp.opencv_core;
 import topology.Serializable;
 import topology.StreamFrame;
 
@@ -14,6 +13,8 @@ import java.util.Map;
 import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getString;
 import static showTraj.Constant.*;
+
+import org.bytedeco.javacpp.opencv_core;
 
 /**
  * Created by Intern04 on 5/8/2014.
@@ -54,8 +55,8 @@ public class RedisFrameOutput extends BaseRichBolt {
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-        opencv_core.Mat mat = sMat.toJavaCVMat();
-        producer.addFrame(new StreamFrame(frameId, mat));
+        //opencv_core.Mat mat = sMat.toJavaCVMat();
+        producer.addFrame(new StreamFrame(frameId, sMat.toJavaCVMat()));
 
         System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
         collector.ack(tuple);
