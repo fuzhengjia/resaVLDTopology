@@ -61,16 +61,17 @@ public class SimpleVideoSender {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(bufferedImage, "JPEG", baos);
                 jedis.rpush(this.queueName, baos.toByteArray());
-                long current = System.currentTimeMillis();
-                System.out.println("Current: " + current + ", elapsed: " + (current - start) + ",totalSend: " + generatedFrames);
                 generatedFrames ++;
                 if (generatedFrames % fps == 0) {
-                    long remainTime = current - last;
-                    if (remainTime < 990) {
-                        System.out.println("generatedFrames: " + generatedFrames + "remain: " + remainTime);
-                        Thread.sleep(remainTime);
+                    long current = System.currentTimeMillis();
+                    long elapse = current - last;
+                    long remain = 1000 - elapse;
+                    if (remain > 0) {
+                        Thread.sleep(remain);
                     }
                     last = System.currentTimeMillis();
+                    System.out.println("Current: " + last + ", elapsed: " + (last - start)
+                            + ",totalSend: " + generatedFrames+ ", remain: " + remain);
                 }
             }
         } catch (FrameGrabber.Exception e) {
