@@ -25,7 +25,7 @@ public class tomSimpleTestTopology {
         }
         Config conf = readConfig(args[0]);
         int numberOfWorkers = getInt(conf, "numberOfWorkers");
-        int numberOfAckers = getInt(conf, "numberOfAckers");
+        //int numberOfAckers = getInt(conf, "numberOfAckers");
 
         TopologyBuilder builder = new TopologyBuilder();
 
@@ -46,7 +46,7 @@ public class tomSimpleTestTopology {
         //conf.setNumAckers(numberOfAckers);
         conf.setMaxSpoutPending(getInt(conf, "MaxSpoutPending"));
 
-        StormSubmitter.submitTopology("tomShowTrajTop", conf, topology);
+        StormSubmitter.submitTopology("tomSimpleTestTopology", conf, topology);
 
     }
 }
