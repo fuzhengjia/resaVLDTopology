@@ -5,7 +5,6 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import showTraj.RedisStreamProducer;
 import topology.Serializable;
 import topology.StreamFrame;
 
@@ -24,7 +23,7 @@ import org.bytedeco.javacpp.opencv_core;
 public class RedisFrameOutput extends BaseRichBolt {
     OutputCollector collector;
 
-    RedisStreamProducer2 producer;
+    RedisStreamProducerBeta producer;
 
     private String host;
     private int port;
@@ -52,7 +51,7 @@ public class RedisFrameOutput extends BaseRichBolt {
         this.startFrameID = getInt(map, "startFrameID", 1);
         this.maxWaitCount = getInt(map, "maxWaitCount", 4);
 
-        producer = new RedisStreamProducer2(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
+        producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
         new Thread(producer).start();
 
     }

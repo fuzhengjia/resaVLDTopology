@@ -13,7 +13,7 @@ import java.util.PriorityQueue;
  * This runnable class accepts stream frames, orders them and produces an ordered sequence of frames which is saved
  * to a file. Also displays the results on the canvas as they appear.
  */
-public class RedisStreamProducer2 implements Runnable {
+public class RedisStreamProducerBeta implements Runnable {
     /**
      * Ordered queue for putting frames in order
      */
@@ -37,7 +37,7 @@ public class RedisStreamProducer2 implements Runnable {
     /**
      * Creates a producer expecting frames in range [firstFrameId, lastFrameId)
      */
-    public RedisStreamProducer2(String host, int port, String queueName) {
+    public RedisStreamProducerBeta(String host, int port, String queueName) {
 
         stream = new PriorityQueue<>();
         this.host = host;
@@ -53,8 +53,8 @@ public class RedisStreamProducer2 implements Runnable {
     /**
      * Creates a producer expecting frames in range [firstFrameId, lastFrameId), with an additional parameter qSize
      */
-    public RedisStreamProducer2(String host, int port, String queueName,
-                                int startFrameID, int maxWaitCount, int sleepTime) {
+    public RedisStreamProducerBeta(String host, int port, String queueName,
+                                   int startFrameID, int maxWaitCount, int sleepTime) {
 
         stream = new PriorityQueue<>();
         this.host = host;
