@@ -1,4 +1,4 @@
-package server;
+package tool;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;

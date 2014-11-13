@@ -5,32 +5,34 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import org.bytedeco.javacpp.BytePointer;
+import showTraj.RedisStreamProducer;
 import topology.Serializable;
 import topology.StreamFrame;
 
 import java.util.Map;
 
-import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
 import static org.bytedeco.javacpp.opencv_core.cvMat;
 import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
-import static topology.StormConfigManager.getInt;
-import static topology.StormConfigManager.getString;
-import static showTraj.Constant.*;
+import static util.ConfigUtil.*;
+import static tool.Constant.*;
 
 import org.bytedeco.javacpp.opencv_core;
+
 /**
  * Created by Intern04 on 5/8/2014.
  */
 public class RedisFrameOutput extends BaseRichBolt {
     OutputCollector collector;
 
-    RedisStreamProducer producer;
+    RedisStreamProducer2 producer;
 
     private String host;
     private int port;
     private String queueName;
     private int accumulateFrameSize;
+    private int sleepTime;
+    private int startFrameID;
+    private int maxWaitCount;
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -40,14 +42,17 @@ public class RedisFrameOutput extends BaseRichBolt {
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 
-        host = getString(map, "redis.host");
-        port = getInt(map, "redis.port");
-        queueName = getString(map, "redis.queueName");
         this.collector = outputCollector;
+        this.host = (String) map.get("redis.host");
+        this.port = getInt(map, "redis.port", 6379);
+        this.queueName = (String) map.get("redis.queueName");
 
-        accumulateFrameSize = Math.max(getInt(map, "accumulateFrameSize"), 1);
+        this.accumulateFrameSize = getInt(map, "accumulateFrameSize", 1);
+        this.sleepTime = getInt(map, "sleepTime", 10);
+        this.startFrameID = getInt(map, "startFrameID", 1);
+        this.maxWaitCount = getInt(map, "maxWaitCount", 4);
 
-        producer = new RedisStreamProducer(host, port, queueName, accumulateFrameSize);
+        producer = new RedisStreamProducer2(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
         new Thread(producer).start();
 
     }

@@ -11,14 +11,12 @@ import tool.FrameSource;
 import java.io.FileNotFoundException;
 
 import static tool.Constant.STREAM_FRAME_OUTPUT;
-import static topology.StormConfigManager.getInt;
-import static topology.StormConfigManager.getString;
-import static topology.StormConfigManager.readConfig;
+import static topology.StormConfigManager.*;
 
 /**
  * Created by Intern04 on 4/8/2014.
  */
-public class tomShowTrajTopology {
+public class tomSimpleTestTopology {
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
@@ -38,12 +36,8 @@ public class tomShowTrajTopology {
         builder.setSpout("fSource", new FrameSource(host, port, queueName), getInt(conf, "ShowTrajSpout.parallelism"))
                 .setNumTasks(getInt(conf, "ShowTrajSpout.tasks"));
 
-        builder.setBolt("addTraj", new AddTrajBolt(), getInt(conf, "AddTraj.parallelism"))
-                .shuffleGrouping("fSource", STREAM_FRAME_OUTPUT)
-                .setNumTasks(getInt(conf, "AddTraj.tasks"));
-
         builder.setBolt("fOut", new RedisFrameOutput(), getInt(conf, "ShowTrajAggregatorBolt.parallelism"))
-                .globalGrouping("addTraj", STREAM_FRAME_OUTPUT)
+                .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, "ShowTrajAggregatorBolt.tasks"));
 
         StormTopology topology = builder.createTopology();
