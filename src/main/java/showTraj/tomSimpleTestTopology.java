@@ -36,8 +36,12 @@ public class tomSimpleTestTopology {
         builder.setSpout("fSource", new FrameSource(host, port, queueName), getInt(conf, "ShowTrajSpout.parallelism"))
                 .setNumTasks(getInt(conf, "ShowTrajSpout.tasks"));
 
+        builder.setBolt("simpleTrans", new SimpleTransBolt(), getInt(conf, "SimpleTransBolt.parallelism"))
+                .shuffleGrouping("fSource", STREAM_FRAME_OUTPUT)
+                .setNumTasks(getInt(conf, "SimpleTransBolt.tasks"));
+
         builder.setBolt("fOut", new RedisFrameOutput(), getInt(conf, "ShowTrajAggregatorBolt.parallelism"))
-                .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
+                .globalGrouping("simpleTrans", STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, "ShowTrajAggregatorBolt.tasks"));
 
         StormTopology topology = builder.createTopology();
