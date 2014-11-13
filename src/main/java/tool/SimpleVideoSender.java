@@ -50,8 +50,8 @@ public class SimpleVideoSender {
         grabber = new FFmpegFrameGrabber(sourceVideoFile);
         int generatedFrames = 0;
         long start = System.currentTimeMillis();
-        long waitDuration = (long)(1000.0 / (double)fps);
-
+        //long waitDuration = (long)(1000.0 / (double)fps);
+        long last = start;
         try {
             grabber.start();
             while (generatedFrames < targetCount) {
@@ -64,7 +64,14 @@ public class SimpleVideoSender {
                 long current = System.currentTimeMillis();
                 System.out.println("Current: " + current + ", elapsed: " + (current - start) + ",totalSend: " + generatedFrames);
                 generatedFrames ++;
-                Thread.sleep(waitDuration);
+                if (generatedFrames % fps == 0) {
+                    long remainTime = current - last;
+                    if (remainTime < 990) {
+                        System.out.println("generatedFrames: " + generatedFrames + "remain: " + remainTime);
+                        Thread.sleep(remainTime);
+                    }
+                    last = System.currentTimeMillis();
+                }
             }
         } catch (FrameGrabber.Exception e) {
             e.printStackTrace();
