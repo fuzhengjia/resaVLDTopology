@@ -76,6 +76,8 @@ public class SimpleVideoSender {
 
     public static void main(String[] args) throws Exception {
         SimpleVideoSender sender;
+        int fps;
+        int targetCount;
         if (args.length < 3 || args.length > 4) {
             System.out.println("usage: ImageSender <confFile> [queueName] <fps> <targetCount>");
             return;
@@ -84,12 +86,16 @@ public class SimpleVideoSender {
         if (args.length == 3) {
             sender = new SimpleVideoSender(args[0]);
             System.out.println("Default queueName: " + sender.queueName.toString());
+            fps = Integer.parseInt(args[1]);
+            targetCount = Integer.parseInt(args[2]);
         } else {
             sender = new SimpleVideoSender(args[0], args[1]);
             System.out.println("User-defined queueName: " + args[1]);
+            fps = Integer.parseInt(args[2]);
+            targetCount = Integer.parseInt(args[3]);
         }
-        System.out.println("start sender");
-        sender.send2Queue(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+        System.out.println("start sender, queueName: " + sender.queueName.toString() + ", fps: " + fps + ", target: " + targetCount);
+        sender.send2Queue(fps, targetCount);
         System.out.println("end sender");
     }
 
