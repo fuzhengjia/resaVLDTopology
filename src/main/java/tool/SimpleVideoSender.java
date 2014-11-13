@@ -53,6 +53,7 @@ public class SimpleVideoSender {
         long waitDuration = (long)(1000.0 / (double)fps);
 
         try {
+            grabber.start();
             while (generatedFrames < targetCount) {
                 opencv_core.IplImage image = grabber.grab();
                 opencv_core.Mat mat = new opencv_core.Mat(image);
