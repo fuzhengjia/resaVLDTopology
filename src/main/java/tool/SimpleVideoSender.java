@@ -49,9 +49,7 @@ public class SimpleVideoSender {
 
         grabber = new FFmpegFrameGrabber(sourceVideoFile);
         int generatedFrames = 0;
-        long start = System.currentTimeMillis();
-        //long waitDuration = (long)(1000.0 / (double)fps);
-        long last = start;
+
         try {
             grabber.start();
             while (generatedFrames < startID){
@@ -59,6 +57,8 @@ public class SimpleVideoSender {
                 generatedFrames++;
             }
             generatedFrames = 0;
+            long start = System.currentTimeMillis();
+            long last = start;
 
             while (generatedFrames < targetCount) {
                 opencv_core.IplImage image = grabber.grab();
