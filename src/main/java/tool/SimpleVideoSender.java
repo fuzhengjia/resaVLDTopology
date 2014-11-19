@@ -54,7 +54,10 @@ public class SimpleVideoSender {
         long last = start;
         try {
             grabber.start();
-            while (generatedFrames < startID){}
+            while (generatedFrames < startID){
+                grabber.grab();
+                generatedFrames++;
+            }
             generatedFrames = 0;
 
             while (generatedFrames < targetCount) {
