@@ -10,7 +10,6 @@ import backtype.storm.tuple.Fields;
 import topology.PatchAggregatorBolt;
 import topology.PatchProcessorBolt;
 import topology.RedisFrameAggregatorBolt2;
-import topology.tomPatchGenerateBolt;
 
 import java.io.FileNotFoundException;
 
@@ -41,7 +40,7 @@ public class testVLDTopology {
         builder.setSpout("t-FSout", new testFrameSource(host, port, queueName), getInt(conf, "TomFrameSpout.parallelism"))
                 .setNumTasks(getInt(conf, "TomFrameSpout.tasks"));
 
-        builder.setBolt("t-patchGen", new tomPatchGenerateBolt(), getInt(conf, "TomPatchGen.parallelism"))
+        builder.setBolt("t-patchGen", new testPatchGenBolt("t-processor"), getInt(conf, "TomPatchGen.parallelism"))
                 .allGrouping("t-FSout", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "TomPatchGen.tasks"));
 
