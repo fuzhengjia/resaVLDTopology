@@ -55,7 +55,7 @@ public class testVLDTopology {
                 .fieldsGrouping("t-processor", DETECTED_LOGO_STREAM, new Fields("frameId"))
                 .setNumTasks(getInt(conf, "PatchAggregatorBolt.tasks"));
 
-        builder.setBolt("t-aggregator", new RedisFrameAggregatorBolt2(), getInt(conf, "FrameAggregatorBolt.parallelism"))
+        builder.setBolt("t-aggregator", new testRedisFrameAggBolt(), getInt(conf, "FrameAggregatorBolt.parallelism"))
                 .globalGrouping("t-intermediate", PROCESSED_FRAME_STREAM)
                 .globalGrouping("t-FSout", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "FrameAggregatorBolt.tasks"));

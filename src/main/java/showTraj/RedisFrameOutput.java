@@ -5,6 +5,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
+import tool.RedisStreamProducerBeta;
 import topology.Serializable;
 import topology.StreamFrame;
 
@@ -28,7 +29,6 @@ public class RedisFrameOutput extends BaseRichBolt {
     private String host;
     private int port;
     private String queueName;
-    private int accumulateFrameSize;
     private int sleepTime;
     private int startFrameID;
     private int maxWaitCount;
@@ -46,7 +46,6 @@ public class RedisFrameOutput extends BaseRichBolt {
         this.port = getInt(map, "redis.port", 6379);
         this.queueName = (String) map.get("redis.queueName");
 
-        this.accumulateFrameSize = getInt(map, "accumulateFrameSize", 1);
         this.sleepTime = getInt(map, "sleepTime", 10);
         this.startFrameID = getInt(map, "startFrameID", 1);
         this.maxWaitCount = getInt(map, "maxWaitCount", 4);
