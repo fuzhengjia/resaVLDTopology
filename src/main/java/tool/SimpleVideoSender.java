@@ -44,7 +44,7 @@ public class SimpleVideoSender {
         this.sourceVideoFile = getString(conf, "sourceVideoFile");
     }
 
-    public void send2Queue(int fps, int targetCount) throws IOException {
+    public void send2Queue(int fps, int startID, int targetCount) throws IOException {
         Jedis jedis = new Jedis(host, port);
 
         grabber = new FFmpegFrameGrabber(sourceVideoFile);
@@ -54,6 +54,9 @@ public class SimpleVideoSender {
         long last = start;
         try {
             grabber.start();
+            while (generatedFrames < startID){}
+            generatedFrames = 0;
+
             while (generatedFrames < targetCount) {
                 opencv_core.IplImage image = grabber.grab();
                 opencv_core.Mat mat = new opencv_core.Mat(image);
@@ -86,25 +89,29 @@ public class SimpleVideoSender {
     public static void main(String[] args) throws Exception {
         SimpleVideoSender sender;
         int fps;
+        int startFrameID;
         int targetCount;
-        if (args.length < 3 || args.length > 4) {
-            System.out.println("usage: ImageSender <confFile> [queueName] <fps> <targetCount>");
+        if (args.length < 4 || args.length > 5) {
+            System.out.println("usage: ImageSender <confFile> [queueName] <fps> <startFrame> <targetCount>");
             return;
         }
 
-        if (args.length == 3) {
+        if (args.length == 4) {
             sender = new SimpleVideoSender(args[0]);
             System.out.println("Default queueName: " + sender.queueName.toString());
             fps = Integer.parseInt(args[1]);
-            targetCount = Integer.parseInt(args[2]);
+            startFrameID = Integer.parseInt(args[2]);
+            targetCount = Integer.parseInt(args[3]);
         } else {
             sender = new SimpleVideoSender(args[0], args[1]);
             System.out.println("User-defined queueName: " + args[1]);
             fps = Integer.parseInt(args[2]);
-            targetCount = Integer.parseInt(args[3]);
+            startFrameID = Integer.parseInt(args[3]);
+            targetCount = Integer.parseInt(args[4]);
         }
-        System.out.println("start sender, queueName: " + sender.queueName.toString() + ", fps: " + fps + ", target: " + targetCount);
-        sender.send2Queue(fps, targetCount);
+        System.out.println("start sender, queueName: "
+                + sender.queueName.toString() + ", fps: " + fps + ", start: " + startFrameID + ", target: " + targetCount);
+        sender.send2Queue(fps, startFrameID, targetCount);
         System.out.println("end sender");
     }
 
