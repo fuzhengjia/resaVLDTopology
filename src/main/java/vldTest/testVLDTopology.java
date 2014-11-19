@@ -9,6 +9,8 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import topology.PatchAggregatorBolt;
 import topology.PatchProcessorBolt;
+import topology.RedisFrameAggregatorBolt2;
+import topology.tomPatchGenerateBolt;
 
 import java.io.FileNotFoundException;
 
@@ -42,9 +44,6 @@ public class testVLDTopology {
         builder.setBolt("t-patchGen", new tomPatchGenerateBolt(), getInt(conf, "TomPatchGen.parallelism"))
                 .allGrouping("t-FSout", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "TomPatchGen.tasks"));
-        //builder.setBolt("patchGen", new tomPatchGenerateBolt(), numberOfWorkers)
-        //        .allGrouping("retriever", RAW_FRAME_STREAM)
-        //        .setNumTasks(numberOfWorkers);
 
         builder.setBolt("t-processor", new PatchProcessorBolt(), getInt(conf, "PatchProcessorBolt.parallelism"))
                 .shuffleGrouping("t-patchGen", PATCH_STREAM)
@@ -57,7 +56,7 @@ public class testVLDTopology {
                 .fieldsGrouping("t-processor", DETECTED_LOGO_STREAM, new Fields("frameId"))
                 .setNumTasks(getInt(conf, "PatchAggregatorBolt.tasks"));
 
-        builder.setBolt("t-aggregator", new testRedisFrameAggBolt(), getInt(conf, "FrameAggregatorBolt.parallelism"))
+        builder.setBolt("t-aggregator", new RedisFrameAggregatorBolt2(), getInt(conf, "FrameAggregatorBolt.parallelism"))
                 .globalGrouping("t-intermediate", PROCESSED_FRAME_STREAM)
                 .globalGrouping("t-FSout", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "FrameAggregatorBolt.tasks"));

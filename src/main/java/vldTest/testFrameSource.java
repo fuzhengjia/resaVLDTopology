@@ -26,9 +26,6 @@ public class testFrameSource extends RedisQueueSpout {
 
     private int frameId;
     //private String idPrefix;
-    opencv_core.IplImage image;
-    opencv_core.Mat mat;
-
     public testFrameSource(String host, int port, String queue) {
         super(host, port, queue, true);
     }
