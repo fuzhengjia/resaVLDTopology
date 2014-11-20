@@ -102,7 +102,10 @@ public class testPatchGenBolt extends BaseRichBolt {
             for (int i = 0; i < targetComponentTasks.size(); i++) {
                 int tID = targetComponentTasks.get(i);
                 if (tID % this.taskCnt == this.taskIndex) {
-                    collector.emitDirect(tID, LOGO_TEMPLATE_UPDATE_STREAM, tuple, new Values(tuple.getValues()));
+                    collector.emitDirect(tID, LOGO_TEMPLATE_UPDATE_STREAM, tuple, new Values(
+                            tuple.getValueByField("hostPatchIdentifier"),
+                            tuple.getValueByField("detectedLogoRect"),
+                            tuple.getValueByField("parentIdentifier")));
                 }
             }
         }

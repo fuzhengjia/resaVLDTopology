@@ -208,8 +208,8 @@ public class testPatchProcBolt extends BaseRichBolt {
     // Fields("frameId")
     private void processCacheClear(Tuple tuple) {
         int frameId = tuple.getIntegerByField("frameId");
-        frameMap.remove(frameId);
-        patchQueue.remove(frameId);
-        templateQueue.remove(frameId);
+        if(frameMap.containsKey(frameId)) frameMap.remove(frameId);
+        if (patchQueue.containsKey(frameId)) patchQueue.remove(frameId);
+        if (templateQueue.containsKey(frameId)) templateQueue.remove(frameId);
     }
 }
