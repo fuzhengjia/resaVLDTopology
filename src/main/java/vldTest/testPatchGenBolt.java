@@ -12,6 +12,7 @@ import topology.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import static topology.Constants.CACHE_CLEAR_STREAM;
 import static topology.Constants.PATCH_STREAM;
 import static topology.Constants.RAW_FRAME_STREAM;
 
@@ -45,32 +46,36 @@ public class testPatchGenBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
 
+        String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField("frameId");
-        Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField("frameMat");
 
-        //TODO get params from config map
-        double fx = .25, fy = .25;
-        double fsx = .5, fsy = .5;
+        if (streamId.equals(RAW_FRAME_STREAM)) {
 
-        int W = sMat.getCols(), H = sMat.getRows();
-        int w = (int) (W * fx + .5), h = (int) (H * fy + .5);
-        int dx = (int) (w * fsx + .5), dy = (int) (h * fsy + .5);
-        int patchCount = 0;
-        for (int x = 0; x + w <= W; x += dx)
-            for (int y = 0; y + h <= H; y += dy)
-                patchCount++;
+            Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField("frameMat");
 
-        int pCnt = 0;
-        for (int x = 0; x + w <= W; x += dx) {
-            for (int y = 0; y + h <= H; y += dy) {
-                if (pCnt % this.taskCnt == this.taskIndex) {
-                    Serializable.PatchIdentifier identifier = new
-                            Serializable.PatchIdentifier(frameId, new Serializable.Rect(x, y, w, h));
-                    collector.emit(PATCH_STREAM, tuple, new Values(identifier, patchCount));
+            //TODO get params from config map
+            double fx = .25, fy = .25;
+            double fsx = .5, fsy = .5;
+
+            int W = sMat.getCols(), H = sMat.getRows();
+            int w = (int) (W * fx + .5), h = (int) (H * fy + .5);
+            int dx = (int) (w * fsx + .5), dy = (int) (h * fsy + .5);
+            int patchCount = 0;
+            for (int x = 0; x + w <= W; x += dx)
+                for (int y = 0; y + h <= H; y += dy)
+                    patchCount++;
+
+            int pCnt = 0;
+            for (int x = 0; x + w <= W; x += dx) {
+                for (int y = 0; y + h <= H; y += dy) {
+                    if (pCnt % this.taskCnt == this.taskIndex) {
+                        Serializable.PatchIdentifier identifier = new
+                                Serializable.PatchIdentifier(frameId, new Serializable.Rect(x, y, w, h));
+                        collector.emit(PATCH_STREAM, tuple, new Values(identifier, patchCount));
+                    }
+                    pCnt++;
                 }
-                pCnt ++;
             }
-        }
 
         /*
         if (localComponentTasks.size() > 0) {
@@ -81,13 +86,21 @@ public class testPatchGenBolt extends BaseRichBolt {
         }
         */
 
-        for (int i = 0; i < targetComponentTasks.size(); i ++) {
-            int tID = targetComponentTasks.get(i);
-            if (tID % this.taskCnt == this.taskIndex) {
-                collector.emitDirect(tID, RAW_FRAME_STREAM, tuple, new Values(frameId, sMat, patchCount));
+            for (int i = 0; i < targetComponentTasks.size(); i++) {
+                int tID = targetComponentTasks.get(i);
+                if (tID % this.taskCnt == this.taskIndex) {
+                    collector.emitDirect(tID, RAW_FRAME_STREAM, tuple, new Values(frameId, sMat, patchCount));
+                }
+            }
+        } else if (streamId.equals(CACHE_CLEAR_STREAM)) {
+
+            for (int i = 0; i < targetComponentTasks.size(); i++) {
+                int tID = targetComponentTasks.get(i);
+                if (tID % this.taskCnt == this.taskIndex) {
+                    collector.emitDirect(tID, CACHE_CLEAR_STREAM, tuple, new Values(frameId));
+                }
             }
         }
-
         collector.ack(tuple);
     }
 
@@ -96,5 +109,6 @@ public class testPatchGenBolt extends BaseRichBolt {
         outputFieldsDeclarer.declareStream(PATCH_STREAM, new Fields("patchIdentifier", "patchCount"));
         //EmitDirect
         outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, true, new Fields("frameId", "frameMat", "patchCount"));
+        outputFieldsDeclarer.declareStream(CACHE_CLEAR_STREAM, true, new Fields("frameId"));
     }
 }
