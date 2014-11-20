@@ -12,9 +12,7 @@ import topology.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import static topology.Constants.CACHE_CLEAR_STREAM;
-import static topology.Constants.PATCH_STREAM;
-import static topology.Constants.RAW_FRAME_STREAM;
+import static topology.Constants.*;
 
 /**
  * Created by Intern04 on 5/8/2014.
@@ -100,6 +98,13 @@ public class testPatchGenBolt extends BaseRichBolt {
                     collector.emitDirect(tID, CACHE_CLEAR_STREAM, tuple, new Values(frameId));
                 }
             }
+        } else  if (streamId.equals(LOGO_TEMPLATE_UPDATE_STREAM)) {
+            for (int i = 0; i < targetComponentTasks.size(); i++) {
+                int tID = targetComponentTasks.get(i);
+                if (tID % this.taskCnt == this.taskIndex) {
+                    collector.emitDirect(tID, LOGO_TEMPLATE_UPDATE_STREAM, tuple, new Values(tuple.getValues()));
+                }
+            }
         }
         collector.ack(tuple);
     }
@@ -110,5 +115,7 @@ public class testPatchGenBolt extends BaseRichBolt {
         //EmitDirect
         outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, true, new Fields("frameId", "frameMat", "patchCount"));
         outputFieldsDeclarer.declareStream(CACHE_CLEAR_STREAM, true, new Fields("frameId"));
+        outputFieldsDeclarer.declareStream(LOGO_TEMPLATE_UPDATE_STREAM, true,
+                new Fields("hostPatchIdentifier", "detectedLogoRect", "parentIdentifier"));
     }
 }
