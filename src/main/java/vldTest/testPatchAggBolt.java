@@ -63,7 +63,7 @@ public class testPatchAggBolt extends BaseRichBolt {
             collector.emit(PROCESSED_FRAME_STREAM, tuple, new Values(frameId, foundRectAccount.get(frameId)));
             frameAccount.remove(frameId);
             foundRectAccount.remove(frameId);
-            ///collector.emit(CACHE_CLEAR_STREAM, tuple, new Values(frameId));
+            collector.emit(CACHE_CLEAR_STREAM, tuple, new Values(frameId));
         }
         collector.ack(tuple);
     }
@@ -71,6 +71,6 @@ public class testPatchAggBolt extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(PROCESSED_FRAME_STREAM, new Fields("frameId", "foundRectList"));
-        ///outputFieldsDeclarer.declareStream(CACHE_CLEAR_STREAM, new Fields("frameId"));
+        outputFieldsDeclarer.declareStream(CACHE_CLEAR_STREAM, new Fields("frameId"));
     }
 }

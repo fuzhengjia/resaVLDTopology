@@ -51,6 +51,7 @@ public class testVLDTopology {
                 .shuffleGrouping("t-patchGen", PATCH_STREAM)
                 .allGrouping("t-processor", LOGO_TEMPLATE_UPDATE_STREAM)
                 .directGrouping("t-patchGen", RAW_FRAME_STREAM)
+                .allGrouping("t-intermediate", CACHE_CLEAR_STREAM)
                 .setNumTasks(getInt(conf, "PatchProcessorBolt.tasks"));
 
         builder.setBolt("t-intermediate", new testPatchAggBolt(), getInt(conf, "PatchAggregatorBolt.parallelism"))

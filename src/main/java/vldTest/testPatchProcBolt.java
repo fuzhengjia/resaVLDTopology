@@ -31,20 +31,19 @@ public class testPatchProcBolt extends BaseRichBolt {
     //private HashSet<Serializable.PatchIdentifier> receivedUpdatesFrom;
     //Modified by Tom on Sep 8, 2014
     private Map<Serializable.PatchIdentifier, Boolean> receivedUpdatesFrom;
+
     /** The receipt */
-    ///private HashMap<Integer, Serializable.Mat> frameMap;
-    ///private HashMap< Integer, Queue<Serializable.PatchIdentifier> > patchQueue;
-    ///private HashMap< Integer, Queue<LogoTemplateUpdate> > templateQueue;
-
-    private Map<Integer, Serializable.Mat> frameMap;
-    private Map<Integer, Queue<Serializable.PatchIdentifier> > patchQueue;
-    private Map<Integer, Queue<LogoTemplateUpdate> > templateQueue;
-
+    private HashMap<Integer, Serializable.Mat> frameMap;
+    private HashMap< Integer, Queue<Serializable.PatchIdentifier> > patchQueue;
+    private HashMap< Integer, Queue<LogoTemplateUpdate> > templateQueue;
+    ///private Map<Integer, Serializable.Mat> frameMap;
+    ///private Map<Integer, Queue<Serializable.PatchIdentifier> > patchQueue;
+    ///private Map<Integer, Queue<LogoTemplateUpdate> > templateQueue;
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         int minNumberOfMatches = getInt(map, "minNumberOfMatches", 4);
-        int MaxSizeOfReceivedUpdatesFrom = getInt(map, "maxSizeOfLinkedHashMap", 1024);
+        int MaxSizeOfReceivedUpdatesFrom = getInt(map, "maxSizeOfLinkedHashMap", 4096);
 
         this.collector = outputCollector;
         // TODO: get path to logos & parameters from config
@@ -65,6 +64,7 @@ public class testPatchProcBolt extends BaseRichBolt {
             }
         };
 
+        /*
         frameMap = new LinkedHashMap<Integer, Serializable.Mat>(){
             @Override
             protected boolean removeEldestEntry(Map.Entry<Integer, Serializable.Mat> eldest) {
@@ -85,6 +85,10 @@ public class testPatchProcBolt extends BaseRichBolt {
                 return size() > MaxSizeOfReceivedUpdatesFrom;
             }
         };
+        */
+        frameMap = new HashMap<>();
+        patchQueue = new HashMap<>();
+        templateQueue = new HashMap<>();
     }
 
     @Override
@@ -203,9 +207,9 @@ public class testPatchProcBolt extends BaseRichBolt {
 
     // Fields("frameId")
     private void processCacheClear(Tuple tuple) {
-        //int frameId = tuple.getIntegerByField("frameId");
-        //frameMap.remove(frameId);
-        //patchQueue.remove(frameId);
-        //templateQueue.remove(frameId);
+        int frameId = tuple.getIntegerByField("frameId");
+        frameMap.remove(frameId);
+        patchQueue.remove(frameId);
+        templateQueue.remove(frameId);
     }
 }
