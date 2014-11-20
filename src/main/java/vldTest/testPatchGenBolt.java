@@ -45,10 +45,10 @@ public class testPatchGenBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
 
         String streamId = tuple.getSourceStreamId();
-        int frameId = tuple.getIntegerByField("frameId");
 
         if (streamId.equals(RAW_FRAME_STREAM)) {
 
+            int frameId = tuple.getIntegerByField("frameId");
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField("frameMat");
 
             //TODO get params from config map
@@ -91,7 +91,7 @@ public class testPatchGenBolt extends BaseRichBolt {
                 }
             }
         } else if (streamId.equals(CACHE_CLEAR_STREAM)) {
-
+            int frameId = tuple.getIntegerByField("frameId");
             for (int i = 0; i < targetComponentTasks.size(); i++) {
                 int tID = targetComponentTasks.get(i);
                 if (tID % this.taskCnt == this.taskIndex) {
