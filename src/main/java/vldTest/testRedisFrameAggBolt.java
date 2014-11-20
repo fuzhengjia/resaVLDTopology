@@ -64,7 +64,7 @@ public class testRedisFrameAggBolt extends BaseRichBolt {
 
         this.sleepTime = ConfigUtil.getInt(map, "sleepTime", 10);
         this.startFrameID = ConfigUtil.getInt(map, "startFrameID", 1);
-        this.maxWaitCount = ConfigUtil.getInt(map, "maxWaitCount", 40);
+        this.maxWaitCount = ConfigUtil.getInt(map, "maxWaitCount", 100);
 
         producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
 

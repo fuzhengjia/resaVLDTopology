@@ -19,7 +19,10 @@ import static topology.StormConfigManager.getString;
 import static topology.StormConfigManager.readConfig;
 
 /**
- * Created by Intern04 on 4/8/2014.
+ * Created by Tom
+ * Difference to previous version:
+ * 1. use new VideoSender module,
+ * 2. use new videoProducer module,
  */
 public class testVLDTopology {
 
@@ -44,14 +47,13 @@ public class testVLDTopology {
                 .allGrouping("t-FSout", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "TomPatchGen.tasks"));
 
-        builder.setBolt("t-processor", new PatchProcessorBolt(), getInt(conf, "PatchProcessorBolt.parallelism"))
+        builder.setBolt("t-processor", new testPatchProcBolt(), getInt(conf, "PatchProcessorBolt.parallelism"))
                 .shuffleGrouping("t-patchGen", PATCH_STREAM)
                 .allGrouping("t-processor", LOGO_TEMPLATE_UPDATE_STREAM)
-                .allGrouping("t-intermediate", CACHE_CLEAR_STREAM)
                 .directGrouping("t-patchGen", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "PatchProcessorBolt.tasks"));
 
-        builder.setBolt("t-intermediate", new PatchAggregatorBolt(), getInt(conf, "PatchAggregatorBolt.parallelism"))
+        builder.setBolt("t-intermediate", new testPatchAggBolt(), getInt(conf, "PatchAggregatorBolt.parallelism"))
                 .fieldsGrouping("t-processor", DETECTED_LOGO_STREAM, new Fields("frameId"))
                 .setNumTasks(getInt(conf, "PatchAggregatorBolt.tasks"));
 
