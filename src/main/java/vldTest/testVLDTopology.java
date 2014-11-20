@@ -46,7 +46,7 @@ public class testVLDTopology {
 
         builder.setBolt("t-patchGen", new testPatchGenBolt("t-processor"), getInt(conf, "TomPatchGen.parallelism"))
                 .allGrouping("t-FSout", RAW_FRAME_STREAM)
-                .allGrouping("t-aggregator", CACHE_CLEAR_STREAM)
+                .allGrouping("t-intermediate", CACHE_CLEAR_STREAM)
                 .setNumTasks(getInt(conf, "TomPatchGen.tasks"));
 
         builder.setBolt("t-processor", new testPatchProcBolt(), getInt(conf, "PatchProcessorBolt.parallelism"))
