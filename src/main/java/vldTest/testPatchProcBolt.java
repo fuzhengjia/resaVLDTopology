@@ -16,7 +16,7 @@ import topology.Serializable;
 import java.util.*;
 
 import static topology.Constants.*;
-import static topology.StormConfigManager.getInt;
+import static util.ConfigUtil.*;
 import static topology.StormConfigManager.getListOfStrings;
 
 /**
@@ -31,8 +31,6 @@ public class testPatchProcBolt extends BaseRichBolt {
     //private HashSet<Serializable.PatchIdentifier> receivedUpdatesFrom;
     //Modified by Tom on Sep 8, 2014
     private Map<Serializable.PatchIdentifier, Boolean> receivedUpdatesFrom;
-    private static int MaxSizeOfReceivedUpdatesFrom = 8192;
-
     /** The receipt */
     ///private HashMap<Integer, Serializable.Mat> frameMap;
     ///private HashMap< Integer, Queue<Serializable.PatchIdentifier> > patchQueue;
@@ -45,7 +43,9 @@ public class testPatchProcBolt extends BaseRichBolt {
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-        int minNumberOfMatches = Math.min(getInt(map, "minNumberOfMatches"), 4);
+        int minNumberOfMatches = getInt(map, "minNumberOfMatches", 4);
+        int MaxSizeOfReceivedUpdatesFrom = getInt(map, "maxSizeOfLinkedHashMap", 1024);
+
         this.collector = outputCollector;
         // TODO: get path to logos & parameters from config
         Parameters parameters = new Parameters()
