@@ -59,6 +59,7 @@ public class SimpleVideoSender {
             generatedFrames = 0;
             long start = System.currentTimeMillis();
             long last = start;
+            long qLen = 0;
 
             while (generatedFrames < targetCount) {
                 opencv_core.IplImage image = grabber.grab();
@@ -76,8 +77,9 @@ public class SimpleVideoSender {
                         Thread.sleep(remain);
                     }
                     last = System.currentTimeMillis();
+                    qLen = jedis.llen(this.queueName);
                     System.out.println("Current: " + last + ", elapsed: " + (last - start)
-                            + ",totalSend: " + generatedFrames+ ", remain: " + remain);
+                            + ",totalSend: " + generatedFrames+ ", remain: " + remain + ", sendQLen: " + qLen);
                 }
             }
         } catch (FrameGrabber.Exception e) {
