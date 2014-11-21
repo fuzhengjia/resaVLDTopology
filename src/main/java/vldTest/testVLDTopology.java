@@ -46,17 +46,17 @@ public class testVLDTopology {
 
         builder.setBolt("t-patchGen", new testPatchGenBolt("t-processor"), getInt(conf, "TomPatchGen.parallelism"))
                 .allGrouping("t-FSout", RAW_FRAME_STREAM)
-                .allGrouping("t-intermediate", CACHE_CLEAR_STREAM)
-                .allGrouping("t-processor", LOGO_TEMPLATE_UPDATE_STREAM)
+                //.allGrouping("t-intermediate", CACHE_CLEAR_STREAM)
+                //.allGrouping("t-processor", LOGO_TEMPLATE_UPDATE_STREAM)
                 .setNumTasks(getInt(conf, "TomPatchGen.tasks"));
 
         builder.setBolt("t-processor", new testPatchProcBolt(), getInt(conf, "PatchProcessorBolt.parallelism"))
                 .shuffleGrouping("t-patchGen", PATCH_STREAM)
-                //.allGrouping("t-processor", LOGO_TEMPLATE_UPDATE_STREAM)
+                .allGrouping("t-processor", LOGO_TEMPLATE_UPDATE_STREAM)
                 .directGrouping("t-patchGen", RAW_FRAME_STREAM)
-                .directGrouping("t-patchGen", CACHE_CLEAR_STREAM)
-                .directGrouping("t-patchGen", LOGO_TEMPLATE_UPDATE_STREAM)
-                //.allGrouping("t-intermediate", CACHE_CLEAR_STREAM)
+                //.directGrouping("t-patchGen", CACHE_CLEAR_STREAM)
+                //.directGrouping("t-patchGen", LOGO_TEMPLATE_UPDATE_STREAM)
+                .allGrouping("t-intermediate", CACHE_CLEAR_STREAM)
                 .setNumTasks(getInt(conf, "PatchProcessorBolt.tasks"));
 
         builder.setBolt("t-intermediate", new testPatchAggBolt(), getInt(conf, "PatchAggregatorBolt.parallelism"))
