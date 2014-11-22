@@ -23,6 +23,7 @@ import com.jmatio.types.MLDouble;
 
 import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
 import static org.bytedeco.javacpp.opencv_core.cvMat;
+import static org.bytedeco.javacpp.opencv_core.max;
 import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
 import static tool.Constant.*;
 import static topology.StormConfigManager.getInt;
@@ -88,7 +89,8 @@ public class AddTrajBolt extends BaseRichBolt {
             //System.out.println("group1Cnt: " + group1.size() + ", group2Cnt: "
             //        + group2.size() + ", groups: " + groupIDs.size());
 
-            groupColor = getRandomColor(maxGroupID, 3);
+            ///groupColor = getRandomColor(maxGroupID, 3);
+            groupColor = getPseudoRandomColor(maxGroupID, 3);
 
             reader = new BufferedReader(new FileReader(trajFile));
             String rdLine = null;
@@ -190,6 +192,20 @@ public class AddTrajBolt extends BaseRichBolt {
             int[] rgbRnd = new int[dim];
             for (int j = 0; j < dim; j++) {
                 rgbRnd[j] = (int) (255 * rnd.nextDouble());
+            }
+            ret.add(rgbRnd);
+        }
+        return ret;
+    }
+
+    static ArrayList<int[]> getPseudoRandomColor(int maxID, int dim) {
+        //Random rnd = new Random(System.currentTimeMillis());
+        ArrayList<int[]> ret = new ArrayList<>();
+        for (int i = 0; i < maxID; i++) {
+            int[] rgbRnd = new int[dim];
+            for (int j = 0; j < dim; j++) {
+                //rgbRnd[j] = (int) (255 * rnd.nextDouble());
+                rgbRnd[j] = (i + dim * j) % 255;
             }
             ret.add(rgbRnd);
         }
