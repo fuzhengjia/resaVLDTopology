@@ -71,10 +71,6 @@ public class testRedisFrameAggBolt extends BaseRichBolt {
         producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
 
         new Thread(producer).start();
-        ///be careful, will be a bug, causing exceptions in open java, here should call this
-        //function first, so that the new mat will perform normal.
-        //new opencv_core.IplImage();
-
     }
 
     // Fields("frameId", "frameMat", "patchCount")
@@ -102,6 +98,9 @@ public class testRedisFrameAggBolt extends BaseRichBolt {
         }
 
         if (frameMap.containsKey(frameId) && processedFrames.containsKey(frameId)) {
+            ///be careful, will be a bug, causing exceptions in open java, here should call this
+            //function first, so that the new mat will perform normal.
+            opencv_core.IplImage image = new opencv_core.IplImage();
             opencv_core.Mat mat = frameMap.get(frameId).toJavaCVMat();
             List<Serializable.Rect> list = processedFrames.get(frameId);
 
