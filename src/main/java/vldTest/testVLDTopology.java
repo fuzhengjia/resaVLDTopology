@@ -7,9 +7,6 @@ import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
-import topology.PatchAggregatorBolt;
-import topology.PatchProcessorBolt;
-import topology.RedisFrameAggregatorBolt2;
 
 import java.io.FileNotFoundException;
 

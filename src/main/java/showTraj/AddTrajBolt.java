@@ -35,7 +35,6 @@ public class AddTrajBolt extends BaseRichBolt {
     OutputCollector collector;
 
     private ArrayList<ArrayList<Float>> frameTraj = new  ArrayList<ArrayList<Float>>();
-    private ArrayList<ArrayList<Float>> frameTrajIpnut = new  ArrayList<ArrayList<Float>>();
     private BufferedReader reader;
     private ArrayList<int[]> groupColor;
     private int maxFrameID;
@@ -43,6 +42,7 @@ public class AddTrajBolt extends BaseRichBolt {
 
     private String path;
     private int repeatCount;
+    private int sampleN;
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -50,12 +50,17 @@ public class AddTrajBolt extends BaseRichBolt {
 
         //String path = "C:\\Users\\Tom.fu\\Desktop\\fromPeiYong\\";
         path = getString(map, "sourceFilePath");
-        repeatCount = getInt(map, "repeatCount");
-        String file1 = path + "traj_bend_0001_trajectory_group_1.mat";
-        String file2 = path + "traj_bend_0001_trajectory_group_2.mat";
-        String trajFile = path + "traj_bend_0001.txt";
+        sampleN = getInt(map, "showTrajSampleN");
+        //String file1 = path + "traj_bend_0001_trajectory_group_1.mat";
+        //String file2 = path + "traj_bend_0001_trajectory_group_2.mat";
+        //String trajFile = path + "traj_bend_0001.txt";
+        //String file3 = path + "group_ids_Chalearn_seq01.mat";
+        String file3 = path + getString(map, "groupFile");
+        //String trajFile = path + "traj_Seq01_color.txt";
+        String trajFile = path + getString(map, "trajFile");
 
         try {
+            /*
             MatFileReader mfr1 = new MatFileReader(file1);
             MLDouble mlData1 = (MLDouble) ((MLCell) mfr1.getMLArray("group_ids")).cells().get(0);
             ArrayList<Integer> group1 = getIndexArrayFromMLDouble(mlData1);
@@ -67,10 +72,16 @@ public class AddTrajBolt extends BaseRichBolt {
             int maxGroup1 = group1.stream().max(Integer::compare).get();
             ArrayList<Integer> group2New = (ArrayList<Integer>) group2.stream().map(item -> item + maxGroup1)
                     .collect(Collectors.toList());
+            */
 
             groupIDs = new ArrayList<>();
-            groupIDs.addAll(group1);
-            groupIDs.addAll(group2);
+            //groupIDs.addAll(group1);
+            //groupIDs.addAll(group2);
+
+            MatFileReader mfr3 = new MatFileReader(file3);
+            MLDouble mlData3 = (MLDouble) ((MLCell) mfr3.getMLArray("group_ids")).cells().get(0);
+            ArrayList<Integer> group3 = getIndexArrayFromMLDouble(mlData3, sampleN);
+            groupIDs.addAll(group3);
 
             int maxGroupID = groupIDs.stream().max(Integer::compare).get();
             //System.out.println("maxGroup1: " + maxGroup1 + ", maxGroupID: " + maxGroupID);
@@ -81,36 +92,23 @@ public class AddTrajBolt extends BaseRichBolt {
 
             reader = new BufferedReader(new FileReader(trajFile));
             String rdLine = null;
+            int lineCnt = 0;
             while ((rdLine = reader.readLine()) != null) {
-                ArrayList<String> rdLineResults = new ArrayList<String>(Arrays.asList(rdLine.split(" ")));
-                ArrayList<Float> rdResults = (ArrayList<Float>) rdLineResults.stream().map(item -> Float.valueOf(item))
-                        .collect(Collectors.toList());
-                frameTrajIpnut.add(rdResults);
+                if (lineCnt % sampleN == 0) {
+                    ArrayList<String> rdLineResults = new ArrayList<String>(Arrays.asList(rdLine.split(" ")));
+                    ArrayList<Float> rdResults = (ArrayList<Float>) rdLineResults.stream().map(item -> Float.valueOf(item))
+                            .collect(Collectors.toList());
+                    frameTraj.add(rdResults);
+                }
+                lineCnt ++;
             }
             reader.close();
         } catch (Exception e) {
             System.out.println(e.getStackTrace());
         }
 
-        int maxFrameIDOff = frameTrajIpnut.stream().mapToInt(item->item.get(0).intValue()).reduce(Integer::max).getAsInt();
-        frameTraj.addAll(frameTrajIpnut);
+        int maxFrameID = frameTraj.stream().mapToInt(item->item.get(0).intValue()).reduce(Integer::max).getAsInt();
 
-        ArrayList<Integer> groupIDClone = new ArrayList<Integer>();
-        groupIDClone.addAll(groupIDs);
-
-        for (int  i = 0; i < repeatCount; i ++) {
-            maxFrameID = i * maxFrameIDOff;
-            ArrayList<ArrayList<Float>> tmp = (ArrayList<ArrayList<Float>>)frameTrajIpnut.stream().map(item ->
-            {
-                int newID = item.get(0).intValue() + maxFrameID;
-                ArrayList<Float> newArray = new ArrayList<Float>();
-                newArray.addAll(item);
-                newArray.set(0, (float)newID);
-                return newArray;
-            }).collect(Collectors.toList());
-            frameTraj.addAll(tmp);
-            groupIDs.addAll(groupIDClone);
-        }
     }
 
     @Override
@@ -174,11 +172,13 @@ public class AddTrajBolt extends BaseRichBolt {
         outputFieldsDeclarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
     }
 
-    static ArrayList<Integer> getIndexArrayFromMLDouble(MLDouble input) {
+    static ArrayList<Integer> getIndexArrayFromMLDouble(MLDouble input, int sampleN) {
         double[][] temp = input.getArray();
         ArrayList<Integer> ret = new ArrayList<>();
         for (int i = 0; i < temp.length; i++) {
-            ret.add((int) temp[i][0]);
+            if (i % sampleN == 0) {
+                ret.add((int) temp[i][0]);
+            }
         }
         return ret;
     }
