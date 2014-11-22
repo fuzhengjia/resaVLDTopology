@@ -71,7 +71,9 @@ public class testRedisFrameAggBolt extends BaseRichBolt {
         producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
 
         new Thread(producer).start();
-        new opencv_core.IplImage();
+        ///be careful, will be a bug, causing exceptions in open java, here should call this
+        //function first, so that the new mat will perform normal.
+        //new opencv_core.IplImage();
 
     }
 
