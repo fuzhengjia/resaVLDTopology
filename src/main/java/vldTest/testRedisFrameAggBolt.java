@@ -71,7 +71,7 @@ public class testRedisFrameAggBolt extends BaseRichBolt {
         producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
 
         new Thread(producer).start();
-        //image = new opencv_core.IplImage();
+        new opencv_core.IplImage();
 
     }
 
