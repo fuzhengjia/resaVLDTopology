@@ -26,7 +26,7 @@ public class tomShowTrajTopology {
             System.exit(0);
         }
         Config conf = readConfig(args[0]);
-        int numberOfWorkers = getInt(conf, "numberOfWorkers");
+        int numberOfWorkers = getInt(conf, "st-numberOfWorkers");
         //int numberOfAckers = getInt(conf, "numberOfAckers");
 
         TopologyBuilder builder = new TopologyBuilder();
@@ -50,7 +50,7 @@ public class tomShowTrajTopology {
 
         conf.setNumWorkers(numberOfWorkers);
         //conf.setNumAckers(numberOfAckers);
-        conf.setMaxSpoutPending(getInt(conf, "MaxSpoutPending"));
+        conf.setMaxSpoutPending(getInt(conf, "st-MaxSpoutPending"));
 
         StormSubmitter.submitTopology("tomShowTrajTop", conf, topology);
 
