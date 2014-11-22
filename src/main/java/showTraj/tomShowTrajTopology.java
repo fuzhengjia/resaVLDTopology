@@ -27,7 +27,7 @@ public class tomShowTrajTopology {
         }
         Config conf = readConfig(args[0]);
         int numberOfWorkers = getInt(conf, "numberOfWorkers");
-        int numberOfAckers = getInt(conf, "numberOfAckers");
+        //int numberOfAckers = getInt(conf, "numberOfAckers");
 
         TopologyBuilder builder = new TopologyBuilder();
 
