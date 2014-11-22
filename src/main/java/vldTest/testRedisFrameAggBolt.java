@@ -100,7 +100,10 @@ public class testRedisFrameAggBolt extends BaseRichBolt {
         if (frameMap.containsKey(frameId) && processedFrames.containsKey(frameId)) {
             ///be careful, will be a bug, causing exceptions in open java, here should call this
             //function first, so that the new mat will perform normal.
-            opencv_core.IplImage image = new opencv_core.IplImage();
+            //When #of executors are large, this can be omit, if there is exception threw by mat line,
+            //then need this.
+            //opencv_core.IplImage image = new opencv_core.IplImage();
+            //through testing on both 32 and 40 executors (8 and 16 for t-processor bolt, resp.)
             opencv_core.Mat mat = frameMap.get(frameId).toJavaCVMat();
             List<Serializable.Rect> list = processedFrames.get(frameId);
 
