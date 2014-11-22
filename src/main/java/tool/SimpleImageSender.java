@@ -68,7 +68,7 @@ public class SimpleImageSender {
                     System.out.println("File not exist: " + fileName);
                     continue;
                 }
-                System.out.println(fileName);
+                //System.out.println(fileName);
 
                 opencv_core.Mat matOrg = opencv_highgui.imread(fileName, opencv_highgui.CV_LOAD_IMAGE_COLOR);
                 BufferedImage bufferedImage = matOrg.getBufferedImage();

@@ -205,7 +205,7 @@ public class AddTrajBolt extends BaseRichBolt {
             int[] rgbRnd = new int[dim];
             for (int j = 0; j < dim; j++) {
                 //rgbRnd[j] = (int) (255 * rnd.nextDouble());
-                rgbRnd[j] = (i + dim * j) % 255;
+                rgbRnd[j] = (i + dim * i + i * i * dim * dim + 255 * j / dim) % 255;
             }
             ret.add(rgbRnd);
         }
