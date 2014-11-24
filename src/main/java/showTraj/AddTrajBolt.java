@@ -44,6 +44,7 @@ public class AddTrajBolt extends BaseRichBolt {
     private String path;
     private int repeatCount;
     private int sampleN;
+    private int colorSeed;
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -52,6 +53,7 @@ public class AddTrajBolt extends BaseRichBolt {
         //String path = "C:\\Users\\Tom.fu\\Desktop\\fromPeiYong\\";
         path = getString(map, "sourceFilePath");
         sampleN = getInt(map, "showTrajSampleN");
+        colorSeed = getInt(map, "colorSeed");
         //String file1 = path + "traj_bend_0001_trajectory_group_1.mat";
         //String file2 = path + "traj_bend_0001_trajectory_group_2.mat";
         //String trajFile = path + "traj_bend_0001.txt";
@@ -90,7 +92,7 @@ public class AddTrajBolt extends BaseRichBolt {
             //        + group2.size() + ", groups: " + groupIDs.size());
 
             ///groupColor = getRandomColor(maxGroupID, 3);
-            groupColor = getPseudoRandomColor(maxGroupID, 3);
+            groupColor = getPseudoRandomColor(maxGroupID, 3, colorSeed);
 
             reader = new BufferedReader(new FileReader(trajFile));
             String rdLine = null;
@@ -198,14 +200,15 @@ public class AddTrajBolt extends BaseRichBolt {
         return ret;
     }
 
-    static ArrayList<int[]> getPseudoRandomColor(int maxID, int dim) {
+    static ArrayList<int[]> getPseudoRandomColor(int maxID, int dim, int seed) {
         //Random rnd = new Random(System.currentTimeMillis());
+        Random rnd = new Random(seed);
         ArrayList<int[]> ret = new ArrayList<>();
         for (int i = 0; i < maxID; i++) {
             int[] rgbRnd = new int[dim];
             for (int j = 0; j < dim; j++) {
-                //rgbRnd[j] = (int) (255 * rnd.nextDouble());
-                rgbRnd[j] = (i + dim * i + i * 119 + 255 * j / dim) % 255;
+                rgbRnd[j] = (int) (255 * rnd.nextDouble());
+                //rgbRnd[j] = (i + dim * i + i * 119 + 255 * j / dim) % 255;
             }
             ret.add(rgbRnd);
         }
