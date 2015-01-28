@@ -16,6 +16,7 @@ import java.util.*;
 import backtype.storm.Config;
 import util.ConfigUtil;
 
+import static org.bytedeco.javacpp.opencv_highgui.cvLoadImage;
 import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getString;
 import static topology.StormConfigManager.readConfig;
@@ -69,7 +70,7 @@ public class SimpleImageSender {
                     continue;
                 }
                 //System.out.println(fileName);
-
+                opencv_core.IplImage imageFk = cvLoadImage(fileName);
                 opencv_core.Mat matOrg = opencv_highgui.imread(fileName, opencv_highgui.CV_LOAD_IMAGE_COLOR);
                 BufferedImage bufferedImage = matOrg.getBufferedImage();
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
