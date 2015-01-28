@@ -7,14 +7,22 @@ import com.esotericsoftware.kryo.io.Output;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.opencv_core;
 
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
-/**This class provides kryo serialization for the JavaCV's Mat and Rect objects, so that Storm can wrap them in tuples.
- *         Serializable.Mat - kryo serializable analog of opencv_core.Mat object.<p>
- *         Serializable.Rect - kryo serializable analog of opencv_core.Rect object.<p>
- *         Serializable.PatchIdentifier is also kryo serializable object,
- *         which is used to identify each patch of the frame.<p>
- *         <p>
+/**
+ * This class provides kryo serialization for the JavaCV's Mat and Rect objects, so that Storm can wrap them in tuples.
+ * Serializable.Mat - kryo serializable analog of opencv_core.Mat object.<p>
+ * Serializable.Rect - kryo serializable analog of opencv_core.Rect object.<p>
+ * Serializable.PatchIdentifier is also kryo serializable object,
+ * which is used to identify each patch of the frame.<p>
+ * <p>
+ *
  * @author Nurlan Kanapin
  * @see Serializable.Mat
  * @see Serializable.Rect
@@ -108,10 +116,11 @@ public class Serializable {
 
     /**
      * Kryo Serializable Rect class.
-     *
      */
     public static class Rect implements KryoSerializable, java.io.Serializable {
-        /** x, y, width, height - x and y coordinates of the left upper corner of the rectangle, its width and height */
+        /**
+         * x, y, width, height - x and y coordinates of the left upper corner of the rectangle, its width and height
+         */
         public int x, y, width, height;
 
         public Rect(opencv_core.Rect rect) {
@@ -173,18 +182,23 @@ public class Serializable {
         }
     }
 
-    /** This is a serializable class used for patch identification. Each patch needs to be distinguished form others.
+    /**
+     * This is a serializable class used for patch identification. Each patch needs to be distinguished form others.
      * Each patch is uniquely identified by the id of its frame and by the rectangle it corresponds to.
-     *
      */
     public static class PatchIdentifier implements KryoSerializable, java.io.Serializable {
-        /** Frame id of this patch */
+        /**
+         * Frame id of this patch
+         */
         public int frameId;
-        /** Rectangle or Region of Interest of this patch. */
+        /**
+         * Rectangle or Region of Interest of this patch.
+         */
         public Rect roi;
 
         /**
          * Creates PatchIdentifier with given frame id and rectangle.
+         *
          * @param frameId
          * @param roi
          */
@@ -214,6 +228,7 @@ public class Serializable {
 
         /**
          * String representation of this patch identifier.
+         *
          * @return the string in the format N%04d@%04d@%04d@%04d@%04d if roi is not null, and N%04d@null otherwise.
          */
         public String toString() {
@@ -240,6 +255,54 @@ public class Serializable {
             int result = frameId;
             result = 31 * result + (roi != null ? roi.hashCode() : 0);
             return result;
+        }
+    }
+
+
+    public static class IplImage implements KryoSerializable, java.io.Serializable {
+        private byte[] data;
+
+        public IplImage(opencv_core.IplImage image) {
+
+            BufferedImage bufferedImage = image.getBufferedImage();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                ImageIO.write(bufferedImage, "JPEG", baos);
+                data = baos.toByteArray();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+//        public IplImage(opencv_core.IplImage image) {
+//
+//            int size = image.arraySize();
+//            ByteBuffer bb = image.getByteBuffer();
+//            bb.rewind();
+//            data = new byte[size];
+//            bb.get(data);
+//        }
+
+
+        public opencv_core.IplImage createJavaIplImage() {
+            try {
+                ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
+                BufferedImage img = ImageIO.read(iis);
+                return opencv_core.IplImage.createFrom(img);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        public void write(Kryo kryo, Output output) {
+            output.write(data);
+        }
+
+        @Override
+        public void read(Kryo kryo, Input input) {
+            input.read(data);
         }
     }
 }
