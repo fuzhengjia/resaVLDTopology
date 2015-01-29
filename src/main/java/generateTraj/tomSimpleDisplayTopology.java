@@ -9,6 +9,7 @@ import backtype.storm.topology.TopologyBuilder;
 
 import showTraj.RedisImageFrameOutput;
 import tool.FrameImplImageSource;
+import topology.Serializable;
 
 import java.io.FileNotFoundException;
 
@@ -49,6 +50,7 @@ public class tomSimpleDisplayTopology {
         //conf.setNumAckers(numberOfAckers);
         conf.setMaxSpoutPending(getInt(conf, "st-MaxSpoutPending"));
 
+        conf.registerSerialization(Serializable.IplImage.class);
         StormSubmitter.submitTopology("tomSimpleDisplayTopology", conf, topology);
 
     }
