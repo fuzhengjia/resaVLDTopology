@@ -259,8 +259,10 @@ public class Serializable {
     }
 
 
-    public static class IplImage implements KryoSerializable, java.io.Serializable {
+    public static class IplImage implements KryoSerializable {
         private byte[] data;
+
+        public IplImage(){}
 
         public IplImage(opencv_core.IplImage image) {
 
@@ -273,16 +275,6 @@ public class Serializable {
                 e.printStackTrace();
             }
         }
-
-//        public IplImage(opencv_core.IplImage image) {
-//
-//            int size = image.arraySize();
-//            ByteBuffer bb = image.getByteBuffer();
-//            bb.rewind();
-//            data = new byte[size];
-//            bb.get(data);
-//        }
-
 
         public opencv_core.IplImage createJavaIplImage() {
             try {
@@ -297,12 +289,14 @@ public class Serializable {
 
         @Override
         public void write(Kryo kryo, Output output) {
-            output.write(data);
+            output.writeInt(data.length);
+            output.writeBytes(data);
         }
 
         @Override
         public void read(Kryo kryo, Input input) {
-            input.read(data);
+            int size = input.readInt();
+            this.data = input.readBytes(size);
         }
     }
 }

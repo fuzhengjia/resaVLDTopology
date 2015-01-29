@@ -16,7 +16,7 @@ import static tool.Constant.STREAM_FRAME_OUTPUT;
 import static topology.StormConfigManager.*;
 
 /**
- * Created by Intern04 on 4/8/2014.
+ * Created by Tom Fu on Jan 29, 2015.
  */
 public class tomSimpleDisplayTopology {
 
