@@ -109,15 +109,15 @@ public class RedisStreamProducerBeta implements Runnable {
                     } else if (peekFrame.frameId == (currentFrameID + 1)) {
                         StreamFrame nextFrame = pollFrame();
                         opencv_core.IplImage iplImage = nextFrame.image.asIplImage();
-                        //BufferedImage bufferedImage = iplImage.getBufferedImage();
-                        //ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        //ImageIO.write(bufferedImage, "JPEG", baos);
-                        //jedis.rpush(this.queueName, baos.toByteArray());
+                        BufferedImage bufferedImage = iplImage.getBufferedImage();
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ImageIO.write(bufferedImage, "JPEG", baos);
+                        jedis.rpush(this.queueName, baos.toByteArray());
 
-                        int size = iplImage.arraySize();
-                        byte[] data = new byte[size];
-                        iplImage.getByteBuffer().get(data);
-                        jedis.rpush(this.queueName, data);
+//                        int size = iplImage.arraySize();
+//                        byte[] data = new byte[size];
+//                        iplImage.getByteBuffer().get(data);
+//                        jedis.rpush(this.queueName, data);
 
                         System.out.println("finishedAdd: " + System.currentTimeMillis() + ",Fid: " + nextFrame.frameId);
                         currentFrameID++;
