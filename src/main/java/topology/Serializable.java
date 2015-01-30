@@ -504,9 +504,15 @@ public class Serializable {
             this.depth = image.depth();
             this.channels = image.nChannels();
 
-            int size = image.imageSize();
+            int size = image.arraySize();
             data = new byte[size];
-            image.getByteBuffer().get(data);
+            //image.getByteBuffer().get(data);
+
+            ByteBuffer bb = image.getByteBuffer();
+            bb.rewind();
+            data = new byte[size];
+            while (bb.hasRemaining())  // should happen only once
+                bb.get(data);
         }
 
         //public static IplImage create(int width, int height, int depth, int channels)
