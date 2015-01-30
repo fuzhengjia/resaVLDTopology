@@ -470,16 +470,34 @@ public class Serializable {
 
         public IplImage(){}
 
-        public IplImage(opencv_core.IplImage image) {
+//        public IplImage(opencv_core.IplImage image) {
+//
+//            BufferedImage bufferedImage = image.getBufferedImage();
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            try {
+//                ImageIO.write(bufferedImage, "JPEG", baos);
+//                data = baos.toByteArray();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
-            BufferedImage bufferedImage = image.getBufferedImage();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try {
-                ImageIO.write(bufferedImage, "JPEG", baos);
-                data = baos.toByteArray();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//        public opencv_core.IplImage createJavaIplImage() {
+//            try {
+//                ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
+//                BufferedImage img = ImageIO.read(iis);
+//                return opencv_core.IplImage.createFrom(img);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            return null;
+//        }
+
+        public IplImage(opencv_core.IplImage image){
+            int size = image.arraySize();
+            ByteBuffer bb = image.getByteBuffer();
+            data = new byte[size];
+            bb.get(data);
         }
 
         public opencv_core.IplImage createJavaIplImage() {

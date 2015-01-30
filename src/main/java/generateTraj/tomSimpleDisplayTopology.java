@@ -42,14 +42,19 @@ public class tomSimpleDisplayTopology {
         builder.setSpout("fSource", new FrameImplImageSource(host, port, queueName), getInt(conf, "GenTrajSpout.parallelism"))
                 .setNumTasks(getInt(conf, "GenTrajSpout.tasks"));
 
-        builder.setBolt("fOptFlow", new opticalFlowCalculator(), getInt(conf, "GenTrajOptFlow.parallelism"))
+        //builder.setBolt("fOptFlow", new opticalFlowCalculator(), getInt(conf, "GenTrajOptFlow.parallelism"))
+        //        .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
+        //        .setNumTasks(getInt(conf, "GenTrajOptFlow.tasks"));
+
+
+        //builder.setBolt("fOut", new RedisImageFrameOutput(FIELD_FLOW_IMPL), getInt(conf, "GenTrajFrameOutput.parallelism"))
+        //        .globalGrouping("fOptFlow", STREAM_OPT_FLOW)
+        //        .setNumTasks(getInt(conf, "GenTrajFrameOutput.tasks"));
+
+        builder.setBolt("fOut", new RedisImageFrameOutput(), getInt(conf, "GenTrajFrameOutput.parallelism"))
                 .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
-                .setNumTasks(getInt(conf, "GenTrajOptFlow.tasks"));
-
-
-        builder.setBolt("fOut", new RedisImageFrameOutput(FIELD_FLOW_IMPL), getInt(conf, "GenTrajFrameOutput.parallelism"))
-                .globalGrouping("fOptFlow", STREAM_OPT_FLOW)
                 .setNumTasks(getInt(conf, "GenTrajFrameOutput.tasks"));
+
 
         StormTopology topology = builder.createTopology();
 
