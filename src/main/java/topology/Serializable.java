@@ -465,7 +465,7 @@ public class Serializable {
 //    }
 
 
-    public static class IplImage implements KryoSerializable {
+    public static class IplImage implements KryoSerializable, java.io.Serializable {
         private byte[] data;
         int width;
         int height;
@@ -506,20 +506,23 @@ public class Serializable {
 
             int size = image.arraySize();
             data = new byte[size];
-            //image.getByteBuffer().get(data);
+            image.getByteBuffer().get(data);
 
-            ByteBuffer bb = image.getByteBuffer();
-            bb.rewind();
-            data = new byte[size];
-            while (bb.hasRemaining())  // should happen only once
-                bb.get(data);
+//            ByteBuffer bb = image.getByteBuffer();
+//            bb.rewind();
+//            data = new byte[size];
+//            while (bb.hasRemaining())  // should happen only once
+//                bb.get(data);
         }
 
         //public static IplImage create(int width, int height, int depth, int channels)
         public opencv_core.IplImage createJavaIplImage() {
             opencv_core.IplImage image = opencv_core.IplImage.create(this.width, this.height, this.depth, this.channels);
-            image.getByteBuffer().clear();
             image.getByteBuffer().put(this.data);
+
+//            ByteBuffer bb = image.getByteBuffer();
+//            while (bb.hasRemaining())  // should happen only once
+//                bb.put(data);
 
             return image;
 

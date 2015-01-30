@@ -62,7 +62,7 @@ public class tomSimpleDisplayTopology {
         //conf.setNumAckers(numberOfAckers);
         conf.setMaxSpoutPending(getInt(conf, "st-MaxSpoutPending"));
 
-        conf.registerSerialization(Serializable.IplImage.class);
+        //conf.registerSerialization(Serializable.IplImage.class);
         StormSubmitter.submitTopology("tomSimpleDisplayTopology", conf, topology);
 
     }
