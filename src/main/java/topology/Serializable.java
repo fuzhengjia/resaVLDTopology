@@ -467,6 +467,10 @@ public class Serializable {
 
     public static class IplImage implements KryoSerializable {
         private byte[] data;
+        int width;
+        int height;
+        int depth;
+        int channels;
 
         public IplImage(){}
 
@@ -494,31 +498,53 @@ public class Serializable {
 //        }
 
         public IplImage(opencv_core.IplImage image){
+
+            this.width = image.width();
+            this.height = image.height();
+            this.depth = image.depth();
+            this.channels = image.nChannels();
+
             int size = image.arraySize();
-            ByteBuffer bb = image.getByteBuffer();
             data = new byte[size];
-            bb.get(data);
+            image.getByteBuffer().get(data);
+
         }
 
+        //public static IplImage create(int width, int height, int depth, int channels)
         public opencv_core.IplImage createJavaIplImage() {
-            try {
-                ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
-                BufferedImage img = ImageIO.read(iis);
-                return opencv_core.IplImage.createFrom(img);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
+            opencv_core.IplImage image = opencv_core.IplImage.create(this.width, this.height, this.depth, this.channels);
+            image.getByteBuffer().put(this.data);
+
+            return image;
+
+//            opencv_core.IplImage image = new opencv_core.IplImage();
+//
+//            try {
+//                ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
+//                BufferedImage img = ImageIO.read(iis);
+//                return opencv_core.IplImage.createFrom(img);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            return null;
         }
 
         @Override
         public void write(Kryo kryo, Output output) {
+            output.writeInt(this.width);
+            output.writeInt(this.height);
+            output.writeInt(this.depth);
+            output.writeInt(this.channels);
             output.writeInt(data.length);
             output.writeBytes(data);
         }
 
         @Override
         public void read(Kryo kryo, Input input) {
+            this.width = input.readInt();
+            this.height = input.readInt();
+            this.depth = input.readInt();
+            this.channels = input.readInt();
             int size = input.readInt();
             this.data = input.readBytes(size);
         }
