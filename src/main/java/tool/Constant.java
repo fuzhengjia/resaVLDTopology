@@ -15,6 +15,14 @@ public interface Constant {
 
     public static String FIELD_FRAME_IMPL = "frm-impl";
 
+    public static String STREAM_OPT_FLOW = "stream-optical-flow";
+
+    public static String FIELD_FLOW_IMPL = "flow-impl";
+
+    public static String FIELD_MBHX_MAT = "mbhx-mat";
+
+    public static String FIELD_MBHY_MAT = "mbhy-mat";
+
 //    public static String FIELD_POINT_X = "pt-x";
 //
 //    public static String FIELD_POINT_Y = "pt-y";

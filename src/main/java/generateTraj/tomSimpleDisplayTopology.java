@@ -13,7 +13,10 @@ import topology.Serializable;
 
 import java.io.FileNotFoundException;
 
+import static tool.Constant.FIELD_FLOW_IMPL;
 import static tool.Constant.STREAM_FRAME_OUTPUT;
+import static tool.Constant.STREAM_OPT_FLOW;
+import static tool.Constant.FIELD_FLOW_IMPL;
 import static topology.StormConfigManager.*;
 
 /**
@@ -36,13 +39,17 @@ public class tomSimpleDisplayTopology {
         int port = getInt(conf, "redis.port");
         String queueName = getString(conf, "redis.sourceQueueName");
 
-        builder.setSpout("fSource", new FrameImplImageSource(host, port, queueName), getInt(conf, "GenerateTrajSpout.parallelism"))
+        builder.setSpout("fSource", new FrameImplImageSource(host, port, queueName), getInt(conf, "GenTrajSpout.parallelism"))
                 .setNumTasks(getInt(conf, "GenerateTrajSpout.tasks"));
 
-
-        builder.setBolt("fOut", new RedisImageFrameOutput(), getInt(conf, "GenerateTrajFrameOutput.parallelism"))
+        builder.setBolt("fOptFlow", new opticalFlowCalculator(), getInt(conf, "GenTrajOptFlow.parallelism"))
                 .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
-                .setNumTasks(getInt(conf, "GenerateTrajFrameOutput.tasks"));
+                .setNumTasks(getInt(conf, "GenTrajOptFlow.tasks"));
+
+
+        builder.setBolt("fOut", new RedisImageFrameOutput(FIELD_FLOW_IMPL), getInt(conf, "GenTrajFrameOutput.parallelism"))
+                .globalGrouping("fOptFlow", STREAM_OPT_FLOW)
+                .setNumTasks(getInt(conf, "GenTrajFrameOutput.tasks"));
 
         StormTopology topology = builder.createTopology();
 

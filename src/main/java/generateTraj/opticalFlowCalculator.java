@@ -103,7 +103,6 @@ public class opticalFlowCalculator extends BaseRichBolt {
             opencv_imgproc.cvCvtColor(prev_image, prev_grey, opencv_imgproc.CV_BGR2GRAY);
             prev_grey_pyramid.rebuild(prev_grey);
 
-            collector.ack(tuple);
         } else {
             ///for later frames
             cvCopy(frame, image, null);
@@ -122,14 +121,20 @@ public class opticalFlowCalculator extends BaseRichBolt {
             int width = grey_temp.width();
             int height = grey_temp.height();
             DescMat[] mbhMatXY = MbhComp(flow, mbhInfo, width, height);
+            DescMat mbhMatX = mbhMatXY[0];
+            DescMat mbhMatY = mbhMatXY[1];
 
+            Serializable.IplImage sFlow = new Serializable.IplImage(flow);
 
+            collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sFlow, mbhMatX, mbhMatY));
         }
+        collector.ack(tuple);
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
+        outputFieldsDeclarer.declareStream(STREAM_OPT_FLOW,
+                new Fields(FIELD_FRAME_ID, FIELD_FLOW_IMPL, FIELD_MBHX_MAT, FIELD_MBHY_MAT));
     }
 
     //We have re-organized the input and output to the oringal c++ version

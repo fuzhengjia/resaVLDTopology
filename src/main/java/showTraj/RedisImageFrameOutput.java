@@ -30,12 +30,19 @@ public class RedisImageFrameOutput extends BaseRichBolt {
     private int sleepTime;
     private int startFrameID;
     private int maxWaitCount;
+    private String displayFieldString;
+
+    public RedisImageFrameOutput(){
+        this.displayFieldString = FIELD_FRAME_IMPL;
+    }
+
+    public RedisImageFrameOutput(String fieldString){
+        this.displayFieldString = fieldString;
+    }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-
     }
-
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 
@@ -58,7 +65,7 @@ public class RedisImageFrameOutput extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        Serializable.IplImage sImage = (Serializable.IplImage) tuple.getValueByField(FIELD_FRAME_IMPL);
+        Serializable.IplImage sImage = (Serializable.IplImage) tuple.getValueByField(this.displayFieldString);
         opencv_core.IplImage image = sImage.createJavaIplImage();
         opencv_core.Mat mat = new opencv_core.Mat(image);
 

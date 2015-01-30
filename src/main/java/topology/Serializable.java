@@ -259,6 +259,212 @@ public class Serializable {
     }
 
 
+    /**
+     * Kryo Serializable Mat class.
+     * Essential fields are image data itself, rows and columns count and type of the data.
+     */
+//    public static class Mat implements KryoSerializable {
+//        private byte[] data;
+//        private int rows, cols, type;
+//
+//        public byte[] getData() {
+//            return data;
+//        }
+//
+//        public int getRows() {
+//            return rows;
+//        }
+//
+//        public int getCols() {
+//            return cols;
+//        }
+//
+//        public int getType() {
+//            return type;
+//        }
+//
+//        public Mat(){}//empty construct function, required by KryoSerializable
+//
+//        public Mat(int rows, int cols, int type, byte[] data) {
+//            this.rows = rows;
+//            this.cols = cols;
+//            this.type = type;
+//            this.data = data;
+//        }
+//
+//        public Mat(opencv_core.Mat mat) {
+//            this.rows = mat.rows();
+//            this.cols = mat.cols();
+//            this.type = mat.type();
+//
+//            BufferedImage bufferedImage = mat.getBufferedImage();
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            try {
+//                ImageIO.write(bufferedImage, "JPEG", baos);
+//                data = baos.toByteArray();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        public opencv_core.Mat toJavaCVMat() {
+//            //return new opencv_core.Mat(rows, cols, type, new BytePointer(data));
+//            try {
+//                ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
+//                BufferedImage img = ImageIO.read(iis);
+//                opencv_core.IplImage image = opencv_core.IplImage.createFrom(img);
+//                return new opencv_core.Mat(image);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            return null;
+//        }
+//
+//        @Override
+//        public void write(Kryo kryo, Output output) {
+//            output.writeInt(rows);
+//            output.writeInt(cols);
+//            output.writeInt(type);
+//            output.writeInt(data.length);
+//            output.writeBytes(data);
+//        }
+//
+//        @Override
+//        public void read(Kryo kryo, Input input) {
+//            rows = input.readInt();
+//            cols = input.readInt();
+//            type = input.readInt();
+//            int size = input.readInt();
+//            this.data = input.readBytes(size);
+//        }
+//    }
+
+//    public static class Rect implements KryoSerializable {
+//
+//        public int x, y, width, height;
+//
+//        public Rect(){}
+//
+//        public Rect(opencv_core.Rect rect) {
+//            x = rect.x();
+//            y = rect.y();
+//            width = rect.width();
+//            height = rect.height();
+//        }
+//
+//        public Rect(int x, int y, int width, int height) {
+//            this.x = x;
+//            this.y = y;
+//            this.height = height;
+//            this.width = width;
+//        }
+//
+//        public opencv_core.Rect toJavaCVRect() {
+//            return new opencv_core.Rect(x, y, width, height);
+//        }
+//
+//        @Override
+//        public boolean equals(Object o) {
+//            if (this == o) return true;
+//            if (o == null || getClass() != o.getClass()) return false;
+//
+//            Rect rect = (Rect) o;
+//
+//            if (height != rect.height) return false;
+//            if (width != rect.width) return false;
+//            if (x != rect.x) return false;
+//            if (y != rect.y) return false;
+//
+//            return true;
+//        }
+//
+//        @Override
+//        public int hashCode() {
+//            int result = x;
+//            result = 31 * result + y;
+//            result = 31 * result + width;
+//            result = 31 * result + height;
+//            return result;
+//        }
+//
+//        @Override
+//        public void write(Kryo kryo, Output output) {
+//            output.writeInt(x);
+//            output.writeInt(y);
+//            output.writeInt(width);
+//            output.writeInt(height);
+//        }
+//
+//        @Override
+//        public void read(Kryo kryo, Input input) {
+//            x = input.readInt();
+//            y = input.readInt();
+//            width = input.readInt();
+//            height = input.readInt();
+//        }
+//    }
+
+//    public static class PatchIdentifier implements KryoSerializable {
+//        public int frameId;
+//        public Rect roi;
+//
+//        public PatchIdentifier(int frameId, Rect roi) {
+//            this.roi = roi;
+//            this.frameId = frameId;
+//        }
+//
+//        @Override
+//        public void write(Kryo kryo, Output output) {
+//            output.writeInt(frameId);
+//            output.writeInt(roi.x);
+//            output.writeInt(roi.y);
+//            output.writeInt(roi.width);
+//            output.writeInt(roi.height);
+//        }
+//
+//        @Override
+//        public void read(Kryo kryo, Input input) {
+//            frameId = input.readInt();
+//            int x = input.readInt(),
+//                    y = input.readInt(),
+//                    width = input.readInt(),
+//                    height = input.readInt();
+//            roi = new Rect(x, y, width, height);
+//        }
+//
+//        /**
+//         * String representation of this patch identifier.
+//         *
+//         * @return the string in the format N%04d@%04d@%04d@%04d@%04d if roi is not null, and N%04d@null otherwise.
+//         */
+//        public String toString() {
+//            if (roi != null)
+//                return String.format("N%04d@%04d@%04d@%04d@%04d", frameId, roi.x, roi.y, roi.x + roi.width, roi.y + roi.height);
+//            return String.format("N%04d@null", frameId);
+//        }
+//
+//        @Override
+//        public boolean equals(Object o) {
+//            if (this == o) return true;
+//            if (o == null || getClass() != o.getClass()) return false;
+//
+//            PatchIdentifier that = (PatchIdentifier) o;
+//
+//            if (frameId != that.frameId) return false;
+//            if (roi != null ? !roi.equals(that.roi) : that.roi != null) return false;
+//
+//            return true;
+//        }
+//
+//        @Override
+//        public int hashCode() {
+//            int result = frameId;
+//            result = 31 * result + (roi != null ? roi.hashCode() : 0);
+//            return result;
+//        }
+//    }
+
+
     public static class IplImage implements KryoSerializable {
         private byte[] data;
 
