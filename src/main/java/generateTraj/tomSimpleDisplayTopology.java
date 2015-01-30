@@ -40,7 +40,7 @@ public class tomSimpleDisplayTopology {
         String queueName = getString(conf, "redis.sourceQueueName");
 
         builder.setSpout("fSource", new FrameImplImageSource(host, port, queueName), getInt(conf, "GenTrajSpout.parallelism"))
-                .setNumTasks(getInt(conf, "GenerateTrajSpout.tasks"));
+                .setNumTasks(getInt(conf, "GenTrajSpout.tasks"));
 
         builder.setBolt("fOptFlow", new opticalFlowCalculator(), getInt(conf, "GenTrajOptFlow.parallelism"))
                 .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
