@@ -504,15 +504,15 @@ public class Serializable {
             this.depth = image.depth();
             this.channels = image.nChannels();
 
-            int size = image.arraySize();
+            int size = image.imageSize();
             data = new byte[size];
             image.getByteBuffer().get(data);
-
         }
 
         //public static IplImage create(int width, int height, int depth, int channels)
         public opencv_core.IplImage createJavaIplImage() {
             opencv_core.IplImage image = opencv_core.IplImage.create(this.width, this.height, this.depth, this.channels);
+            image.getByteBuffer().clear();
             image.getByteBuffer().put(this.data);
 
             return image;
@@ -537,6 +537,7 @@ public class Serializable {
             output.writeInt(this.channels);
             output.writeInt(data.length);
             output.writeBytes(data);
+            output.flush();
         }
 
         @Override
