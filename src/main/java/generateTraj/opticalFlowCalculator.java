@@ -81,8 +81,9 @@ public class opticalFlowCalculator extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        Serializable.IplImage sImage = (Serializable.IplImage) tuple.getValueByField(FIELD_FRAME_IMPL);
-        frame = sImage.createJavaIplImage();
+        opencv_core.IplImage imageFK = new opencv_core.IplImage();
+        Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
+        frame = sMat.toJavaCVMat().asIplImage();
 
         if (this.image == null){
             //for the first frame
@@ -124,9 +125,10 @@ public class opticalFlowCalculator extends BaseRichBolt {
             DescMat mbhMatX = mbhMatXY[0];
             DescMat mbhMatY = mbhMatXY[1];
 
-            Serializable.IplImage sFlow = new Serializable.IplImage(flow);
+            opencv_core.Mat fMat = new opencv_core.Mat(flow);
+            Serializable.Mat sfMat = new Serializable.Mat(fMat);
 
-            collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sFlow, mbhMatX, mbhMatY));
+            collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat, mbhMatX, mbhMatY));
         }
         collector.ack(tuple);
     }
@@ -134,7 +136,7 @@ public class opticalFlowCalculator extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_OPT_FLOW,
-                new Fields(FIELD_FRAME_ID, FIELD_FLOW_IMPL, FIELD_MBHX_MAT, FIELD_MBHY_MAT));
+                new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_MBHX_MAT, FIELD_MBHY_MAT));
     }
 
     //We have re-organized the input and output to the oringal c++ version
