@@ -8,16 +8,11 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 
 import showTraj.RedisFrameOutput;
-import showTraj.RedisImageFrameOutput;
 import tool.FrameImplImageSource;
-import topology.Serializable;
 
 import java.io.FileNotFoundException;
 
-import static tool.Constant.FIELD_FLOW_IMPL;
 import static tool.Constant.STREAM_FRAME_OUTPUT;
-import static tool.Constant.STREAM_OPT_FLOW;
-import static tool.Constant.FIELD_FLOW_IMPL;
 import static topology.StormConfigManager.*;
 
 /**
@@ -47,14 +42,6 @@ public class tomSimpleDisplayTopology {
         //        .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
         //        .setNumTasks(getInt(conf, "GenTrajOptFlow.tasks"));
 
-
-        //builder.setBolt("fOut", new RedisImageFrameOutput(FIELD_FLOW_IMPL), getInt(conf, "GenTrajFrameOutput.parallelism"))
-        //        .globalGrouping("fOptFlow", STREAM_OPT_FLOW)
-        //        .setNumTasks(getInt(conf, "GenTrajFrameOutput.tasks"));
-
-        //builder.setBolt("fOut", new RedisImageFrameOutput(), getInt(conf, "GenTrajFrameOutput.parallelism"))
-        //        .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
-        //        .setNumTasks(getInt(conf, "GenTrajFrameOutput.tasks"));
 
         builder.setBolt("fOut", new RedisFrameOutput(), getInt(conf, "GenTrajFrameOutput.parallelism"))
                 .globalGrouping("fSource", STREAM_FRAME_OUTPUT)

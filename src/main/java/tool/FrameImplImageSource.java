@@ -43,7 +43,6 @@ public class FrameImplImageSource extends RedisQueueSpout {
         super.open(conf, context, collector);
         this.collector = collector;
         frameId = 0;
-        //idPrefix = String.format("s-%02d-", context.getThisTaskIndex() + 1);
         nChannel = ConfigUtil.getInt(conf, "nChannel", 3);
         nDepth = ConfigUtil.getInt(conf, "nDepth", 8);
         inWidth = ConfigUtil.getInt(conf, "inWidth", 640);
@@ -52,7 +51,6 @@ public class FrameImplImageSource extends RedisQueueSpout {
 
     @Override
     protected void emitData(Object data) {
-        //String id = idPrefix + frameId++;
         String id = String.valueOf(frameId);
         byte[] imgBytes = (byte[]) data;
         ImageInputStream iis = null;
@@ -65,12 +63,8 @@ public class FrameImplImageSource extends RedisQueueSpout {
             //byte[] imgBytes = (byte[]) tuple.getValueByField(FIELD_FRAME_BYTES);
             //opencv_core.IplImage image = cvDecodeImage(cvMat(1, imgBytes.length, CV_8UC1, new BytePointer(imgBytes)));
 
-
             opencv_core.IplImage frame = cvCreateImage(cvSize(inWidth, inHeight), nDepth, nChannel);
             opencv_imgproc.cvResize(image, frame, opencv_imgproc.CV_INTER_AREA);
-
-            //Serializable.IplImage sFrame = new Serializable.IplImage(frame);
-            //collector.emit(STREAM_FRAME_OUTPUT, new Values(frameId, sFrame), id);
 
             opencv_core.Mat mat = new opencv_core.Mat(image);
             Serializable.Mat sMat = new Serializable.Mat(mat);
@@ -86,7 +80,6 @@ public class FrameImplImageSource extends RedisQueueSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        //declarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_IMPL));
         declarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
     }
 }

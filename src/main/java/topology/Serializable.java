@@ -15,6 +15,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
+import static org.bytedeco.javacpp.opencv_core.cvMat;
+
 /**
  * This class provides kryo serialization for the JavaCV's Mat and Rect objects, so that Storm can wrap them in tuples.
  * Serializable.Mat - kryo serializable analog of opencv_core.Mat object.<p>
@@ -54,6 +57,8 @@ public class Serializable {
             return type;
         }
 
+        public Mat(){}
+
         /**
          * Creates new serializable Mat given its format and data.
          *
@@ -78,16 +83,18 @@ public class Serializable {
             if (!mat.isContinuous())
                 mat = mat.clone();
 
-            rows = mat.rows();
-            cols = mat.cols();
-            type = mat.type();
+            this.rows = mat.rows();
+            this.cols = mat.cols();
+            this.type = mat.type();
             int size = mat.arraySize();
+            this.data = new byte[size];
 
-            ByteBuffer bb = mat.getByteBuffer();
-            bb.rewind();
-            data = new byte[size];
-            while (bb.hasRemaining())  // should happen only once
-                bb.get(data);
+            mat.getByteBuffer().get(this.data);
+//            ByteBuffer bb = mat.getByteBuffer();
+//            bb.rewind();
+//            this.data = new byte[size];
+//            while (bb.hasRemaining())  // should happen only once
+//                bb.get(this.data);
         }
 
         /**
@@ -99,18 +106,20 @@ public class Serializable {
 
         @Override
         public void write(Kryo kryo, Output output) {
-            output.write(rows);
-            output.write(cols);
-            output.write(type);
-            output.write(data);
+            output.writeInt(this.rows);
+            output.writeInt(this.cols);
+            output.writeInt(this.type);
+            output.writeInt(this.data.length);
+            output.writeBytes(this.data);
         }
 
         @Override
         public void read(Kryo kryo, Input input) {
-            rows = input.readInt();
-            cols = input.readInt();
-            type = input.readInt();
-            input.read(data);
+            this.rows = input.readInt();
+            this.cols = input.readInt();
+            this.type = input.readInt();
+            int size = input.readInt();
+            this.data = input.readBytes(size);
         }
     }
 
@@ -465,98 +474,99 @@ public class Serializable {
 //    }
 
 
-    public static class IplImage implements KryoSerializable, java.io.Serializable {
-        private byte[] data;
-        int width;
-        int height;
-        int depth;
-        int channels;
-
-        public IplImage(){}
-
-//        public IplImage(opencv_core.IplImage image) {
+//    public static class IplImage implements KryoSerializable, java.io.Serializable {
+//        private byte[] data;
+//        int width;
+//        int height;
+//        int depth;
+//        int channels;
 //
-//            BufferedImage bufferedImage = image.getBufferedImage();
-//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//            try {
-//                ImageIO.write(bufferedImage, "JPEG", baos);
-//                data = baos.toByteArray();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-
-//        public opencv_core.IplImage createJavaIplImage() {
-//            try {
-//                ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
-//                BufferedImage img = ImageIO.read(iis);
-//                return opencv_core.IplImage.createFrom(img);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            return null;
-//        }
-
-        public IplImage(opencv_core.IplImage image){
-
-            this.width = image.width();
-            this.height = image.height();
-            this.depth = image.depth();
-            this.channels = image.nChannels();
-
-            int size = image.arraySize();
-            data = new byte[size];
-            image.getByteBuffer().get(data);
-
-//            ByteBuffer bb = image.getByteBuffer();
-//            bb.rewind();
+//        public IplImage(){}
+//
+////        public IplImage(opencv_core.IplImage image) {
+////
+////            BufferedImage bufferedImage = image.getBufferedImage();
+////            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+////            try {
+////                ImageIO.write(bufferedImage, "JPEG", baos);
+////                data = baos.toByteArray();
+////            } catch (IOException e) {
+////                e.printStackTrace();
+////            }
+////        }
+//
+////        public opencv_core.IplImage createJavaIplImage() {
+////            try {
+////                ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
+////                BufferedImage img = ImageIO.read(iis);
+////                return opencv_core.IplImage.createFrom(img);
+////            } catch (IOException e) {
+////                e.printStackTrace();
+////            }
+////            return null;
+////        }
+//
+//        public IplImage(opencv_core.IplImage image){
+//
+//            this.width = image.width();
+//            this.height = image.height();
+//            this.depth = image.depth();
+//            this.channels = image.nChannels();
+//
+//            int size = image.arraySize();
 //            data = new byte[size];
-//            while (bb.hasRemaining())  // should happen only once
-//                bb.get(data);
-        }
-
-        //public static IplImage create(int width, int height, int depth, int channels)
-        public opencv_core.IplImage createJavaIplImage() {
-            opencv_core.IplImage image = opencv_core.IplImage.create(this.width, this.height, this.depth, this.channels);
-            image.getByteBuffer().put(this.data);
-
-//            ByteBuffer bb = image.getByteBuffer();
-//            while (bb.hasRemaining())  // should happen only once
-//                bb.put(data);
-
-            return image;
-
-//            opencv_core.IplImage image = new opencv_core.IplImage();
+//            image.getByteBuffer().get(data);
 //
-//            try {
-//                ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
-//                BufferedImage img = ImageIO.read(iis);
-//                return opencv_core.IplImage.createFrom(img);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            return null;
-        }
-
-        @Override
-        public void write(Kryo kryo, Output output) {
-            output.writeInt(this.width);
-            output.writeInt(this.height);
-            output.writeInt(this.depth);
-            output.writeInt(this.channels);
-            output.writeInt(data.length);
-            output.writeBytes(data);
-            output.flush();
-        }
-
-        @Override
-        public void read(Kryo kryo, Input input) {
-            this.width = input.readInt();
-            this.height = input.readInt();
-            this.depth = input.readInt();
-            this.channels = input.readInt();
-            int size = input.readInt();
-            this.data = input.readBytes(size);
-        }
-    }
+////            ByteBuffer bb = image.getByteBuffer();
+////            bb.rewind();
+////            data = new byte[size];
+////            while (bb.hasRemaining())  // should happen only once
+////                bb.get(data);
+//        }
+//
+//        //public static IplImage create(int width, int height, int depth, int channels)
+//        public opencv_core.IplImage createJavaIplImage() {
+//            opencv_core.IplImage image = opencv_core.IplImage.create(this.width, this.height, this.depth, this.channels);
+//            image.getByteBuffer().put(this.data);
+//
+//
+////            ByteBuffer bb = image.getByteBuffer();
+////            while (bb.hasRemaining())  // should happen only once
+////                bb.put(data);
+//
+//            return image;
+//
+////            opencv_core.IplImage image = new opencv_core.IplImage();
+////
+////            try {
+////                ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
+////                BufferedImage img = ImageIO.read(iis);
+////                return opencv_core.IplImage.createFrom(img);
+////            } catch (IOException e) {
+////                e.printStackTrace();
+////            }
+////            return null;
+//        }
+//
+//        @Override
+//        public void write(Kryo kryo, Output output) {
+//            output.writeInt(this.width);
+//            output.writeInt(this.height);
+//            output.writeInt(this.depth);
+//            output.writeInt(this.channels);
+//            output.writeInt(data.length);
+//            output.writeBytes(data);
+//            output.flush();
+//        }
+//
+//        @Override
+//        public void read(Kryo kryo, Input input) {
+//            this.width = input.readInt();
+//            this.height = input.readInt();
+//            this.depth = input.readInt();
+//            this.channels = input.readInt();
+//            int size = input.readInt();
+//            this.data = input.readBytes(size);
+//        }
+//    }
 }
