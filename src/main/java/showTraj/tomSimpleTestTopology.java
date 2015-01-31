@@ -7,6 +7,7 @@ import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import tool.FrameSource;
+import topology.Serializable;
 
 import java.io.FileNotFoundException;
 
@@ -49,6 +50,7 @@ public class tomSimpleTestTopology {
         conf.setNumWorkers(numberOfWorkers);
         //conf.setNumAckers(numberOfAckers);
         conf.setMaxSpoutPending(getInt(conf, "st-MaxSpoutPending"));
+        conf.registerSerialization(Serializable.Mat.class);
 
         StormSubmitter.submitTopology("tomSimpleTestTopology", conf, topology);
 
