@@ -65,8 +65,8 @@ public class tomVLDTopology {
         conf.setMaxSpoutPending(getInt(conf, "MaxSpoutPending"));
 
         conf.registerSerialization(Serializable.Mat.class);
-        conf.registerSerialization(Serializable.Rect.class);
-        conf.registerSerialization(Serializable.PatchIdentifier.class);
+        //conf.registerSerialization(Serializable.Rect.class);
+        //conf.registerSerialization(Serializable.PatchIdentifier.class);
 
         StormSubmitter.submitTopology("tomVLDTop", conf, topology);
 
