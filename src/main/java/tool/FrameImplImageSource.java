@@ -5,6 +5,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
+import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_imgproc;
 import topology.Serializable;
@@ -17,8 +18,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
-import static org.bytedeco.javacpp.opencv_core.cvSize;
+import static org.bytedeco.javacpp.opencv_core.*;
+import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
 import static tool.Constant.*;
 
 /**
@@ -61,24 +62,31 @@ public class FrameImplImageSource extends RedisQueueSpout {
             BufferedImage img = ImageIO.read(iis);
             opencv_core.IplImage image = opencv_core.IplImage.createFrom(img);
 
+            //byte[] imgBytes = (byte[]) tuple.getValueByField(FIELD_FRAME_BYTES);
+            //opencv_core.IplImage image = cvDecodeImage(cvMat(1, imgBytes.length, CV_8UC1, new BytePointer(imgBytes)));
+
+
             opencv_core.IplImage frame = cvCreateImage(cvSize(inWidth, inHeight), nDepth, nChannel);
             opencv_imgproc.cvResize(image, frame, opencv_imgproc.CV_INTER_AREA);
 
-            Serializable.IplImage sFrame = new Serializable.IplImage(frame);
+            //Serializable.IplImage sFrame = new Serializable.IplImage(frame);
+            //collector.emit(STREAM_FRAME_OUTPUT, new Values(frameId, sFrame), id);
 
-            collector.emit(STREAM_FRAME_OUTPUT, new Values(frameId, sFrame), id);
+            opencv_core.Mat mat = new opencv_core.Mat(image);
+            Serializable.Mat sMat = new Serializable.Mat(mat);
+            collector.emit(STREAM_FRAME_OUTPUT, new Values(frameId, sMat), id);
 
             long nowTime = System.currentTimeMillis();
             System.out.printf("Sendout: " + nowTime + "," + frameId);
             frameId++;
-        } catch (IOException e) {
+        }catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_IMPL));
+        //declarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_IMPL));
+        declarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
     }
 }

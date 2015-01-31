@@ -7,6 +7,7 @@ import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 
+import showTraj.RedisFrameOutput;
 import showTraj.RedisImageFrameOutput;
 import tool.FrameImplImageSource;
 import topology.Serializable;
@@ -51,10 +52,13 @@ public class tomSimpleDisplayTopology {
         //        .globalGrouping("fOptFlow", STREAM_OPT_FLOW)
         //        .setNumTasks(getInt(conf, "GenTrajFrameOutput.tasks"));
 
-        builder.setBolt("fOut", new RedisImageFrameOutput(), getInt(conf, "GenTrajFrameOutput.parallelism"))
+        //builder.setBolt("fOut", new RedisImageFrameOutput(), getInt(conf, "GenTrajFrameOutput.parallelism"))
+        //        .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
+        //        .setNumTasks(getInt(conf, "GenTrajFrameOutput.tasks"));
+
+        builder.setBolt("fOut", new RedisFrameOutput(), getInt(conf, "GenTrajFrameOutput.parallelism"))
                 .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, "GenTrajFrameOutput.tasks"));
-
 
         StormTopology topology = builder.createTopology();
 
