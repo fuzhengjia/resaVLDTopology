@@ -44,8 +44,8 @@ public class tomSimpleDisplayTopology {
                 .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, "GenTrajOptFlow.tasks"));
 
-        builder.setBolt("fOptFlow", new RedisFrameOutput(), getInt(conf, "GenTrajFrameOutput.parallelism"))
-                .globalGrouping("fSource", STREAM_OPT_FLOW)
+        builder.setBolt("fOut", new RedisFrameOutput(), getInt(conf, "GenTrajFrameOutput.parallelism"))
+                .globalGrouping("fOptFlow", STREAM_OPT_FLOW)
                 .setNumTasks(getInt(conf, "GenTrajFrameOutput.tasks"));
 
         StormTopology topology = builder.createTopology();
