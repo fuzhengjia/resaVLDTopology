@@ -66,10 +66,6 @@ public class RedisStreamProducerBeta implements Runnable {
         this.startFrameID = startFrameID;
         this.maxWaitCount = maxWaitCount;
         this.sleepTime = sleepTime;
-
-        System.out.println("Check_init_RedisStreamProducerBeta" +
-                ", host: " + this.host + ", port: " + this.port + ", qName: " + this.queueName +
-                ", stFrameID: " + this.startFrameID + ", sleepTime: " + this.sleepTime + ", mWaitCnt: " + this.maxWaitCount);
     }
 
     /**
@@ -129,9 +125,12 @@ public class RedisStreamProducerBeta implements Runnable {
                         Thread.sleep(sleepTime);
                         waitCount++;
                         if (waitCount >= maxWaitCount) {
-                            System.out.println("frameTimeout, frameID: " + currentFrameID);
+                            System.out.println("frameTimeout, frameID: " + currentFrameID + ", peek: " + peekFrame.frameId);
                             currentFrameID++;
                             waitCount = 0;
+                            System.out.println("Check_init_RedisStreamProducerBeta" +
+                                    ", host: " + this.host + ", port: " + this.port + ", qName: " + this.queueName +
+                                    ", stFrameID: " + this.startFrameID + ", sleepTime: " + this.sleepTime + ", mWaitCnt: " + this.maxWaitCount);
                         }
                     }
                 }
