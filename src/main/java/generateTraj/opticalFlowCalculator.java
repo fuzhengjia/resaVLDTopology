@@ -121,22 +121,25 @@ public class opticalFlowCalculator extends BaseRichBolt {
 
             int width = grey_temp.width();
             int height = grey_temp.height();
-            DescMat[] mbhMatXY = MbhComp(flow, mbhInfo, width, height);
-            DescMat mbhMatX = mbhMatXY[0];
-            DescMat mbhMatY = mbhMatXY[1];
+            //DescMat[] mbhMatXY = MbhComp(flow, mbhInfo, width, height);
+            //DescMat mbhMatX = mbhMatXY[0];
+            //DescMat mbhMatY = mbhMatXY[1];
 
             opencv_core.Mat fMat = new opencv_core.Mat(flow);
             Serializable.Mat sfMat = new Serializable.Mat(fMat);
 
-            collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat, mbhMatX, mbhMatY));
+            //collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat, mbhMatX, mbhMatY));
+            collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat));
         }
         collector.ack(tuple);
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
+        //outputFieldsDeclarer.declareStream(STREAM_OPT_FLOW,
+        //        new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_MBHX_MAT, FIELD_MBHY_MAT));
         outputFieldsDeclarer.declareStream(STREAM_OPT_FLOW,
-                new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_MBHX_MAT, FIELD_MBHY_MAT));
+                new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
     }
 
     //We have re-organized the input and output to the oringal c++ version
