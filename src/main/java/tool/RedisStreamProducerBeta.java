@@ -120,9 +120,12 @@ public class RedisStreamProducerBeta implements Runnable {
                     } else if (peekFrame.frameId == (currentFrameID + 1)) {
                         StreamFrame nextFrame = pollFrame();
                         opencv_core.IplImage iplImage = nextFrame.image.asIplImage();
+                        System.out.println("finish asIplImage");
                         BufferedImage bufferedImage = iplImage.getBufferedImage();
+                        System.out.println("finish bfferedImage");
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         ImageIO.write(bufferedImage, "JPEG", baos);
+                        System.out.println("finish ImageIO");
                         jedis.rpush(this.queueName, baos.toByteArray());
 
 //                        int size = iplImage.arraySize();
