@@ -8,7 +8,7 @@ import com.esotericsoftware.kryo.io.Output;
 /**
  * Created by Tom.fu on 3/12/2014.
  */
-public class DescMat implements KryoSerializable {
+public class DescMat implements KryoSerializable, java.io.Serializable {
 
     public int width;
     public int height;
