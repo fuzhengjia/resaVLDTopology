@@ -113,6 +113,7 @@ public class RedisStreamProducerBeta implements Runnable {
                 StreamFrame peekFrame = getPeekFrame();
                 if (peekFrame == null) {
                     Thread.sleep(sleepTime);
+                    System.out.println("peekFrame == null");
                 } else {
                     if (peekFrame.frameId <= currentFrameID) {
                         pollFrame();
@@ -142,6 +143,7 @@ public class RedisStreamProducerBeta implements Runnable {
                     }
                 }
             } catch (Exception e) {
+                System.out.print("Exception: ");
                 e.printStackTrace();
             }
         }
