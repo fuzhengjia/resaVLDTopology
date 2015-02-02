@@ -14,6 +14,7 @@ import topology.Serializable;
 import java.io.FileNotFoundException;
 
 import static tool.Constant.STREAM_FRAME_OUTPUT;
+import static tool.Constant.STREAM_OPT_FLOW;
 import static topology.StormConfigManager.*;
 
 /**
@@ -39,13 +40,12 @@ public class tomSimpleDisplayTopology {
         builder.setSpout("fSource", new FrameImplImageSource(host, port, queueName), getInt(conf, "GenTrajSpout.parallelism"))
                 .setNumTasks(getInt(conf, "GenTrajSpout.tasks"));
 
-        //builder.setBolt("fOptFlow", new opticalFlowCalculator(), getInt(conf, "GenTrajOptFlow.parallelism"))
-        //        .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
-        //        .setNumTasks(getInt(conf, "GenTrajOptFlow.tasks"));
-
-
-        builder.setBolt("fOut", new RedisFrameOutput(), getInt(conf, "GenTrajFrameOutput.parallelism"))
+        builder.setBolt("fOptFlow", new opticalFlowCalculator(), getInt(conf, "GenTrajOptFlow.parallelism"))
                 .globalGrouping("fSource", STREAM_FRAME_OUTPUT)
+                .setNumTasks(getInt(conf, "GenTrajOptFlow.tasks"));
+
+        builder.setBolt("fOptFlow", new RedisFrameOutput(), getInt(conf, "GenTrajFrameOutput.parallelism"))
+                .globalGrouping("fSource", STREAM_OPT_FLOW)
                 .setNumTasks(getInt(conf, "GenTrajFrameOutput.tasks"));
 
         StormTopology topology = builder.createTopology();
