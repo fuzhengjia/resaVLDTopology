@@ -7,31 +7,15 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import com.jmatio.io.MatFileReader;
-import com.jmatio.types.MLCell;
-import com.jmatio.types.MLDouble;
-import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacpp.opencv_video;
 import topology.Serializable;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 import static org.bytedeco.javacpp.opencv_core.*;
-import static org.bytedeco.javacpp.opencv_core.cvCopy;
-import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
-import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
 import static tool.Constant.*;
-import static topology.StormConfigManager.getInt;
-import static topology.StormConfigManager.getString;
 
 /**
  * Created by Tom Fu
@@ -39,10 +23,10 @@ import static topology.StormConfigManager.getString;
  * Maybe use global grouping and only one task/executor
  * Similar to frame producer, maintain an ordered list of frames
  */
-public class opticalFlowCalculator extends BaseRichBolt {
+public class imagePrepare extends BaseRichBolt {
     OutputCollector collector;
 
-    opencv_core.IplImage frame, image, prev_image, grey, prev_grey;
+    IplImage frame, image, prev_image, grey, prev_grey;
     IplImagePyramid grey_pyramid, prev_grey_pyramid;
 
     float scale_stride;
@@ -54,6 +38,8 @@ public class opticalFlowCalculator extends BaseRichBolt {
     static int nxy_cell = 2;
     static int nt_cell = 3;
     static float min_flow = 0.4f * 0.4f;
+
+    static int ixyScale = 0;
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -81,60 +67,31 @@ public class opticalFlowCalculator extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        opencv_core.IplImage imageFK = new opencv_core.IplImage();
+        IplImage imageFK = new IplImage();
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
         frame = sMat.toJavaCVMat().asIplImage();
 
-        if (this.image == null){
-            //for the first frame
+        if (this.image == null || frameId == 0) { //only first time
             image = cvCreateImage(cvGetSize(frame), 8, 3);
             image.origin(frame.origin());
-            prev_image = cvCreateImage(cvGetSize(frame), 8, 3);
-            prev_image.origin(frame.origin());
 
             grey = cvCreateImage(cvGetSize(frame), 8, 1);
             grey_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(frame), 8, 1);
-            prev_grey = cvCreateImage(cvGetSize(frame), 8, 1);
-            prev_grey_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(frame), 8, 1);
 
-            cvCopy(frame, image, null);
-            opencv_imgproc.cvCvtColor(image, grey, opencv_imgproc.CV_BGR2GRAY);
-            grey_pyramid.rebuild(grey);
-            cvCopy(frame, prev_image, null);
-            opencv_imgproc.cvCvtColor(prev_image, prev_grey, opencv_imgproc.CV_BGR2GRAY);
-            prev_grey_pyramid.rebuild(prev_grey);
-
-        } else {
-            ///for later frames
-            cvCopy(frame, image, null);
-            opencv_imgproc.cvCvtColor(image, grey, opencv_imgproc.CV_BGR2GRAY);
-            grey_pyramid.rebuild(grey);
-
-            ///we consider only one scale so far, so scale number = 0.
-            IplImage prev_grey_temp = cvCloneImage(prev_grey_pyramid.getImage(0));
-            IplImage grey_temp = cvCloneImage(grey_pyramid.getImage(0));
-
-            IplImage flow = cvCreateImage(cvGetSize(grey_temp), IPL_DEPTH_32F, 2);
-
-            opencv_video.cvCalcOpticalFlowFarneback(prev_grey_temp, grey_temp, flow,
-                    Math.sqrt(2.0) / 2.0, 5, 10, 2, 7, 1.5, opencv_video.OPTFLOW_FARNEBACK_GAUSSIAN);
-
-            int width = grey_temp.width();
-            int height = grey_temp.height();
-            //DescMat[] mbhMatXY = MbhComp(flow, mbhInfo, width, height);
-            //DescMat mbhMatX = mbhMatXY[0];
-            //DescMat mbhMatY = mbhMatXY[1];
-
-            opencv_core.Mat fMat = new opencv_core.Mat(flow);
-            Serializable.Mat sfMat = new Serializable.Mat(fMat);
-
-            //collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat, mbhMatX, mbhMatY));
-            collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat));
-
-            cvCopy(frame, prev_image, null);
-            opencv_imgproc.cvCvtColor(prev_image, prev_grey, opencv_imgproc.CV_BGR2GRAY);
-            prev_grey_pyramid.rebuild(prev_grey);
         }
+
+        cvCopy(frame, image, null);
+        opencv_imgproc.cvCvtColor(image, grey, opencv_imgproc.CV_BGR2GRAY);
+        grey_pyramid.rebuild(grey);
+
+        IplImage grey_temp = cvCloneImage(grey_pyramid.getImage(ixyScale));
+
+        Mat gMat = new Mat(grey_temp);
+        Serializable.Mat sgMat = new Serializable.Mat(gMat);
+
+        //collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat, mbhMatX, mbhMatY));
+        collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sgMat));
+
         collector.ack(tuple);
     }
 
