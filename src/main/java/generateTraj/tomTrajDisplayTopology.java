@@ -85,7 +85,7 @@ public class tomTrajDisplayTopology {
         conf.setMaxSpoutPending(getInt(conf, "TrajMaxPending"));
 
         conf.registerSerialization(Serializable.Mat.class);
-        StormSubmitter.submitTopology("tomSimpleDisplayTopology", conf, topology);
+        StormSubmitter.submitTopology("tomTrajDisplayTopology", conf, topology);
 
     }
 }
