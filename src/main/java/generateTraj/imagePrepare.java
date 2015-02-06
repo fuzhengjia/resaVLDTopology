@@ -84,36 +84,37 @@ public class imagePrepare extends BaseRichBolt {
         //collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat, mbhMatX, mbhMatY));
         collector.emit(STREAM_GREY_FLOW, tuple, new Values(frameId, sgMat));
 
-        if (frameId % init_counter == 0){ ///every init_counter frames, generate new dense points.
+        if (frameId > 0){
+            if (frameId % init_counter == 0) { ///every init_counter frames, generate new dense points.
 
-            this.eig = cvCloneImage(eig_pyramid.getImage(ixyScale));
-            int width = cvFloor(grey.width() / min_distance);
-            int height = cvFloor(grey.height() / min_distance);
+                this.eig = cvCloneImage(eig_pyramid.getImage(ixyScale));
+                int width = cvFloor(grey.width() / min_distance);
+                int height = cvFloor(grey.height() / min_distance);
 
-            double[] maxVal = new double[1];
-            maxVal[0] = 0.0;
-            opencv_imgproc.cvCornerMinEigenVal(grey, this.eig, 3, 3);
-            cvMinMaxLoc(eig, null, maxVal, null, null, null);
-            double threshold = maxVal[0] * quality;
-            int offset = cvFloor(min_distance / 2.0);
+                double[] maxVal = new double[1];
+                maxVal[0] = 0.0;
+                opencv_imgproc.cvCornerMinEigenVal(grey, this.eig, 3, 3);
+                cvMinMaxLoc(eig, null, maxVal, null, null, null);
+                double threshold = maxVal[0] * quality;
+                int offset = cvFloor(min_distance / 2.0);
 
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    int x = cvFloor(j * min_distance + offset);
-                    int y = cvFloor(i * min_distance + offset);
+                for (int i = 0; i < height; i++) {
+                    for (int j = 0; j < width; j++) {
+                        int x = cvFloor(j * min_distance + offset);
+                        int y = cvFloor(i * min_distance + offset);
 
-                    FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
-                    float ve = floatBuffer.get(x);
+                        FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
+                        float ve = floatBuffer.get(x);
 
-                    LastPoint lp = new LastPoint(x, y, width, height);
-                    int coutersIndex = LastPoint.calCountersIndexForNewTrace(j, i, width);
-                    if (ve > threshold) {
-                        collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, lp, coutersIndex));
+                        LastPoint lp = new LastPoint(x, y, width, height);
+                        int coutersIndex = LastPoint.calCountersIndexForNewTrace(j, i, width);
+                        if (ve > threshold) {
+                            collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, lp, coutersIndex));
+                        }
                     }
                 }
             }
         }
-
         collector.ack(tuple);
     }
 
