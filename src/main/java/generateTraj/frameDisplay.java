@@ -73,6 +73,8 @@ public class frameDisplay extends BaseRichBolt {
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
+        System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
+
         if (streamId.equals(STREAM_FRAME_OUTPUT)){
 
             IplImage fake = new IplImage();
@@ -127,7 +129,9 @@ public class frameDisplay extends BaseRichBolt {
             traceData.remove(frameId);
         }
 
-        System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId);
+        System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId
+                + ",rawFrameMap: " + rawFrameMap.containsKey(frameId) + ",traceData: " + traceData.containsKey(frameId)
+        );
         collector.ack(tuple);
     }
 
