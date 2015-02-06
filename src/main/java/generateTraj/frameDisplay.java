@@ -73,7 +73,7 @@ public class frameDisplay extends BaseRichBolt {
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
-        System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
+        //System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
 
         if (streamId.equals(STREAM_FRAME_OUTPUT)){
 

@@ -116,7 +116,7 @@ public class optFlowTracker extends BaseRichBolt {
             } else {
                 ///Drop
                 collector.emit(STREAM_REMOVE_TRACE, new Values(frameId, trace.traceID));
-                System.out.println("removetrace:, frameID: " + frameId + ", tID: " + trace.traceID);
+                //System.out.println("removetrace:, frameID: " + frameId + ", tID: " + trace.traceID);
             }
         }
     }

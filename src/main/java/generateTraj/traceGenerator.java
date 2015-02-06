@@ -93,7 +93,7 @@ public class traceGenerator extends BaseRichBolt {
                 ///if init_counter = 1, the correspondingFrameID is the previous frame
                 if (indicatorList.containsKey(correspondingFrameID)) {
                     if (indicatorList.get(correspondingFrameID)[countersIndex] == true) {
-                        System.out.println("frame from Stream new trace, id: " + frameId + ", cIndex: " + countersIndex);
+                        //System.out.println("frame from Stream new trace, id: " + frameId + ", cIndex: " + countersIndex);
                         collector.ack(tuple);
                         return;
                     }
@@ -103,7 +103,7 @@ public class traceGenerator extends BaseRichBolt {
                 TraceRecord trace = new TraceRecord(traceID, width, height, point);
                 collector.emit(STREAM_EXIST_TRACE, new Values(frameId, trace));
                 collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, trace.traceID));///to the last bolt
-                System.out.println("Generate new trace, id: " + frameId + "," + trace.traceID);
+                //System.out.println("Generate new trace, id: " + frameId + "," + trace.traceID);
             }catch (Exception e){
                 e.printStackTrace();
             }

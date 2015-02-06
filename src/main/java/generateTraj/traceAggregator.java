@@ -53,7 +53,7 @@ public class traceAggregator extends BaseRichBolt {
 
             if (this.traceMonitor.containsKey(frameId)){
                 this.traceMonitor.get(frameId).remove(trace.traceID);
-                System.out.println("afterremove:, frameID: " + frameId + ", streamID: " + streamId + "," + this.traceMonitor.get(frameId).size());
+                //System.out.println("afterremove:, frameID: " + frameId + ", streamID: " + streamId + "," + this.traceMonitor.get(frameId).size());
                 checkOuput(frameId);
 
             } else {
@@ -64,7 +64,7 @@ public class traceAggregator extends BaseRichBolt {
             String traceID = tuple.getStringByField(FIELD_TRACE_IDENTIFIER);
             if (this.traceMonitor.containsKey(frameId)){
                 this.traceMonitor.get(frameId).remove(traceID);
-                System.out.println("afterremove:, frameID: " + frameId + ", streamID: " + streamId + "," + this.traceMonitor.get(frameId).size());
+                //System.out.println("afterremove:, frameID: " + frameId + ", streamID: " + streamId + "," + this.traceMonitor.get(frameId).size());
                 checkOuput(frameId);
 
             } else {
@@ -74,7 +74,7 @@ public class traceAggregator extends BaseRichBolt {
         } else if (streamId.equals(STREAM_REGISTER_TRACE)) {
             String traceID = tuple.getStringByField(FIELD_TRACE_IDENTIFIER);
             this.traceMonitor.computeIfAbsent(frameId, k -> new HashSet<String>()).add(traceID);
-            System.out.println("register tuple, frameID: " + frameId + ", streamID: " + streamId +"," + this.traceMonitor.get(frameId).size());
+            //System.out.println("register tuple, frameID: " + frameId + ", streamID: " + streamId +"," + this.traceMonitor.get(frameId).size());
         }
         collector.ack(tuple);
     }
@@ -88,7 +88,7 @@ public class traceAggregator extends BaseRichBolt {
     public void checkOuput(int frameID){
         if (this.traceMonitor.get(frameID).isEmpty()){
             ///we consider this frame is finished
-            System.out.println("AggregatorFinished, send out frameID: " + frameID);
+            //System.out.println("AggregatorFinished, send out frameID: " + frameID);
             collector.emit(STREAM_PLOT_TRACE, new Values(frameID, this.traceData.get(frameID)));
             this.traceData.remove(frameID);
             this.traceMonitor.remove(frameID);
