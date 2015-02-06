@@ -21,7 +21,7 @@ public interface Constant {
 
     public static String STREAM_EXIST_TRACE = "stream-exist-trace";
 
-    public static String STREAM_REGISTER_TRACE = "stream-report-trace";
+    public static String STREAM_REGISTER_TRACE = "stream-register-trace";
 
     public static String STREAM_RENEW_TRACE = "stream-renew-trace";
 
@@ -35,7 +35,7 @@ public interface Constant {
 
     public static String FIELD_TRACE_RECORD = "trace-record";
 
-    public static String FIELD_TRACE_POINT = "trace-point";
+    public static String FIELD_TRACE_LAST_POINT = "trace-last-point";
 
     public static String FIELD_FRAME_H_W = "frame-h-w";
 

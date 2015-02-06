@@ -8,7 +8,6 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.opencv_core;
-import topology.LogoTemplateUpdate;
 import topology.Serializable;
 import util.ConfigUtil;
 
@@ -17,7 +16,6 @@ import java.util.*;
 
 import static org.bytedeco.javacpp.opencv_core.*;
 import static tool.Constant.*;
-import static topology.Constants.CACHE_CLEAR_STREAM;
 
 /**
  * Created by Tom Fu
@@ -88,7 +86,7 @@ public class optFlowTracker extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_EXIST_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_RECORD));
-        outputFieldsDeclarer.declareStream(STREAM_RENEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_RECORD, FIELD_TRACE_POINT));
+        outputFieldsDeclarer.declareStream(STREAM_RENEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_RECORD, FIELD_TRACE_LAST_POINT));
         outputFieldsDeclarer.declareStream(STREAM_REMOVE_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_IDENTIFIER));
     }
 
@@ -108,7 +106,9 @@ public class optFlowTracker extends BaseRichBolt {
                     ///Plot and feedback
                     int x = cvFloor(pointOut.x() / min_distance);
                     int y = cvFloor(pointOut.y() / min_distance);
-                    collector.emit(STREAM_RENEW_TRACE, new Values(frameId, trace, new TwoInteger(x, y)));
+
+                    LastPoint lp = new LastPoint(x, y, trace.width, trace.height);
+                    collector.emit(STREAM_RENEW_TRACE, new Values(frameId, trace, lp.getFieldString()));
                 }
             } else {
                 ///Drop

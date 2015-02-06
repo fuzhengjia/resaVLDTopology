@@ -8,7 +8,6 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.opencv_imgproc;
-import org.bytedeco.javacpp.opencv_video;
 import topology.Serializable;
 import util.ConfigUtil;
 
@@ -106,8 +105,9 @@ public class imagePrepare extends BaseRichBolt {
                     FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
                     float ve = floatBuffer.get(x);
 
+                    LastPoint lp = new LastPoint(x, y, width, height);
                     if (ve > threshold) {
-                        collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, new TwoInteger(x, y), new TwoInteger(width, height)));
+                        collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, lp, lp.getFieldString()));
                     }
                 }
             }
@@ -119,6 +119,6 @@ public class imagePrepare extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_GREY_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
-        outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_POINT, FIELD_FRAME_H_W));
+        outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_LAST_POINT, FIELD_FRAME_H_W));
     }
 }

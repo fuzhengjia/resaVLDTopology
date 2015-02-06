@@ -9,7 +9,6 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import util.ConfigUtil;
 
-import javax.xml.bind.SchemaOutputResolver;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -82,18 +81,17 @@ public class traceGenerator extends BaseRichBolt {
         if (streamId.equals(STREAM_NEW_TRACE)) {
             //from traceInit bolt
 
-            ///collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, new TwoInteger(x, y), new TwoInteger(height, width)));
-            ///outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_POINT, FIELD_FRAME_H_W));
-            TwoInteger lastPoint = (TwoInteger) tuple.getValueByField(FIELD_TRACE_POINT);
-            TwoInteger frameHW = (TwoInteger) tuple.getValueByField(FIELD_FRAME_H_W);
+            ///collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, new LastPoint(x, y), new LastPoint(height, width)));
+            ///outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_LAST_POINT, FIELD_FRAME_H_W));
+            LastPoint lastPoint = (LastPoint) tuple.getValueByField(FIELD_TRACE_LAST_POINT);
 
             //System.out.println("frame from Stream new trace, id: " + frameId);
 
-            int x = lastPoint.getVal1();
-            int y = lastPoint.getVal2();
+            int x = lastPoint.getX();
+            int y = lastPoint.getY();
 
-            int width = frameHW.getVal1();
-            int height = frameHW.getVal2();
+            int width = lastPoint.getW();
+            int height = lastPoint.getH();
 
             int ywx = y * width + x;
 

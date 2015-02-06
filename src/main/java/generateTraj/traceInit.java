@@ -8,12 +8,10 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.opencv_imgproc;
-import org.bytedeco.javacpp.opencv_video;
 import topology.Serializable;
 import util.ConfigUtil;
 
 import java.nio.FloatBuffer;
-import java.util.LinkedList;
 import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.*;
@@ -105,7 +103,7 @@ public class traceInit extends BaseRichBolt {
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         //outputFieldsDeclarer.declareStream(STREAM_OPT_FLOW,
         //        new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_MBHX_MAT, FIELD_MBHY_MAT));
-        outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_POINT));
+        outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_LAST_POINT));
     }
 
 }
