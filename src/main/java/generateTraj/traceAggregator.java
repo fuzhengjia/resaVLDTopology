@@ -90,6 +90,7 @@ public class traceAggregator extends BaseRichBolt {
     public void checkOuput(int frameID){
         if (this.traceMonitor.get(frameID).isEmpty()){
             ///we consider this frame is finished
+            System.out.println("AggregatorFinished, send out frameID: " + frameID);
             collector.emit(STREAM_PLOT_TRACE, new Values(frameID, this.traceData.get(frameID)));
             this.traceData.remove(frameID);
             this.traceMonitor.remove(frameID);
