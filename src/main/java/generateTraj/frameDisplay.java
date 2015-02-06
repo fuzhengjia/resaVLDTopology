@@ -86,7 +86,7 @@ public class frameDisplay extends BaseRichBolt {
 //                rawFrameMap.put(frameId, frame);
 //            }
 
-        } else if (streamId.equals(FIELD_TRACE_RECORD)){
+        } else if (streamId.equals(STREAM_PLOT_TRACE)){
             List<TraceRecord> traceRecords = (List<TraceRecord>)tuple.getValueByField(FIELD_TRACE_RECORD);
             traceData.computeIfAbsent(frameId, k->traceRecords);
 //            if (!traceData.containsKey(frameId)){
