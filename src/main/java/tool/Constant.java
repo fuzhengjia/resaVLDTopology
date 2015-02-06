@@ -15,6 +15,30 @@ public interface Constant {
 
     public static String STREAM_OPT_FLOW = "stream-optical-flow";
 
+    public static String STREAM_GREY_FLOW = "stream-grey-flow";
+
+    public static String STREAM_NEW_TRACE = "stream-new-trace";
+
+    public static String STREAM_EXIST_TRACE = "stream-exist-trace";
+
+    public static String STREAM_REGISTER_TRACE = "stream-report-trace";
+
+    public static String STREAM_RENEW_TRACE = "stream-renew-trace";
+
+    public static String STREAM_REMOVE_TRACE = "stream-remove-trace";
+
+    public static String STREAM_PLOT_TRACE = "stream-plot-trace";
+
+    public static String STREAM_CACHE_CLEAN = "stream-cache-clean";
+
+    public static String FIELD_TRACE_IDENTIFIER = "trace-identifier";
+
+    public static String FIELD_TRACE_RECORD = "trace-record";
+
+    public static String FIELD_TRACE_POINT = "trace-point";
+
+    public static String FIELD_FRAME_H_W = "frame-h-w";
+
     public static String FIELD_FLOW_IMPL = "flow-impl";
 
     public static String FIELD_MBHX_MAT = "mbhx-mat";

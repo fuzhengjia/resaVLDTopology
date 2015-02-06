@@ -5,7 +5,7 @@ import org.bytedeco.javacpp.opencv_core;
 /**
  * Created by Tom.fu on 2/12/2014.
  */
-public class PointDesc {
+public class PointDesc implements java.io.Serializable{
     public float[] mbhX;
     public float[] mbhY;
     public opencv_core.CvPoint2D32f point;

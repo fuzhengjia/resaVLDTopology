@@ -139,7 +139,7 @@ public class RedisStreamProducerBeta implements Runnable {
                         Thread.sleep(sleepTime);
                         waitCount++;
                         if (waitCount >= maxWaitCount) {
-                            System.out.println("frameTimeout, frameID: " + currentFrameID + ", peek: " + peekFrame.frameId + ", qSize: " + stream.size());
+                            System.out.println("frameTimeout, traceID: " + currentFrameID + ", peek: " + peekFrame.frameId + ", qSize: " + stream.size());
                             currentFrameID++;
                             waitCount = 0;
                         }

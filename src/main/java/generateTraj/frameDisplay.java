@@ -1,0 +1,137 @@
+package generateTraj;
+
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
+import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacpp.opencv_video;
+import topology.RedisStreamProducer;
+import topology.Serializable;
+import topology.StreamFrame;
+import util.ConfigUtil;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.bytedeco.javacpp.opencv_core.*;
+import static tool.Constant.*;
+import static topology.StormConfigManager.getInt;
+import static topology.StormConfigManager.getString;
+
+/**
+ * Created by Tom Fu
+ * Input is raw video frames, output optical flow results between every two consecutive frames.
+ * Maybe use global grouping and only one task/executor
+ * Similar to frame producer, maintain an ordered list of frames
+ */
+public class frameDisplay extends BaseRichBolt {
+    OutputCollector collector;
+    RedisStreamProducer producer;
+
+    private HashMap<Integer, opencv_core.IplImage> rawFrameMap;
+    private HashMap<Integer, List<TraceRecord>> traceData;
+
+    private String host;
+    private int port;
+    private String queueName;
+    private int accumulateFrameSize;
+
+    static int scale_num = 1;
+    static float scale_stride = (float) Math.sqrt(2.0);
+    static float[] fscales;
+    static int ixyScale = 0;
+
+    @Override
+    public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
+        this.collector = outputCollector;
+        rawFrameMap = new HashMap<>();
+        traceData = new HashMap<>();
+
+        host = getString(map, "redis.host");
+        port = getInt(map, "redis.port");
+        queueName = getString(map, "redis.queueName");
+
+        accumulateFrameSize = ConfigUtil.getInt(map, "accumulateFrameSize", 1);
+
+        fscales = new float[scale_num];
+        for (int i = 0; i < scale_num; i ++){
+            fscales[i] = (float) Math.pow(scale_stride, i);
+        }
+
+        producer = new RedisStreamProducer(host, port, queueName, accumulateFrameSize);
+        new Thread(producer).start();
+    }
+
+    //tuple format:  STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_BYTES)
+    @Override
+    public void execute(Tuple tuple) {
+        String streamId = tuple.getSourceStreamId();
+        int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
+
+        if (streamId.equals(STREAM_FRAME_OUTPUT)){
+
+            IplImage fake = new IplImage();
+            Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
+            IplImage frame = sMat.toJavaCVMat().asIplImage();
+
+            rawFrameMap.computeIfAbsent(frameId, k->frame);
+//            if(!rawFrameMap.containsKey(frameId)){
+//                rawFrameMap.put(frameId, frame);
+//            }
+
+        } else if (streamId.equals(FIELD_TRACE_RECORD)){
+            List<TraceRecord> traceRecords = (List<TraceRecord>)tuple.getValueByField(FIELD_TRACE_RECORD);
+            traceData.computeIfAbsent(frameId, k->traceRecords);
+//            if (!traceData.containsKey(frameId)){
+//                traceData.put(frameId, traceRecords);
+//            }
+        }
+
+        if (rawFrameMap.containsKey(frameId) && traceData.containsKey(frameId)){
+
+            IplImage frame = rawFrameMap.get(frameId);
+            List<TraceRecord> traceRecords = traceData.get(frameId);
+            for (int i = 0; i < traceRecords.size(); i++) {
+                TraceRecord trace = traceRecords.get(i);
+                float length = trace.pointDescs.size();
+
+                float point0_x = fscales[ixyScale] * trace.pointDescs.get(0).point.x();
+                float point0_y = fscales[ixyScale] * trace.pointDescs.get(0).point.y();
+                CvPoint2D32f point0 = new CvPoint2D32f();
+                point0.x(point0_x);
+                point0.y(point0_y);
+
+                float jIndex = 0;
+                for (int jj = 1; jj < length; jj++, jIndex++) {
+                    float point1_x = fscales[ixyScale] * trace.pointDescs.get(jj).point.x();
+                    float point1_y = fscales[ixyScale] * trace.pointDescs.get(jj).point.y();
+                    CvPoint2D32f point1 = new CvPoint2D32f();
+                    point1.x(point1_x);
+                    point1.y(point1_y);
+
+                    cvLine(frame, cvPointFrom32f(point0), cvPointFrom32f(point1),
+                            CV_RGB(0, cvFloor(255.0 * (jIndex + 1.0) / length), 0), 1, 8, 0);
+                    point0 = point1;
+                }
+            }
+
+            opencv_core.Mat mat = new opencv_core.Mat(frame);
+            producer.addFrame(new StreamFrame(frameId, mat));
+            System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
+            rawFrameMap.remove(frameId);
+            traceData.remove(frameId);
+        }
+
+        System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId);
+        collector.ack(tuple);
+    }
+
+    @Override
+    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
+    }
+}

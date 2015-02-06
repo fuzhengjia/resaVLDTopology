@@ -10,6 +10,7 @@ import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacpp.opencv_video;
 import topology.Serializable;
+import util.ConfigUtil;
 
 import java.nio.FloatBuffer;
 import java.util.Map;
@@ -26,41 +27,32 @@ import static tool.Constant.*;
 public class imagePrepare extends BaseRichBolt {
     OutputCollector collector;
 
-    IplImage frame, image, prev_image, grey, prev_grey;
-    IplImagePyramid grey_pyramid, prev_grey_pyramid;
+    IplImage frame, image, grey;
+    IplImagePyramid grey_pyramid;
+    IplImage eig;
+    IplImagePyramid eig_pyramid;
 
-    float scale_stride;
-    int scale_num;
-
-    DescInfo mbhInfo;
-
-    static int patch_size = 32;
-    static int nxy_cell = 2;
-    static int nt_cell = 3;
-    static float min_flow = 0.4f * 0.4f;
-
+    static int scale_num = 1;
+    static float scale_stride = (float) Math.sqrt(2.0);
     static int ixyScale = 0;
+
+    double min_distance;
+    double quality;
+    int init_counter;
+
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
         this.frame = null;
         this.image = null;
-        this.prev_image = null;
         this.grey = null;
-        this.prev_grey = null;
 
         this.grey_pyramid = null;
-        this.prev_grey_pyramid = null;
 
-        scale_stride = (float) Math.sqrt(2.0);
-        scale_num = 1;
-
-        patch_size = 32;
-        nxy_cell = 2;
-        nt_cell = 3;
-        min_flow = 0.4f * 0.4f;
-        mbhInfo = new DescInfo(8, 0, 1, patch_size, nxy_cell, nt_cell, min_flow);
+        this.min_distance = ConfigUtil.getDouble(map, "min_distance", 5.0);
+        this.quality = ConfigUtil.getDouble(map, "quality", 0.001);
+        this.init_counter = ConfigUtil.getInt(map, "init_counter", 1);
     }
 
     //tuple format:  STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_BYTES)
@@ -78,6 +70,7 @@ public class imagePrepare extends BaseRichBolt {
             grey = cvCreateImage(cvGetSize(frame), 8, 1);
             grey_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(frame), 8, 1);
 
+            this.eig_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(this.grey), 32, 1);
         }
 
         cvCopy(frame, image, null);
@@ -90,140 +83,42 @@ public class imagePrepare extends BaseRichBolt {
         Serializable.Mat sgMat = new Serializable.Mat(gMat);
 
         //collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat, mbhMatX, mbhMatY));
-        collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sgMat));
+        collector.emit(STREAM_GREY_FLOW, tuple, new Values(frameId, sgMat));
+
+        if (frameId % init_counter == 0){ ///every init_counter frames, generate new dense points.
+
+            this.eig = cvCloneImage(eig_pyramid.getImage(ixyScale));
+            int width = cvFloor(grey.width() / min_distance);
+            int height = cvFloor(grey.height() / min_distance);
+
+            double[] maxVal = new double[1];
+            maxVal[0] = 0.0;
+            opencv_imgproc.cvCornerMinEigenVal(grey, this.eig, 3, 3);
+            cvMinMaxLoc(eig, null, maxVal, null, null, null);
+            double threshold = maxVal[0] * quality;
+            int offset = cvFloor(min_distance / 2.0);
+
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    int x = cvFloor(j * min_distance + offset);
+                    int y = cvFloor(i * min_distance + offset);
+
+                    FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
+                    float ve = floatBuffer.get(x);
+
+                    if (ve > threshold) {
+                        collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, new TwoInteger(x, y), new TwoInteger(width, height)));
+                    }
+                }
+            }
+        }
 
         collector.ack(tuple);
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        //outputFieldsDeclarer.declareStream(STREAM_OPT_FLOW,
-        //        new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_MBHX_MAT, FIELD_MBHY_MAT));
-        outputFieldsDeclarer.declareStream(STREAM_OPT_FLOW,
-                new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
-    }
-
-    //We have re-organized the input and output to the oringal c++ version
-    public static DescMat[] MbhComp(IplImage flow, DescInfo descInfo,
-                                    int width, int height) {
-        //int width = descMatX.width;
-        //int height = descMatX.height;
-        IplImage flowX = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
-        IplImage flowY = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
-        IplImage flowXdX = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
-        IplImage flowXdY = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
-        IplImage flowYdX = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
-        IplImage flowYdY = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
-
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-
-                FloatBuffer floatBuffer = flow.getByteBuffer(i * flow.widthStep()).asFloatBuffer();
-                FloatBuffer floatBufferX = flowX.getByteBuffer(i * flowX.widthStep()).asFloatBuffer();
-                FloatBuffer floatBufferY = flowY.getByteBuffer(i * flowY.widthStep()).asFloatBuffer();
-
-                int fXIndex = j;
-                int fYIndex = j;
-                int fIndexForX = 2 * j;
-                int fIndexForY = 2 * j + 1;
-
-                floatBufferX.put(fXIndex, 100 * floatBuffer.get(fIndexForX));
-                floatBufferY.put(fYIndex, 100 * floatBuffer.get(fIndexForY));
-            }
-        }
-
-        opencv_imgproc.cvSobel(flowX, flowXdX, 1, 0, 1);
-        opencv_imgproc.cvSobel(flowX, flowXdY, 0, 1, 1);
-        opencv_imgproc.cvSobel(flowY, flowYdX, 1, 0, 1);
-        opencv_imgproc.cvSobel(flowY, flowYdY, 0, 1, 1);
-
-        DescMat[] retVal = new DescMat[2];
-        retVal[0] = BuildDescMat(flowXdX, flowXdY, descInfo, width, height);//descMatX
-        retVal[1] = BuildDescMat(flowYdX, flowYdY, descInfo, width, height);//descMatY
-
-        cvReleaseImage(flowX);
-        cvReleaseImage(flowY);
-        cvReleaseImage(flowXdX);
-        cvReleaseImage(flowXdY);
-        cvReleaseImage(flowYdX);
-        cvReleaseImage(flowYdY);
-
-        return retVal;
-    }
-
-    //We have re-organized the input and output to the oringal c++ version
-    public static DescMat BuildDescMat(IplImage xComp, IplImage yComp, DescInfo descInfo, int width, int height) {
-
-        DescMat descMat = new DescMat(height, width, descInfo.nBins);
-        // whether use full orientation or not
-        float fullAngle = descInfo.fullOrientation > 0 ? 360 : 180;
-        // one additional bin for hof
-        int nBins = descInfo.flagThre > 0 ? descInfo.nBins - 1 : descInfo.nBins;
-
-        float angleBase = fullAngle / (float) nBins;
-        int histDim = descInfo.nBins;
-        int index = 0;
-
-        for (int i = 0; i < height; i++) {
-            // the histogram accumulated in the current line
-            float[] sum = new float[histDim];
-            for (int j = 0; j < sum.length; j++) {
-                sum[j] = 0;
-            }
-            for (int j = 0; j < width; j++, index++) {
-                FloatBuffer floatBufferX = xComp.getByteBuffer(i * xComp.widthStep()).asFloatBuffer();
-                FloatBuffer floatBufferY = yComp.getByteBuffer(i * yComp.widthStep()).asFloatBuffer();
-
-                int xIndex = j;
-                int yIndex = j;
-
-                float shiftX = floatBufferX.get(xIndex);
-                float shiftY = floatBufferY.get(yIndex);
-                float magnitude0 = (float) Math.sqrt(shiftX * shiftX + shiftY * shiftY);
-                float magnitude1 = magnitude0;
-                int bin0, bin1;
-
-                // for the zero bin of hof
-                if (descInfo.flagThre == 1 && magnitude0 <= descInfo.threshold) {
-                    bin0 = nBins; // the zero bin is the last one
-                    magnitude0 = 1.0f;
-                    bin1 = 0;
-                    magnitude1 = 0;
-                } else {
-                    float orientation = cvFastArctan(shiftY, shiftX);
-                    if (orientation > fullAngle) {
-                        orientation -= fullAngle;
-                    }
-
-                    // split the magnitude to two adjacent bins
-                    float fbin = orientation / angleBase;
-                    bin0 = ((int) Math.floor(fbin + 0.5)) % nBins;
-                    bin1 = ((fbin - bin0) > 0 ? (bin0 + 1) : (bin0 - 1 + nBins)) % nBins;
-
-                    float weight0 = 1 - Math.min(Math.abs(fbin - bin0), nBins - fbin);
-                    float weight1 = 1 - weight0;
-
-                    magnitude0 *= weight0;
-                    magnitude1 *= weight1;
-                }
-
-                sum[bin0] += magnitude0;
-                sum[bin1] += magnitude1;
-
-                int temp0 = index * descMat.nBins;
-                if (i == 0) {
-                    // for the 1st line
-                    for (int m = 0; m < descMat.nBins; m++) {
-                        descMat.desc[temp0++] = sum[m];
-                    }
-                } else {
-                    int temp1 = (index - width) * descMat.nBins;
-                    for (int m = 0; m < descMat.nBins; m++) {
-                        descMat.desc[temp0++] = descMat.desc[temp1++] + sum[m];
-                    }
-                }
-            }
-        }
-        return descMat;
+        outputFieldsDeclarer.declareStream(STREAM_GREY_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
+        outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_POINT, FIELD_FRAME_H_W));
     }
 }
