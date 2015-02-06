@@ -69,7 +69,7 @@ public class optFlowTracker extends BaseRichBolt {
             }
 
         } else if (streamId.equals(STREAM_OPT_FLOW)) {
-            //opencv_core.IplImage fake = new opencv_core.IplImage();
+            opencv_core.IplImage fake = new opencv_core.IplImage();
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
             //opencv_core.IplImage flow = sMat.toJavaCVMat().asIplImage();
 
