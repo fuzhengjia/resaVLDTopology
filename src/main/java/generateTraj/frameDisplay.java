@@ -74,10 +74,8 @@ public class frameDisplay extends BaseRichBolt {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
         //System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
-
+        IplImage fake = new IplImage();
         if (streamId.equals(STREAM_FRAME_OUTPUT)){
-
-            //IplImage fake = new IplImage();
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
             //IplImage frame = sMat.toJavaCVMat().asIplImage();
             //rawFrameMap.computeIfAbsent(frameId, k->frame);

@@ -98,8 +98,10 @@ public class optFlowTracker extends BaseRichBolt {
     }
 
     public void processTraceRecords(int frameId) {
-        opencv_core.Mat orgMat = optFlowMap.get(frameId).toJavaCVMat();
-        opencv_core.IplImage flow = orgMat.asIplImage();
+        IplImage imageFK = new IplImage();
+        Serializable.Mat sMat = optFlowMap.get(frameId);
+        opencv_core.Mat orgMat = sMat.toJavaCVMat();
+        IplImage flow = orgMat.asIplImage();
         Queue<TraceRecord> traceRecords = traceQueue.get(frameId);
         while (!traceRecords.isEmpty()) {
             TraceRecord trace = traceRecords.poll();
