@@ -122,7 +122,7 @@ public class optFlowTracker extends BaseRichBolt {
         int width = flow.width();
         int height = flow.height();
 
-        CvPoint2D32f point_in = trace.pointDescs.getLast().point;
+        CvPoint2D32f point_in = trace.pointDescs.getLast().sPoint.toJavaCvPoint2D32f();
         int x = cvFloor(point_in.x());
         int y = cvFloor(point_in.y());
 

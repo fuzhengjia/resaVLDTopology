@@ -100,16 +100,16 @@ public class frameDisplay extends BaseRichBolt {
                 TraceRecord trace = traceRecords.get(i);
                 float length = trace.pointDescs.size();
 
-                float point0_x = fscales[ixyScale] * trace.pointDescs.get(0).point.x();
-                float point0_y = fscales[ixyScale] * trace.pointDescs.get(0).point.y();
+                float point0_x = fscales[ixyScale] * trace.pointDescs.get(0).sPoint.toJavaCvPoint2D32f().x();
+                float point0_y = fscales[ixyScale] * trace.pointDescs.get(0).sPoint.toJavaCvPoint2D32f().y();
                 CvPoint2D32f point0 = new CvPoint2D32f();
                 point0.x(point0_x);
                 point0.y(point0_y);
 
                 float jIndex = 0;
                 for (int jj = 1; jj < length; jj++, jIndex++) {
-                    float point1_x = fscales[ixyScale] * trace.pointDescs.get(jj).point.x();
-                    float point1_y = fscales[ixyScale] * trace.pointDescs.get(jj).point.y();
+                    float point1_x = fscales[ixyScale] * trace.pointDescs.get(jj).sPoint.toJavaCvPoint2D32f().x();
+                    float point1_y = fscales[ixyScale] * trace.pointDescs.get(jj).sPoint.toJavaCvPoint2D32f().y();
                     CvPoint2D32f point1 = new CvPoint2D32f();
                     point1.x(point1_x);
                     point1.y(point1_y);

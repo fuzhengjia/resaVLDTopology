@@ -126,7 +126,7 @@ public class traceGenerator extends BaseRichBolt {
 
             //from traceFilter bolt, field grouping by x, y of last point of each trace!!!
             TraceRecord trace = (TraceRecord) tuple.getValueByField(FIELD_TRACE_RECORD);
-            CvPoint2D32f point = new CvPoint2D32f(trace.pointDescs.getLast().point);
+            CvPoint2D32f point = new CvPoint2D32f(trace.pointDescs.getLast().sPoint.toJavaCvPoint2D32f());
             int width = trace.width;
             int height = trace.height;
 

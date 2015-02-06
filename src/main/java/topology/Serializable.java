@@ -270,4 +270,31 @@ public class Serializable {
             return result;
         }
     }
+
+    public static class CvPoint2D32f implements KryoSerializable, java.io.Serializable {
+        float x;
+        float y;
+
+        public CvPoint2D32f(){}
+        public CvPoint2D32f(opencv_core.CvPoint2D32f p){
+            this.x = p.x();
+            this.y = p.y();
+        }
+
+        public opencv_core.CvPoint2D32f toJavaCvPoint2D32f(){
+            return new opencv_core.CvPoint2D32f().x(this.x).y(this.y);
+        }
+
+        @Override
+        public void write(Kryo kryo, Output output){
+            output.writeFloat(this.x);
+            output.writeFloat(this.y);
+        }
+
+        @Override
+        public void read(Kryo kryo, Input input) {
+            this.x = input.readFloat();
+            this.y = input.readFloat();
+        }
+    }
 }
