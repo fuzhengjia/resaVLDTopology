@@ -27,8 +27,6 @@ public class tomTrajDisplayTopology {
             System.exit(0);
         }
         Config conf = readConfig(args[0]);
-        int numberOfWorkers = getInt(conf, "st-numberOfWorkers");
-        //int numberOfAckers = getInt(conf, "numberOfAckers");
 
         TopologyBuilder builder = new TopologyBuilder();
 
@@ -80,9 +78,11 @@ public class tomTrajDisplayTopology {
 
         StormTopology topology = builder.createTopology();
 
+        int numberOfWorkers = getInt(conf, "TrajNumOfWorkers");
+        //int numberOfAckers = getInt(conf, "numberOfAckers");
         conf.setNumWorkers(numberOfWorkers);
         //conf.setNumAckers(numberOfAckers);
-        conf.setMaxSpoutPending(getInt(conf, "st-MaxSpoutPending"));
+        conf.setMaxSpoutPending(getInt(conf, "TrajMaxPending"));
 
         conf.registerSerialization(Serializable.Mat.class);
         StormSubmitter.submitTopology("tomSimpleDisplayTopology", conf, topology);
