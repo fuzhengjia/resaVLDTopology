@@ -26,7 +26,8 @@ import static tool.Constant.*;
 public class optFlowTracker extends BaseRichBolt {
     OutputCollector collector;
 
-    private HashMap<Integer, opencv_core.IplImage> optFlowMap;
+    ///private HashMap<Integer, opencv_core.IplImage> optFlowMap;
+    private HashMap<Integer, Serializable.Mat> optFlowMap;
     private HashMap<Integer, Queue<TraceRecord>> traceQueue;
     int maxTrackerLength;
     DescInfo mbhInfo;
@@ -63,19 +64,22 @@ public class optFlowTracker extends BaseRichBolt {
 
             ///If find both, process
             if (optFlowMap.containsKey(frameId)) {
-                opencv_core.IplImage flow = optFlowMap.get(frameId);
-                processTraceRecords(flow, frameId);
+                //opencv_core.IplImage flow = optFlowMap.get(frameId);
+                processTraceRecords(frameId);
             }
 
         } else if (streamId.equals(STREAM_OPT_FLOW)) {
-            opencv_core.IplImage fake = new opencv_core.IplImage();
+            //opencv_core.IplImage fake = new opencv_core.IplImage();
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-            opencv_core.IplImage flow = sMat.toJavaCVMat().asIplImage();
+            //opencv_core.IplImage flow = sMat.toJavaCVMat().asIplImage();
 
-            optFlowMap.computeIfAbsent(frameId, k -> flow);
+            //optFlowMap.computeIfAbsent(frameId, k -> flow);
+            if (!optFlowMap.containsKey(frameId)){
+                optFlowMap.put(frameId, sMat);
+            }
 
             if (traceQueue.containsKey(frameId)) {
-                processTraceRecords(flow, frameId);
+                processTraceRecords(frameId);
             }
 
         } else if (streamId.equals(STREAM_CACHE_CLEAN)) {
@@ -93,7 +97,9 @@ public class optFlowTracker extends BaseRichBolt {
         outputFieldsDeclarer.declareStream(STREAM_REMOVE_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_IDENTIFIER));
     }
 
-    public void processTraceRecords(IplImage flow, int frameId) {
+    public void processTraceRecords(int frameId) {
+        opencv_core.Mat orgMat = optFlowMap.get(frameId).toJavaCVMat();
+        opencv_core.IplImage flow = orgMat.asIplImage();
         Queue<TraceRecord> traceRecords = traceQueue.get(frameId);
         while (!traceRecords.isEmpty()) {
             TraceRecord trace = traceRecords.poll();
