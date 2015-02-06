@@ -52,7 +52,9 @@ public class traceAggregator extends BaseRichBolt {
             this.traceData.computeIfAbsent(frameId, k -> new ArrayList<TraceRecord>()).add(trace);
 
             if (this.traceMonitor.containsKey(frameId)){
+                System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId +"," + this.traceMonitor.get(frameId).size());
                 this.traceMonitor.get(frameId).remove(trace.traceID);
+                System.out.println("AfterRemove:, frameID: " + frameId + ", streamID: " + streamId + "," + this.traceMonitor.get(frameId).size());
                 checkOuput(frameId);
 
             } else {
@@ -64,7 +66,7 @@ public class traceAggregator extends BaseRichBolt {
             if (this.traceMonitor.containsKey(frameId)){
                 System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId +"," + this.traceMonitor.get(frameId).size());
                 this.traceMonitor.get(frameId).remove(traceID);
-                System.out.println("AfterRemove:, frameID: " + frameId + ", streamID: " + streamId +"," + this.traceMonitor.get(frameId).size());
+                System.out.println("AfterRemove:, frameID: " + frameId + ", streamID: " + streamId + "," + this.traceMonitor.get(frameId).size());
                 checkOuput(frameId);
 
             } else {
