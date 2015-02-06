@@ -86,7 +86,7 @@ public class optFlowTracker extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_EXIST_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_RECORD));
-        outputFieldsDeclarer.declareStream(STREAM_RENEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_RECORD, FIELD_TRACE_LAST_POINT));
+        outputFieldsDeclarer.declareStream(STREAM_RENEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_RECORD, FIELD_COUNTERS_INDEX));
         outputFieldsDeclarer.declareStream(STREAM_REMOVE_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_IDENTIFIER));
     }
 
@@ -106,9 +106,9 @@ public class optFlowTracker extends BaseRichBolt {
                     ///Plot and feedback
                     int x = cvFloor(pointOut.x() / min_distance);
                     int y = cvFloor(pointOut.y() / min_distance);
+                    int countersIndex = LastPoint.calCountersIndexForRenewTrace(x, y, trace.width);
 
-                    LastPoint lp = new LastPoint(x, y, trace.width, trace.height);
-                    collector.emit(STREAM_RENEW_TRACE, new Values(frameId, trace, lp.getFieldString()));
+                    collector.emit(STREAM_RENEW_TRACE, new Values(frameId, trace, countersIndex));
                 }
             } else {
                 ///Drop

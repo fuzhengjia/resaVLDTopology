@@ -55,9 +55,9 @@ public class tomTrajDisplayTopology {
 
         builder.setBolt(traceGenBolt, new traceGenerator(), getInt(conf, traceGenBolt + ".parallelism"))
                 //.shuffleGrouping(imgPrepareBolt, STREAM_NEW_TRACE)
-                .fieldsGrouping(imgPrepareBolt, STREAM_NEW_TRACE, new Fields(FIELD_TRACE_LAST_POINT))
+                .fieldsGrouping(imgPrepareBolt, STREAM_NEW_TRACE, new Fields(FIELD_COUNTERS_INDEX))
                 //.allGrouping(optFlowTracker, STREAM_RENEW_TRACE)
-                .fieldsGrouping(optFlowTracker, STREAM_RENEW_TRACE, new Fields(FIELD_TRACE_LAST_POINT))
+                .fieldsGrouping(optFlowTracker, STREAM_RENEW_TRACE, new Fields(FIELD_COUNTERS_INDEX))
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
 
         builder.setBolt(optFlowTracker, new optFlowTracker(), getInt(conf, optFlowTracker + ".parallelism"))

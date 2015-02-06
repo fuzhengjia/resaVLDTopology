@@ -37,7 +37,7 @@ public interface Constant {
 
     public static String FIELD_TRACE_LAST_POINT = "trace-last-point";
 
-    public static String FIELD_FRAME_H_W = "frame-h-w";
+    public static String FIELD_COUNTERS_INDEX = "counters-index";
 
     public static String FIELD_FLOW_IMPL = "flow-impl";
 

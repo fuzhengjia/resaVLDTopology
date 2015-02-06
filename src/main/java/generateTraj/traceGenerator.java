@@ -86,36 +86,18 @@ public class traceGenerator extends BaseRichBolt {
             LastPoint lastPoint = (LastPoint) tuple.getValueByField(FIELD_TRACE_LAST_POINT);
 
             //System.out.println("frame from Stream new trace, id: " + frameId);
-
-            int x = lastPoint.getX();
-            int y = lastPoint.getY();
+            int countersIndex = tuple.getIntegerByField(FIELD_COUNTERS_INDEX);
 
             int width = lastPoint.getW();
             int height = lastPoint.getH();
 
-            int ywx = y * width + x;
+            int x = lastPoint.getX();
+            int y = lastPoint.getY();
 
             int correspondingFrameID = frameId - init_counter; ///if init_counter = 1, the correspondingFrameID is the previous frame
-//            if (indicatorList.containsKey(correspondingFrameID)){
-//                if (indicatorList.get(correspondingFrameID)[ywx] == false){
-//
-//                    String traceID = generateTraceID(frameId);
-//                    PointDesc point = new PointDesc(this.mbhInfo, cvPoint2D32f(x, y));
-//                    TraceRecord trace = new TraceRecord(traceID, width, height, point);
-//                    collector.emit(STREAM_EXIST_TRACE, tuple, new Values(frameId, trace));
-//                    collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, trace.traceID));///to the last bolt
-//                }
-//            } else {
-//                String traceID = generateTraceID(frameId);
-//                PointDesc point = new PointDesc(this.mbhInfo, cvPoint2D32f(x, y));
-//                TraceRecord trace = new TraceRecord(traceID, width, height, point);
-//                collector.emit(STREAM_EXIST_TRACE, tuple, new Values(frameId, trace));
-//                collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, trace.traceID));///to the last bolt
-//            }
-            ///replaced by this:
             if (indicatorList.containsKey(correspondingFrameID)) {
-                if (indicatorList.get(correspondingFrameID)[ywx] == true) {
-                    System.out.println("frame from Stream new trace, id: " + frameId + ", ywx is true, ywx: " + ywx);
+                if (indicatorList.get(correspondingFrameID)[countersIndex] == true) {
+                    System.out.println("frame from Stream new trace, id: " + frameId + ", cIndex: " + countersIndex);
                     collector.ack(tuple);
                     return;
                 }
@@ -131,6 +113,7 @@ public class traceGenerator extends BaseRichBolt {
 
             //from traceFilter bolt, field grouping by x, y of last point of each trace!!!
             TraceRecord trace = (TraceRecord) tuple.getValueByField(FIELD_TRACE_RECORD);
+            int countersIndex = tuple.getIntegerByField(FIELD_COUNTERS_INDEX);
             CvPoint2D32f point = new CvPoint2D32f(trace.pointDescs.getLast().sPoint.toJavaCvPoint2D32f());
             int width = trace.width;
             int height = trace.height;
@@ -138,6 +121,10 @@ public class traceGenerator extends BaseRichBolt {
             int x = cvFloor(point.x() / min_distance);
             int y = cvFloor(point.y() / min_distance);
             int ywx = y * width + x;
+
+            if(ywx != countersIndex){
+                throw new IllegalArgumentException("ywx: " + ywx + "!=countersIndex: " + countersIndex);}
+
             if (point.x() < min_distance * width && point.y() < min_distance * height) {
                 ///create new entry if key traceID does not exist, otherwise, set the ywx position to TRUE;
                 indicatorList.computeIfAbsent(frameId, (k) -> (new boolean[width * height]))[ywx] = true;

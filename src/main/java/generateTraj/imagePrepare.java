@@ -106,8 +106,9 @@ public class imagePrepare extends BaseRichBolt {
                     float ve = floatBuffer.get(x);
 
                     LastPoint lp = new LastPoint(x, y, width, height);
+                    int coutersIndex = LastPoint.calCountersIndexForNewTrace(j, i, width);
                     if (ve > threshold) {
-                        collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, lp, lp.getFieldString()));
+                        collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, lp, coutersIndex));
                     }
                 }
             }
@@ -119,6 +120,7 @@ public class imagePrepare extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_GREY_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
-        outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_LAST_POINT, FIELD_FRAME_H_W));
+        outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE,
+                new Fields(FIELD_FRAME_ID, FIELD_TRACE_LAST_POINT, FIELD_COUNTERS_INDEX));
     }
 }
