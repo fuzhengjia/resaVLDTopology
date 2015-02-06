@@ -105,7 +105,7 @@ public class traceGenerator extends BaseRichBolt {
             String traceID = generateTraceID(frameId);
             PointDesc point = new PointDesc(this.mbhInfo, cvPoint2D32f(x, y));
             TraceRecord trace = new TraceRecord(traceID, width, height, point);
-            collector.emit(STREAM_EXIST_TRACE, tuple, new Values(frameId, trace));
+            collector.emit(STREAM_EXIST_TRACE, new Values(frameId, trace));
             collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, trace.traceID));///to the last bolt
             System.out.println("Generate new trace, id: " + frameId + "," + trace.traceID);
 
