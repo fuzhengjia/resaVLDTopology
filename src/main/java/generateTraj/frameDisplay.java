@@ -33,7 +33,8 @@ public class frameDisplay extends BaseRichBolt {
     OutputCollector collector;
     RedisStreamProducer producer;
 
-    private HashMap<Integer, Serializable.Mat> rawFrameMap;
+    //private HashMap<Integer, Serializable.Mat> rawFrameMap;
+    private HashMap<Integer, opencv_core.IplImage> rawFrameMap;
     private HashMap<Integer, List<TraceRecord>> traceData;
 
     private String host;
@@ -79,10 +80,10 @@ public class frameDisplay extends BaseRichBolt {
 
             IplImage fake = new IplImage();
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-            //IplImage frame = sMat.toJavaCVMat().asIplImage();
+            IplImage frame = sMat.toJavaCVMat().asIplImage();
             //rawFrameMap.computeIfAbsent(frameId, k->frame);
             if (!rawFrameMap.containsKey(frameId)){
-                rawFrameMap.put(frameId, sMat);
+                rawFrameMap.put(frameId, frame);
             }
         } else if (streamId.equals(STREAM_PLOT_TRACE)){
             List<TraceRecord> traceRecords = (List<TraceRecord>)tuple.getValueByField(FIELD_TRACE_RECORD);
@@ -90,9 +91,9 @@ public class frameDisplay extends BaseRichBolt {
         }
 
         if (rawFrameMap.containsKey(frameId) && traceData.containsKey(frameId)){
-            opencv_core.Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
-            ///IplImage frame = rawFrameMap.get(frameId);
-            IplImage frame = orgMat.asIplImage();
+            ///opencv_core.Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
+            IplImage frame = rawFrameMap.get(frameId);
+            ///IplImage frame = orgMat.asIplImage();
             List<TraceRecord> traceRecords = traceData.get(frameId);
             for (int i = 0; i < traceRecords.size(); i++) {
                 TraceRecord trace = traceRecords.get(i);
