@@ -75,18 +75,12 @@ public class traceGenerator extends BaseRichBolt {
 
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-
         System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
 
-        if (streamId.equals(STREAM_NEW_TRACE)) {
-            //from traceInit bolt
-
+        if (streamId.equals(STREAM_NEW_TRACE)) {///from traceInit bolt
             try {
-                ///collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, new LastPoint(x, y), new LastPoint(height, width)));
-                ///outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_LAST_POINT, FIELD_FRAME_H_W));
                 LastPoint lastPoint = (LastPoint) tuple.getValueByField(FIELD_TRACE_LAST_POINT);
 
-                //System.out.println("frame from Stream new trace, id: " + frameId);
                 int countersIndex = tuple.getIntegerByField(FIELD_COUNTERS_INDEX);
 
                 int width = lastPoint.getW();
@@ -95,7 +89,8 @@ public class traceGenerator extends BaseRichBolt {
                 int x = lastPoint.getX();
                 int y = lastPoint.getY();
 
-                int correspondingFrameID = frameId - init_counter; ///if init_counter = 1, the correspondingFrameID is the previous frame
+                int correspondingFrameID = frameId - init_counter;
+                ///if init_counter = 1, the correspondingFrameID is the previous frame
                 if (indicatorList.containsKey(correspondingFrameID)) {
                     if (indicatorList.get(correspondingFrameID)[countersIndex] == true) {
                         System.out.println("frame from Stream new trace, id: " + frameId + ", cIndex: " + countersIndex);
@@ -113,10 +108,10 @@ public class traceGenerator extends BaseRichBolt {
                 e.printStackTrace();
             }
         } else if (streamId.equals(STREAM_RENEW_TRACE)) {
-
             //from traceFilter bolt, field grouping by x, y of last point of each trace!!!
             TraceRecord trace = (TraceRecord) tuple.getValueByField(FIELD_TRACE_RECORD);
             int countersIndex = tuple.getIntegerByField(FIELD_COUNTERS_INDEX);
+            ///here can be optimized to only use sPoint object instead of CvPoint2D32f object
             CvPoint2D32f point = new CvPoint2D32f(trace.pointDescs.getLast().sPoint.toJavaCvPoint2D32f());
             int width = trace.width;
             int height = trace.height;

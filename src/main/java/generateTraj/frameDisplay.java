@@ -82,16 +82,10 @@ public class frameDisplay extends BaseRichBolt {
             IplImage frame = sMat.toJavaCVMat().asIplImage();
 
             rawFrameMap.computeIfAbsent(frameId, k->frame);
-//            if(!rawFrameMap.containsKey(frameId)){
-//                rawFrameMap.put(frameId, frame);
-//            }
 
         } else if (streamId.equals(STREAM_PLOT_TRACE)){
             List<TraceRecord> traceRecords = (List<TraceRecord>)tuple.getValueByField(FIELD_TRACE_RECORD);
             traceData.computeIfAbsent(frameId, k->traceRecords);
-//            if (!traceData.containsKey(frameId)){
-//                traceData.put(frameId, traceRecords);
-//            }
         }
 
         if (rawFrameMap.containsKey(frameId) && traceData.containsKey(frameId)){

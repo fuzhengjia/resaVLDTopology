@@ -59,7 +59,7 @@ public class optFlowTracker extends BaseRichBolt {
             TraceRecord trace = (TraceRecord) tuple.getValueByField(FIELD_TRACE_RECORD);
 
             ///if KEY frameID does not exist, then create one, then add to the entry
-            this.traceQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).add(trace);
+            traceQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).add(trace);
 
             ///If find both, process
             if (optFlowMap.containsKey(frameId)) {

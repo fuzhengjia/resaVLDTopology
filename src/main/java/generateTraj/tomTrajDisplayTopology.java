@@ -54,9 +54,7 @@ public class tomTrajDisplayTopology {
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
         builder.setBolt(traceGenBolt, new traceGenerator(), getInt(conf, traceGenBolt + ".parallelism"))
-                //.shuffleGrouping(imgPrepareBolt, STREAM_NEW_TRACE)
                 .fieldsGrouping(imgPrepareBolt, STREAM_NEW_TRACE, new Fields(FIELD_COUNTERS_INDEX))
-                //.allGrouping(optFlowTracker, STREAM_RENEW_TRACE)
                 .fieldsGrouping(optFlowTracker, STREAM_RENEW_TRACE, new Fields(FIELD_COUNTERS_INDEX))
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
 
@@ -87,6 +85,7 @@ public class tomTrajDisplayTopology {
         conf.setMaxSpoutPending(getInt(conf, "TrajMaxPending"));
 
         conf.registerSerialization(Serializable.Mat.class);
+        conf.setStatsSampleRate(1.0);
         StormSubmitter.submitTopology("tomTrajDisplayTopology", conf, topology);
 
     }
