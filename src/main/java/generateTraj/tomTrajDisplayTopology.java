@@ -87,6 +87,5 @@ public class tomTrajDisplayTopology {
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
         StormSubmitter.submitTopology("tomTrajDisplayTopology", conf, topology);
-
     }
 }
