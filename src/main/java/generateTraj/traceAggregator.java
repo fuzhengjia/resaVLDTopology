@@ -52,9 +52,8 @@ public class traceAggregator extends BaseRichBolt {
             this.traceData.computeIfAbsent(frameId, k -> new ArrayList<TraceRecord>()).add(trace);
 
             if (this.traceMonitor.containsKey(frameId)){
-                System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId +"," + this.traceMonitor.get(frameId).size());
                 this.traceMonitor.get(frameId).remove(trace.traceID);
-                System.out.println("AfterRemove:, frameID: " + frameId + ", streamID: " + streamId + "," + this.traceMonitor.get(frameId).size());
+                System.out.println("afterremove:, frameID: " + frameId + ", streamID: " + streamId + "," + this.traceMonitor.get(frameId).size());
                 checkOuput(frameId);
 
             } else {
@@ -64,9 +63,8 @@ public class traceAggregator extends BaseRichBolt {
         } else if (streamId.equals(STREAM_REMOVE_TRACE)) {
             String traceID = tuple.getStringByField(FIELD_TRACE_IDENTIFIER);
             if (this.traceMonitor.containsKey(frameId)){
-                System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId +"," + this.traceMonitor.get(frameId).size());
                 this.traceMonitor.get(frameId).remove(traceID);
-                System.out.println("AfterRemove:, frameID: " + frameId + ", streamID: " + streamId + "," + this.traceMonitor.get(frameId).size());
+                System.out.println("afterremove:, frameID: " + frameId + ", streamID: " + streamId + "," + this.traceMonitor.get(frameId).size());
                 checkOuput(frameId);
 
             } else {
@@ -76,7 +74,7 @@ public class traceAggregator extends BaseRichBolt {
         } else if (streamId.equals(STREAM_REGISTER_TRACE)) {
             String traceID = tuple.getStringByField(FIELD_TRACE_IDENTIFIER);
             this.traceMonitor.computeIfAbsent(frameId, k -> new HashSet<String>()).add(traceID);
-            System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId +"," + this.traceMonitor.get(frameId).size());
+            System.out.println("register tuple, frameID: " + frameId + ", streamID: " + streamId +"," + this.traceMonitor.get(frameId).size());
         }
         collector.ack(tuple);
     }

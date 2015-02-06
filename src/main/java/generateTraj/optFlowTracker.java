@@ -53,32 +53,43 @@ public class optFlowTracker extends BaseRichBolt {
 
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        if (streamId.equals(STREAM_EXIST_TRACE)) {
+        if (frameId == 0) {
             TraceRecord trace = (TraceRecord) tuple.getValueByField(FIELD_TRACE_RECORD);
 
-            ///if KEY frameID does not exist, then create one, then add to the entry
-            this.traceQueue.computeIfAbsent(frameId, k-> new LinkedList<>()).add(trace);
+            int x = cvFloor(trace.pointDescs.getLast().sPoint.x() / min_distance);
+            int y = cvFloor(trace.pointDescs.getLast().sPoint.x() / min_distance);
+            int countersIndex = LastPoint.calCountersIndexForRenewTrace(x, y, trace.width);
 
-            ///If find both, process
-            if (optFlowMap.containsKey(frameId)) {
-                opencv_core.IplImage flow = optFlowMap.get(frameId);
-                processTraceRecords(flow, frameId);
+            collector.emit(STREAM_RENEW_TRACE, new Values(frameId, trace, countersIndex));
+        } else {///frameID > 0
+
+            if (streamId.equals(STREAM_EXIST_TRACE)) {
+                TraceRecord trace = (TraceRecord) tuple.getValueByField(FIELD_TRACE_RECORD);
+
+                ///if KEY frameID does not exist, then create one, then add to the entry
+                this.traceQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).add(trace);
+
+                ///If find both, process
+                if (optFlowMap.containsKey(frameId)) {
+                    opencv_core.IplImage flow = optFlowMap.get(frameId);
+                    processTraceRecords(flow, frameId);
+                }
+
+            } else if (streamId.equals(STREAM_OPT_FLOW)) {
+                opencv_core.IplImage fake = new opencv_core.IplImage();
+                Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
+                opencv_core.IplImage flow = sMat.toJavaCVMat().asIplImage();
+
+                optFlowMap.computeIfAbsent(frameId, k -> flow);
+
+                if (traceQueue.containsKey(frameId)) {
+                    processTraceRecords(flow, frameId);
+                }
+
+            } else if (streamId.equals(STREAM_CACHE_CLEAN)) {
+                optFlowMap.remove(frameId);
+                traceQueue.remove(frameId);
             }
-
-        } else if (streamId.equals(STREAM_OPT_FLOW)) {
-            opencv_core.IplImage fake = new opencv_core.IplImage();
-            Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-            opencv_core.IplImage flow = sMat.toJavaCVMat().asIplImage();
-
-            optFlowMap.computeIfAbsent(frameId, k->flow);
-
-            if (traceQueue.containsKey(frameId)) {
-                processTraceRecords(flow, frameId);
-            }
-
-        } else if (streamId.equals(STREAM_CACHE_CLEAN)) {
-            optFlowMap.remove(frameId);
-            traceQueue.remove(frameId);
         }
         collector.ack(tuple);
     }
@@ -113,6 +124,7 @@ public class optFlowTracker extends BaseRichBolt {
             } else {
                 ///Drop
                 collector.emit(STREAM_REMOVE_TRACE, new Values(frameId, trace.traceID));
+                System.out.println("removetrace:, frameID: " + frameId + ", tID: " + trace.traceID);
             }
         }
     }

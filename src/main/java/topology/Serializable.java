@@ -285,6 +285,14 @@ public class Serializable {
             return new opencv_core.CvPoint2D32f().x(this.x).y(this.y);
         }
 
+        public float x(){
+            return this.x;
+        }
+
+        public float y(){
+            return this.y;
+        }
+
         @Override
         public void write(Kryo kryo, Output output){
             output.writeFloat(this.x);
