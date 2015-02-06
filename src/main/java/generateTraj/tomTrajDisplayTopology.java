@@ -53,16 +53,16 @@ public class tomTrajDisplayTopology {
                 .globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
-        builder.setBolt(traceGenBolt, new traceGenerator(), getInt(conf, traceGenBolt + ".parallelism"))
-                .fieldsGrouping(imgPrepareBolt, STREAM_NEW_TRACE, new Fields(FIELD_COUNTERS_INDEX))
-                .fieldsGrouping(optFlowTracker, STREAM_RENEW_TRACE, new Fields(FIELD_COUNTERS_INDEX))
-                .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
-
         builder.setBolt(optFlowTracker, new optFlowTracker(), getInt(conf, optFlowTracker + ".parallelism"))
                 .shuffleGrouping(traceGenBolt, STREAM_EXIST_TRACE)
                 .allGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
                 .allGrouping(traceAggregator, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
+
+        builder.setBolt(traceGenBolt, new traceGenerator(), getInt(conf, traceGenBolt + ".parallelism"))
+                .fieldsGrouping(imgPrepareBolt, STREAM_NEW_TRACE, new Fields(FIELD_COUNTERS_INDEX))
+                .fieldsGrouping(optFlowTracker, STREAM_RENEW_TRACE, new Fields(FIELD_COUNTERS_INDEX))
+                .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
 
         builder.setBolt(traceAggregator, new traceAggregator(), getInt(conf, traceAggregator + ".parallelism"))
                 .globalGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
