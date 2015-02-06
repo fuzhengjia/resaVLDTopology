@@ -77,6 +77,8 @@ public class traceGenerator extends BaseRichBolt {
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
+        System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
+
         if (streamId.equals(STREAM_NEW_TRACE)) {
             //from traceInit bolt
 
@@ -85,7 +87,7 @@ public class traceGenerator extends BaseRichBolt {
             TwoInteger lastPoint = (TwoInteger) tuple.getValueByField(FIELD_TRACE_POINT);
             TwoInteger frameHW = (TwoInteger) tuple.getValueByField(FIELD_FRAME_H_W);
 
-            System.out.println("frame from Stream new trace, id: " + frameId);
+            //System.out.println("frame from Stream new trace, id: " + frameId);
 
             int x = lastPoint.getVal1();
             int y = lastPoint.getVal2();
