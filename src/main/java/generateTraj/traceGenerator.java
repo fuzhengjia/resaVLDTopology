@@ -81,34 +81,37 @@ public class traceGenerator extends BaseRichBolt {
         if (streamId.equals(STREAM_NEW_TRACE)) {
             //from traceInit bolt
 
-            ///collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, new LastPoint(x, y), new LastPoint(height, width)));
-            ///outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_LAST_POINT, FIELD_FRAME_H_W));
-            LastPoint lastPoint = (LastPoint) tuple.getValueByField(FIELD_TRACE_LAST_POINT);
+            try {
+                ///collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, new LastPoint(x, y), new LastPoint(height, width)));
+                ///outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_LAST_POINT, FIELD_FRAME_H_W));
+                LastPoint lastPoint = (LastPoint) tuple.getValueByField(FIELD_TRACE_LAST_POINT);
 
-            //System.out.println("frame from Stream new trace, id: " + frameId);
-            int countersIndex = tuple.getIntegerByField(FIELD_COUNTERS_INDEX);
+                //System.out.println("frame from Stream new trace, id: " + frameId);
+                int countersIndex = tuple.getIntegerByField(FIELD_COUNTERS_INDEX);
 
-            int width = lastPoint.getW();
-            int height = lastPoint.getH();
+                int width = lastPoint.getW();
+                int height = lastPoint.getH();
 
-            int x = lastPoint.getX();
-            int y = lastPoint.getY();
+                int x = lastPoint.getX();
+                int y = lastPoint.getY();
 
-            int correspondingFrameID = frameId - init_counter; ///if init_counter = 1, the correspondingFrameID is the previous frame
-            if (indicatorList.containsKey(correspondingFrameID)) {
-                if (indicatorList.get(correspondingFrameID)[countersIndex] == true) {
-                    System.out.println("frame from Stream new trace, id: " + frameId + ", cIndex: " + countersIndex);
-                    collector.ack(tuple);
-                    return;
+                int correspondingFrameID = frameId - init_counter; ///if init_counter = 1, the correspondingFrameID is the previous frame
+                if (indicatorList.containsKey(correspondingFrameID)) {
+                    if (indicatorList.get(correspondingFrameID)[countersIndex] == true) {
+                        System.out.println("frame from Stream new trace, id: " + frameId + ", cIndex: " + countersIndex);
+                        collector.ack(tuple);
+                        return;
+                    }
                 }
+                String traceID = generateTraceID(frameId);
+                PointDesc point = new PointDesc(this.mbhInfo, cvPoint2D32f(x, y));
+                TraceRecord trace = new TraceRecord(traceID, width, height, point);
+                collector.emit(STREAM_EXIST_TRACE, new Values(frameId, trace));
+                collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, trace.traceID));///to the last bolt
+                System.out.println("Generate new trace, id: " + frameId + "," + trace.traceID);
+            }catch (Exception e){
+                e.printStackTrace();
             }
-            String traceID = generateTraceID(frameId);
-            PointDesc point = new PointDesc(this.mbhInfo, cvPoint2D32f(x, y));
-            TraceRecord trace = new TraceRecord(traceID, width, height, point);
-            collector.emit(STREAM_EXIST_TRACE, new Values(frameId, trace));
-            collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, trace.traceID));///to the last bolt
-            System.out.println("Generate new trace, id: " + frameId + "," + trace.traceID);
-
         } else if (streamId.equals(STREAM_RENEW_TRACE)) {
 
             //from traceFilter bolt, field grouping by x, y of last point of each trace!!!
