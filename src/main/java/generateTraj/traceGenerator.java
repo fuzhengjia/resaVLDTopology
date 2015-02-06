@@ -9,6 +9,7 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import util.ConfigUtil;
 
+import javax.xml.bind.SchemaOutputResolver;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -84,6 +85,8 @@ public class traceGenerator extends BaseRichBolt {
             TwoInteger lastPoint = (TwoInteger) tuple.getValueByField(FIELD_TRACE_POINT);
             TwoInteger frameHW = (TwoInteger) tuple.getValueByField(FIELD_FRAME_H_W);
 
+            System.out.println("frame from Stream new trace, id: " + frameId);
+
             int x = lastPoint.getVal1();
             int y = lastPoint.getVal2();
 
@@ -112,6 +115,7 @@ public class traceGenerator extends BaseRichBolt {
             ///replaced by this:
             if (indicatorList.containsKey(correspondingFrameID)) {
                 if (indicatorList.get(correspondingFrameID)[ywx] == true) {
+                    System.out.println("frame from Stream new trace, id: " + frameId + ", ywx is true, ywx: " + ywx);
                     collector.ack(tuple);
                     return;
                 }
