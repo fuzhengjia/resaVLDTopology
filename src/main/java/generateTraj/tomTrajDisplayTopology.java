@@ -38,7 +38,7 @@ public class tomTrajDisplayTopology {
         String imgPrepareBolt = "TrajImgPrep";
         String optFlowGenBolt = "TrajOptFlowGen";
         String traceGenBolt = "TrajTraceGen";
-        String optFlowTracker = "aTrajOptFlowTracker";
+        String optFlowTracker = "TrajOptFlowTracker";
         String traceAggregator = "TrajTraceAgg";
         String frameDisplay = "TrajDisplay";
 
