@@ -8,11 +8,9 @@ import topology.Serializable;
 public class TraceMetaAndLastPoint implements java.io.Serializable {
     public String traceID;//useless
     public Serializable.CvPoint2D32f lastPoint;
-    public int countersIndex;
 
-    public TraceMetaAndLastPoint(String traceID, Serializable.CvPoint2D32f point, int countersIndex){
+    public TraceMetaAndLastPoint(String traceID, Serializable.CvPoint2D32f point){
         this.traceID = traceID;
         this.lastPoint = new Serializable.CvPoint2D32f(point);
-        this.countersIndex = countersIndex;
     }
 }

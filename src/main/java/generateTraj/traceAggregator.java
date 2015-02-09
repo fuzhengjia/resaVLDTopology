@@ -119,7 +119,9 @@ public class traceAggregator extends BaseRichBolt {
         }
 
         if (traceIDset.isEmpty()){//all traces are processed.
-            collector.emit(STREAM_PLOT_TRACE, new Values(frameId, traceData.values().stream().collect(Collectors.toList())));
+            List<List<PointDesc>> traceRecords = new ArrayList<List<PointDesc>>(traceData.values());
+            //List<List<PointDesc>> traceRecords = traceData.values().stream().collect(Collectors.toList());
+            collector.emit(STREAM_PLOT_TRACE, new Values(frameId, traceRecords));
             collector.emit(STREAM_CACHE_CLEAN, new Values(frameId));
             traceMonitor.remove(frameId);
             messageQueue.remove(frameId);
@@ -129,7 +131,7 @@ public class traceAggregator extends BaseRichBolt {
                 if (v.size() > maxTrackerLength){
                     traceData.remove(k);
                 } else {
-                    feedbackPoints.add(new TraceMetaAndLastPoint(k, v.get(v.size()-1).sPoint, 0));
+                    feedbackPoints.add(new TraceMetaAndLastPoint(k, v.get(v.size()-1).sPoint));
                 }
             });
             int nextFrameID = frameId+1;

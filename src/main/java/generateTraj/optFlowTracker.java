@@ -90,7 +90,7 @@ public class optFlowTracker extends BaseRichBolt {
             TraceMetaAndLastPoint trace = traceRecords.poll();
             Serializable.CvPoint2D32f pointOut = getNextFlowPoint(flow, trace.lastPoint);
             if (pointOut != null) {
-                TraceMetaAndLastPoint traceNext = new TraceMetaAndLastPoint(trace.traceID, pointOut, 0);
+                TraceMetaAndLastPoint traceNext = new TraceMetaAndLastPoint(trace.traceID, pointOut);
                 collector.emit(STREAM_EXIST_TRACE, new Values(frameId, traceNext));
             } else {
                 ///not valid after flowTracker.

@@ -88,7 +88,6 @@ public class traceGenerator extends BaseRichBolt {
         }
 
         ///Now, the two FrameID are synchronized!!!
-        ///TODO: the countersIndex, W_H info in the TraceMetaAndLastPoint class can be removed in future.!
         if (newPointsList.containsKey(frameId) && feedbackPointsList.containsKey(frameId)) {
             List<NewDensePoint> newPoints = newPointsList.get(frameId);
             TwoIntegers wh = newPointsWHInfo.get(frameId);
@@ -130,7 +129,7 @@ public class traceGenerator extends BaseRichBolt {
                     if (counters[ywx] == false) {
                         String traceID = generateTraceID(frameId);
                         Serializable.CvPoint2D32f lastPt = new Serializable.CvPoint2D32f(cvPoint2D32f(x, y));
-                        TraceMetaAndLastPoint newTrace = new TraceMetaAndLastPoint(traceID, lastPt, ywx);
+                        TraceMetaAndLastPoint newTrace = new TraceMetaAndLastPoint(traceID, lastPt);
                         registerTraceIDList.add(newTrace.traceID);
                         collector.emit(STREAM_EXIST_TRACE, new Values(frameId, newTrace));
                     }
