@@ -110,14 +110,7 @@ public class traceAggregator extends BaseRichBolt {
                     traceIDset.remove(traceID2Remove);
                 }
 
-//                if (!traceData.containsKey(traceID2Remove)){
-//                    throw new IllegalArgumentException("traceData.contains(trace.traceID) is false, frameID: " + frameId + ",tID: " + traceID2Remove);
-//                } else {
-//                    traceData.remove(traceID2Remove);
-//                }
-                if (traceData.containsKey(traceID2Remove)){
-                    traceData.remove(traceID2Remove);
-                }
+                traceData.computeIfPresent(traceID2Remove, (k, v)->traceData.remove(k));
             }
         }
 
@@ -131,19 +124,18 @@ public class traceAggregator extends BaseRichBolt {
 
             List<TraceMetaAndLastPoint> feedbackPoints = new ArrayList<>();
             List<String> traceToRemove = new ArrayList<>();
-            System.out.println("beforeRemove, traceDataSize: " + traceData.size());
-            for(Map.Entry<String, List<PointDesc>> entry : traceData.entrySet()){
-                if (entry.getValue().size() > maxTrackerLength){
-                    traceToRemove.add(entry.getKey());
+            //System.out.println("beforeRemove, traceDataSize: " + traceData.size());
+            traceData.forEach((k,v)->{
+                if (v.size() > maxTrackerLength){
+                    traceToRemove.add(k);
                 } else {
-                    int size = entry.getValue().size();
-                    feedbackPoints.add(new TraceMetaAndLastPoint(entry.getKey(), entry.getValue().get(size-1).sPoint));
+                    feedbackPoints.add(new TraceMetaAndLastPoint(k, v.get(v.size()-1).sPoint));
                 }
-            }
+            });
             int nextFrameID = frameId+1;
             collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, feedbackPoints));
             traceToRemove.forEach(item->traceData.remove(item));
-            System.out.println("AfterRemove, traceDataSize: " + traceData.size() + ", removedSize: " + traceToRemove.size());
+            //System.out.println("AfterRemove, traceDataSize: " + traceData.size() + ", removedSize: " + traceToRemove.size());
         }
     }
 }
