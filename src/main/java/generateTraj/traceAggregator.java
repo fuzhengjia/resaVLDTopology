@@ -62,7 +62,7 @@ public class traceAggregator extends BaseRichBolt {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
         if (streamId.equals(STREAM_EXIST_TRACE) || streamId.equals(STREAM_REMOVE_TRACE)) {
-            Object message = tuple.getValueByField(FIELD_TRACE_RECORD);
+            Object message = tuple.getValueByField(FIELD_TRACE_IDENTIFIER);
             messageQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).add(message);
 
         } else if (streamId.equals(STREAM_REGISTER_TRACE)) {
