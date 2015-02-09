@@ -74,6 +74,10 @@ public class frameDisplay extends BaseRichBolt {
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
+        if (frameId == 0){
+            collector.ack(tuple);
+            return;
+        }
         //System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
         IplImage fake = new IplImage();
         if (streamId.equals(STREAM_FRAME_OUTPUT)){
@@ -114,7 +118,8 @@ public class frameDisplay extends BaseRichBolt {
 
             opencv_core.Mat mat = new opencv_core.Mat(frame);
             producer.addFrame(new StreamFrame(frameId, mat));
-            System.out.println("finishedAdd: " + System.currentTimeMillis() + ":" + frameId);
+            System.out.println("finishedAdd: " + frameId + ", tCnt: " + traceRecords.size()
+                    + "@" + System.currentTimeMillis());
             rawFrameMap.remove(frameId);
             traceData.remove(frameId);
         }
