@@ -130,9 +130,11 @@ public class traceAggregator extends BaseRichBolt {
             messageQueue.remove(frameId);
 
             List<TraceMetaAndLastPoint> feedbackPoints = new ArrayList<>();
+            List<String> traceToRemove = new ArrayList<>();
+            System.out.println("beforeRemove, traceDataSize: " + traceData.size());
             for(Map.Entry<String, List<PointDesc>> entry : traceData.entrySet()){
                 if (entry.getValue().size() > maxTrackerLength){
-                    traceData.remove(entry.getKey());
+                    traceToRemove.add(entry.getKey());
                 } else {
                     int size = entry.getValue().size();
                     feedbackPoints.add(new TraceMetaAndLastPoint(entry.getKey(), entry.getValue().get(size-1).sPoint));
@@ -140,6 +142,8 @@ public class traceAggregator extends BaseRichBolt {
             }
             int nextFrameID = frameId+1;
             collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, feedbackPoints));
+            traceToRemove.forEach(item->traceData.remove(item));
+            System.out.println("AfterRemove, traceDataSize: " + traceData.size() + ", removedSize: " + traceToRemove.size());
         }
     }
 }
