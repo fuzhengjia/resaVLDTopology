@@ -119,7 +119,9 @@ public class traceGenerator extends BaseRichBolt {
                 System.out.println("No new feedback points generated for frame: " + frameId);
             }
 
+            int totalValidedCount = 0;
             if (newPoints.size() > 0) {
+
                 for (NewDensePoint newPt : newPoints) {
                     int x = newPt.getX();
                     int y = newPt.getY();
@@ -130,6 +132,7 @@ public class traceGenerator extends BaseRichBolt {
                         String traceID = generateTraceID(frameId);
                         Serializable.CvPoint2D32f lastPt = new Serializable.CvPoint2D32f(cvPoint2D32f(x, y));
                         TraceMetaAndLastPoint newTrace = new TraceMetaAndLastPoint(traceID, lastPt);
+                        totalValidedCount++;
                         registerTraceIDList.add(newTrace.traceID);
                         collector.emit(STREAM_EXIST_TRACE, new Values(frameId, newTrace));
                     }
@@ -137,8 +140,8 @@ public class traceGenerator extends BaseRichBolt {
             } else {
                 System.out.println("No new dense point generated for frame: " + frameId);
             }
-            System.out.println("Frame: " + frameId + " emitted totally: " + registerTraceIDList.size()
-                    + " traces, where newPt: " + newPoints.size() + ", fdback: " + feedbackPoints.size());
+            System.out.println("Frame: " + frameId + " emitted: " + registerTraceIDList.size()
+                    + ", newPt: " + newPoints.size() + ",newV: " + totalValidedCount + ",fd: " + feedbackPoints.size());
             collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, registerTraceIDList));
             this.newPointsList.remove(frameId);
             this.newPointsWHInfo.remove(frameId);

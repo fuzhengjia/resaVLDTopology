@@ -110,9 +110,12 @@ public class traceAggregator extends BaseRichBolt {
                     traceIDset.remove(traceID2Remove);
                 }
 
-                if (!traceData.containsKey(traceID2Remove)){
-                    throw new IllegalArgumentException("traceData.contains(trace.traceID) is false, frameID: " + frameId + ",tID: " + traceID2Remove);
-                } else {
+//                if (!traceData.containsKey(traceID2Remove)){
+//                    throw new IllegalArgumentException("traceData.contains(trace.traceID) is false, frameID: " + frameId + ",tID: " + traceID2Remove);
+//                } else {
+//                    traceData.remove(traceID2Remove);
+//                }
+                if (traceData.containsKey(traceID2Remove)){
                     traceData.remove(traceID2Remove);
                 }
             }
