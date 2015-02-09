@@ -15,9 +15,12 @@ public class PointDesc implements java.io.Serializable{
     PointDesc(DescInfo mbhInfo, opencv_core.CvPoint2D32f point){
         //mbhX = new float[mbhInfo.nxCells * mbhInfo.nyCells * mbhInfo.nBins];
         //mbhY = new float[mbhInfo.nxCells * mbhInfo.nyCells * mbhInfo.nBins];
-        //this.point = new opencv_core.CvPoint2D32f(point);
-        //this.point.put(point);
+        this.sPoint = new Serializable.CvPoint2D32f(point);
+    }
 
+    PointDesc(DescInfo mbhInfo, Serializable.CvPoint2D32f point) {
+        //mbhX = new float[mbhInfo.nxCells * mbhInfo.nyCells * mbhInfo.nBins];
+        //mbhY = new float[mbhInfo.nxCells * mbhInfo.nyCells * mbhInfo.nBins];
         this.sPoint = new Serializable.CvPoint2D32f(point);
     }
 }

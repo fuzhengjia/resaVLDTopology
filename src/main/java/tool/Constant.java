@@ -35,9 +35,13 @@ public interface Constant {
 
     public static String FIELD_TRACE_RECORD = "trace-record";
 
-    public static String FIELD_TRACE_LAST_POINT = "trace-last-point";
+    public static String FIELD_TRACE_META_LAST_POINT = "trace-meta-lp";
 
     public static String FIELD_COUNTERS_INDEX = "counters-index";
+
+    public static String FIELD_NEW_POINTS = "new-pts";
+
+    public static String FIELD_WIDTH_HEIGHT = "wid-hei";
 
     public static String FIELD_FLOW_IMPL = "flow-impl";
 

@@ -7,10 +7,10 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import topology.Serializable;
 import util.ConfigUtil;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.bytedeco.javacpp.opencv_core.*;
 import static tool.Constant.*;
@@ -24,11 +24,11 @@ import static tool.Constant.*;
 public class traceGenerator extends BaseRichBolt {
     OutputCollector collector;
 
-    private Map<Integer, boolean[]> indicatorList;
-    private static int MaxSizeOfReceivedUpdatesFrom = 1048;
+    private HashMap<Integer, List<NewDensePoint>> newPointsList;
+    private HashMap<Integer, TwoIntegers> newPointsWHInfo;
 
-    IplImage grey, eig;
-    IplImagePyramid eig_pyramid;
+    private HashMap<Integer, List<TraceMetaAndLastPoint>> feedbackPointsList;
+    private List<String> registerTraceIDList;
 
     double min_distance;
     double quality;
@@ -37,13 +37,6 @@ public class traceGenerator extends BaseRichBolt {
     long tracerIDCnt;
     int thisTaskID;
 
-    DescInfo mbhInfo;
-
-    static int patch_size = 32;
-    static int nxy_cell = 2;
-    static int nt_cell = 3;
-    static float min_flow = 0.4f * 0.4f;
-
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
@@ -51,98 +44,116 @@ public class traceGenerator extends BaseRichBolt {
         thisTaskID = topologyContext.getThisTaskId();
         tracerIDCnt = 0;
 
-        this.grey = null;
-        this.eig = null;
-        this.eig_pyramid = null;
-
         this.min_distance = ConfigUtil.getDouble(map, "min_distance", 5.0);
         this.quality = ConfigUtil.getDouble(map, "quality", 0.001);
         this.init_counter = ConfigUtil.getInt(map, "init_counter", 1);
 
-        this.mbhInfo = new DescInfo(8, 0, 1, patch_size, nxy_cell, nt_cell, min_flow);
-
-        indicatorList = new LinkedHashMap<Integer, boolean[]>() {
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<Integer, boolean[]> eldest) {
-                return size() > MaxSizeOfReceivedUpdatesFrom;
-            }
-        };
+        this.newPointsList = new HashMap<>();
+        this.newPointsWHInfo = new HashMap<>();
+        this.feedbackPointsList = new HashMap<>();
+        this.registerTraceIDList = new ArrayList<>();
     }
 
-    //tuple format:  STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_BYTES)
     @Override
     public void execute(Tuple tuple) {
 
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
+        ///TODO: Make sure, this frameID ++ is done by the traceAgg bolt!!!
+        //if (streamId.equals(STREAM_RENEW_TRACE)) {
+        //    frameId++;///here we adjust the frameID of renewTrace
+        //}
         System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
 
         if (streamId.equals(STREAM_NEW_TRACE)) {///from traceInit bolt
-            try {
-                LastPoint lastPoint = (LastPoint) tuple.getValueByField(FIELD_TRACE_LAST_POINT);
+            List<NewDensePoint> newPoints = (List<NewDensePoint>) tuple.getValueByField(FIELD_NEW_POINTS);
+            TwoIntegers wh = (TwoIntegers) tuple.getValueByField(FIELD_WIDTH_HEIGHT);
 
-                int countersIndex = tuple.getIntegerByField(FIELD_COUNTERS_INDEX);
+            if (!newPointsList.containsKey(frameId)) {
+                newPointsList.put(frameId, newPoints);
+                newPointsWHInfo.put(frameId, wh);
+            }
+            ///This is to deal with the first special frame, where there are no feedback traces.
+            if (frameId == 1){
+                List<TraceMetaAndLastPoint> emptySet = new ArrayList<>();
+                feedbackPointsList.put(frameId, emptySet);
+            }
 
-                int width = lastPoint.getW();
-                int height = lastPoint.getH();
+        } else if (streamId.equals(STREAM_RENEW_TRACE)) {
+            List<TraceMetaAndLastPoint> feedbackPoints = (List<TraceMetaAndLastPoint>) tuple.getValueByField(FIELD_TRACE_META_LAST_POINT);
 
-                int x = lastPoint.getX();
-                int y = lastPoint.getY();
+            if (!feedbackPointsList.containsKey(frameId)) {
+                feedbackPointsList.put(frameId, feedbackPoints);
+            }
+        }
 
-                int correspondingFrameID = frameId - init_counter;
-                ///if init_counter = 1, the correspondingFrameID is the previous frame
-                if (indicatorList.containsKey(correspondingFrameID)) {
-                    if (indicatorList.get(correspondingFrameID)[countersIndex] == true) {
-                        //System.out.println("frame from Stream new trace, id: " + frameId + ", cIndex: " + countersIndex);
-                        collector.ack(tuple);
-                        return;
+        ///Now, the two FrameID are synchronized!!!
+        ///TODO: the countersIndex, W_H info in the TraceMetaAndLastPoint class can be removed in future.!
+        if (newPointsList.containsKey(frameId) && feedbackPointsList.containsKey(frameId)) {
+            List<NewDensePoint> newPoints = newPointsList.get(frameId);
+            TwoIntegers wh = newPointsWHInfo.get(frameId);
+            List<TraceMetaAndLastPoint> feedbackPoints = feedbackPointsList.get(frameId);
+
+            registerTraceIDList.clear();
+
+            int width = wh.getV1();
+            int height = wh.getV2();
+            ///Make sure, the width and height information are valid!
+
+            boolean[] counters = new boolean[width * height];
+            if (feedbackPoints.size() > 0) {
+                for (TraceMetaAndLastPoint feedbackPoint : feedbackPoints) {
+
+                    Serializable.CvPoint2D32f point = feedbackPoint.lastPoint;
+                    int x = cvFloor(point.x() / min_distance);
+                    int y = cvFloor(point.y() / min_distance);
+                    int ywx = y * width + x;
+
+                    if (point.x() < min_distance * width && point.y() < min_distance * height) {
+                        counters[ywx] = true;
+                    }
+
+                    registerTraceIDList.add(feedbackPoint.traceID);
+                    collector.emit(STREAM_EXIST_TRACE, new Values(frameId, feedbackPoint));
+                }
+            }else {
+                System.out.println("No new feedback points generated for frame: " + frameId);
+            }
+
+            if (newPoints.size() > 0) {
+                for (NewDensePoint newPt : newPoints) {
+                    int x = newPt.getX();
+                    int y = newPt.getY();
+                    ///causion, here must use i and j to calculate
+                    int ywx = newPt.getY_I() * width + newPt.getX_J();
+
+                    if (counters[ywx] == false) {
+                        String traceID = generateTraceID(frameId);
+                        Serializable.CvPoint2D32f lastPt = new Serializable.CvPoint2D32f(cvPoint2D32f(x, y));
+                        TraceMetaAndLastPoint newTrace = new TraceMetaAndLastPoint(traceID, lastPt, ywx);
+                        registerTraceIDList.add(newTrace.traceID);
+                        collector.emit(STREAM_EXIST_TRACE, new Values(frameId, newTrace));
                     }
                 }
-                String traceID = generateTraceID(frameId);
-                PointDesc point = new PointDesc(this.mbhInfo, cvPoint2D32f(x, y));
-                TraceRecord trace = new TraceRecord(traceID, width, height, point);
-                collector.emit(STREAM_EXIST_TRACE, new Values(frameId, trace));
-                collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, trace.traceID));///to the last bolt
-                //System.out.println("Generate new trace, id: " + frameId + "," + trace.traceID);
-            }catch (Exception e){
-                e.printStackTrace();
+            } else {
+                System.out.println("No new dense point generated for frame: " + frameId);
             }
-        } else if (streamId.equals(STREAM_RENEW_TRACE)) {
-            //from traceFilter bolt, field grouping by x, y of last point of each trace!!!
-            TraceRecord trace = (TraceRecord) tuple.getValueByField(FIELD_TRACE_RECORD);
-            int countersIndex = tuple.getIntegerByField(FIELD_COUNTERS_INDEX);
-            ///here can be optimized to only use sPoint object instead of CvPoint2D32f object
-            CvPoint2D32f point = new CvPoint2D32f(trace.pointDescs.getLast().sPoint.toJavaCvPoint2D32f());
-            int width = trace.width;
-            int height = trace.height;
-
-            int x = cvFloor(point.x() / min_distance);
-            int y = cvFloor(point.y() / min_distance);
-            int ywx = y * width + x;
-
-            if(ywx != countersIndex){
-                throw new IllegalArgumentException("ywx: " + ywx + "!=countersIndex: " + countersIndex);}
-
-            if (point.x() < min_distance * width && point.y() < min_distance * height) {
-                ///create new entry if key traceID does not exist, otherwise, set the ywx position to TRUE;
-                indicatorList.computeIfAbsent(frameId, (k) -> (new boolean[width * height]))[ywx] = true;
-            }
-
-            ///Caustion, we first update this trace to make the matching traceID ++, then remove the anchor!
-            ///For shuffle grouping??
-            int reNewedFrameID = frameId + 1;
-            String traceID = generateTraceID(reNewedFrameID);
-            trace.traceID = traceID;
-            collector.emit(STREAM_EXIST_TRACE, new Values(reNewedFrameID, trace));
-            collector.emit(STREAM_REGISTER_TRACE, new Values(reNewedFrameID, trace.traceID));///to the last bolt
+            System.out.println("Frame: " + frameId + " emitted totally: " + registerTraceIDList.size()
+                    + " traces, where newPt: " + newPoints.size() + ", fdback: " + feedbackPoints.size());
+            collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, registerTraceIDList));
+            this.newPointsList.remove(frameId);
+            this.newPointsWHInfo.remove(frameId);
+            this.feedbackPointsList.remove(frameId);
         }
+        System.out.println("FrameID: " + frameId + ", streamID: " + streamId
+                + ", newListCnt: " + newPointsList.size() + ",fbPointsListCnt: " + feedbackPointsList.size());
 
         collector.ack(tuple);
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(STREAM_EXIST_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_RECORD));
+        outputFieldsDeclarer.declareStream(STREAM_EXIST_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_META_LAST_POINT));
         outputFieldsDeclarer.declareStream(STREAM_REGISTER_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_IDENTIFIER));
     }
 

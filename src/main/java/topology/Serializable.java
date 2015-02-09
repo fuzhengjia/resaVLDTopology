@@ -281,6 +281,11 @@ public class Serializable {
             this.y = p.y();
         }
 
+        public CvPoint2D32f(CvPoint2D32f p){
+            this.x = p.x();
+            this.y = p.y();
+        }
+
         public opencv_core.CvPoint2D32f toJavaCvPoint2D32f(){
             return new opencv_core.CvPoint2D32f().x(this.x).y(this.y);
         }
@@ -292,6 +297,9 @@ public class Serializable {
         public float y(){
             return this.y;
         }
+
+        public void x(float x){this.x = x;}
+        public void y(float y){this.y = y;}
 
         @Override
         public void write(Kryo kryo, Output output){

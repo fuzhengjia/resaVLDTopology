@@ -12,6 +12,8 @@ import topology.Serializable;
 import util.ConfigUtil;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.*;
@@ -22,6 +24,8 @@ import static tool.Constant.*;
  * Input is raw video frames, output optical flow results between every two consecutive frames.
  * Maybe use global grouping and only one task/executor
  * Similar to frame producer, maintain an ordered list of frames
+ * <p>
+ * Modified on Feb 7, level I improvement
  */
 public class imagePrepare extends BaseRichBolt {
     OutputCollector collector;
@@ -54,7 +58,6 @@ public class imagePrepare extends BaseRichBolt {
         this.init_counter = ConfigUtil.getInt(map, "init_counter", 1);
     }
 
-    //tuple format:  STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_BYTES)
     @Override
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
@@ -84,12 +87,13 @@ public class imagePrepare extends BaseRichBolt {
         //collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat, mbhMatX, mbhMatY));
         collector.emit(STREAM_GREY_FLOW, tuple, new Values(frameId, sgMat));
 
-        if (frameId > 0){
+        int width = cvFloor(grey.width() / min_distance);
+        int height = cvFloor(grey.height() / min_distance);
+        if (frameId > 0) {
+            List<NewDensePoint> newPoints = new ArrayList<>();
             if (frameId % init_counter == 0) { ///every init_counter frames, generate new dense points.
 
                 this.eig = cvCloneImage(eig_pyramid.getImage(ixyScale));
-                int width = cvFloor(grey.width() / min_distance);
-                int height = cvFloor(grey.height() / min_distance);
 
                 double[] maxVal = new double[1];
                 maxVal[0] = 0.0;
@@ -106,14 +110,18 @@ public class imagePrepare extends BaseRichBolt {
                         FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
                         float ve = floatBuffer.get(x);
 
-                        LastPoint lp = new LastPoint(x, y, width, height);
-                        int coutersIndex = LastPoint.calCountersIndexForNewTrace(j, i, width);
+                        NewDensePoint np = new NewDensePoint(x, y, j, i);
+                        ///Level I by tom, we send out all the new dense points as a group.
+                        //int coutersIndex = LastPoint.calCountersIndexForNewTrace(j, i, width);
                         if (ve > threshold) {
-                            collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, lp, coutersIndex));
+                            //collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, lp, coutersIndex));
+                            newPoints.add(np);
                         }
                     }
                 }
             }
+            ///We require that, every round, this message will be sent out!
+            collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, newPoints, new TwoIntegers(width, height)));
         }
         collector.ack(tuple);
     }
@@ -121,7 +129,6 @@ public class imagePrepare extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_GREY_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
-        outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE,
-                new Fields(FIELD_FRAME_ID, FIELD_TRACE_LAST_POINT, FIELD_COUNTERS_INDEX));
+        outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_NEW_POINTS, FIELD_WIDTH_HEIGHT));
     }
 }

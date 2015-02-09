@@ -34,7 +34,8 @@ public class frameDisplay extends BaseRichBolt {
     RedisStreamProducer producer;
 
     private HashMap<Integer, Serializable.Mat> rawFrameMap;
-    private HashMap<Integer, List<TraceRecord>> traceData;
+    //private HashMap<Integer, List<TraceRecord>> traceData;
+    private HashMap<Integer, List<List<PointDesc>>> traceData;
 
     private String host;
     private int port;
@@ -77,35 +78,30 @@ public class frameDisplay extends BaseRichBolt {
         IplImage fake = new IplImage();
         if (streamId.equals(STREAM_FRAME_OUTPUT)){
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-            //IplImage frame = sMat.toJavaCVMat().asIplImage();
-            //rawFrameMap.computeIfAbsent(frameId, k->frame);
-            if (!rawFrameMap.containsKey(frameId)){
-                rawFrameMap.put(frameId, sMat);
-            }
+            rawFrameMap.computeIfAbsent(frameId, k->sMat);
+
         } else if (streamId.equals(STREAM_PLOT_TRACE)){
-            List<TraceRecord> traceRecords = (List<TraceRecord>)tuple.getValueByField(FIELD_TRACE_RECORD);
+            List<List<PointDesc>> traceRecords = (List<List<PointDesc>>)tuple.getValueByField(FIELD_TRACE_RECORD);
             traceData.computeIfAbsent(frameId, k->traceRecords);
         }
 
         if (rawFrameMap.containsKey(frameId) && traceData.containsKey(frameId)){
             opencv_core.Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
-            ///IplImage frame = rawFrameMap.get(frameId);
             IplImage frame = orgMat.asIplImage();
-            List<TraceRecord> traceRecords = traceData.get(frameId);
-            for (int i = 0; i < traceRecords.size(); i++) {
-                TraceRecord trace = traceRecords.get(i);
-                float length = trace.pointDescs.size();
+            List<List<PointDesc>> traceRecords = traceData.get(frameId);
+            for (List<PointDesc> trace : traceRecords){
+                float length = trace.size();
 
-                float point0_x = fscales[ixyScale] * trace.pointDescs.get(0).sPoint.x();
-                float point0_y = fscales[ixyScale] * trace.pointDescs.get(0).sPoint.y();
+                float point0_x = fscales[ixyScale] * trace.get(0).sPoint.x();
+                float point0_y = fscales[ixyScale] * trace.get(0).sPoint.y();
                 CvPoint2D32f point0 = new CvPoint2D32f();
                 point0.x(point0_x);
                 point0.y(point0_y);
 
                 float jIndex = 0;
                 for (int jj = 1; jj < length; jj++, jIndex++) {
-                    float point1_x = fscales[ixyScale] * trace.pointDescs.get(jj).sPoint.x();
-                    float point1_y = fscales[ixyScale] * trace.pointDescs.get(jj).sPoint.y();
+                    float point1_x = fscales[ixyScale] * trace.get(jj).sPoint.x();
+                    float point1_y = fscales[ixyScale] * trace.get(jj).sPoint.y();
                     CvPoint2D32f point1 = new CvPoint2D32f();
                     point1.x(point1_x);
                     point1.y(point1_y);
