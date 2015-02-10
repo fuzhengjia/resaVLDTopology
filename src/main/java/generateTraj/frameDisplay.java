@@ -131,8 +131,8 @@ public class frameDisplay extends BaseRichBolt {
 
             opencv_core.Mat mat = new opencv_core.Mat(frame);
             producer.addFrame(new StreamFrame(frameId, mat));
-            System.out.println("finishedAdd: " + frameId + ", tCnt: " + traceRecords.size()
-                    + "@" + System.currentTimeMillis());
+            //System.out.println("finishedAdd: " + frameId + ", tCnt: " + traceRecords.size()
+            //        + "@" + System.currentTimeMillis());
             rawFrameMap.remove(frameId);
             traceData.remove(frameId);
         }
