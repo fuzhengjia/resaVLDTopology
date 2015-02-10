@@ -9,6 +9,7 @@ import tool.RedisStreamProducerBeta;
 import topology.Serializable;
 import topology.StreamFrame;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.cvMat;
@@ -17,6 +18,7 @@ import static util.ConfigUtil.*;
 import static tool.Constant.*;
 
 import org.bytedeco.javacpp.opencv_core;
+import util.ConfigUtil;
 
 /**
  * Created by Intern04 on 5/8/2014.
@@ -33,6 +35,9 @@ public class RedisFrameOutput extends BaseRichBolt {
     private int startFrameID;
     private int maxWaitCount;
 
+    private int accumulateFrameSize;
+
+    private HashMap<Integer, Serializable.Mat> rawFrameMap;
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
 
@@ -50,6 +55,9 @@ public class RedisFrameOutput extends BaseRichBolt {
         this.startFrameID = getInt(map, "startFrameID", 1);
         this.maxWaitCount = getInt(map, "maxWaitCount", 4);
 
+        accumulateFrameSize = ConfigUtil.getInt(map, "accumulateFrameSize", 1);
+        rawFrameMap = new HashMap<>();
+
         producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
         new Thread(producer).start();
 
@@ -61,8 +69,18 @@ public class RedisFrameOutput extends BaseRichBolt {
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
         opencv_core.IplImage imageFK = new opencv_core.IplImage();
+
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-        producer.addFrame(new StreamFrame(frameId, sMat.toJavaCVMat()));
+        rawFrameMap.computeIfAbsent(frameId, k->sMat);
+
+        opencv_core.Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
+        opencv_core.IplImage frame = orgMat.asIplImage();
+
+        opencv_core.Mat mat = new opencv_core.Mat(frame);
+        producer.addFrame(new StreamFrame(frameId, mat));
+
+        //Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
+        //producer.addFrame(new StreamFrame(frameId, sMat.toJavaCVMat()));
 
         System.out.println("producerAdd: " + System.currentTimeMillis() + ":" + frameId);
         collector.ack(tuple);
