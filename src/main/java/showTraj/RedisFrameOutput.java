@@ -27,8 +27,8 @@ import util.ConfigUtil;
 public class RedisFrameOutput extends BaseRichBolt {
     OutputCollector collector;
 
-    //RedisStreamProducerBeta producer;
-    RedisStreamProducer producer;
+    RedisStreamProducerBeta producer;
+    //RedisStreamProducer producer;
 
     private String host;
     private int port;
@@ -60,8 +60,8 @@ public class RedisFrameOutput extends BaseRichBolt {
         accumulateFrameSize = ConfigUtil.getInt(map, "accumulateFrameSize", 1);
         rawFrameMap = new HashMap<>();
 
-        //producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
-        producer = new RedisStreamProducer(host, port, queueName, accumulateFrameSize);
+        producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
+        //producer = new RedisStreamProducer(host, port, queueName, accumulateFrameSize);
         new Thread(producer).start();
 
     }
