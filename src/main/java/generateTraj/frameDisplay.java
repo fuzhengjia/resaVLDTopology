@@ -106,28 +106,28 @@ public class frameDisplay extends BaseRichBolt {
             opencv_core.Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
             IplImage frame = orgMat.asIplImage();
             List<List<PointDesc>> traceRecords = traceData.get(frameId);
-//            for (List<PointDesc> trace : traceRecords){
-//                float length = trace.size();
-//
-//                float point0_x = fscales[ixyScale] * trace.get(0).sPoint.x();
-//                float point0_y = fscales[ixyScale] * trace.get(0).sPoint.y();
-//                CvPoint2D32f point0 = new CvPoint2D32f();
-//                point0.x(point0_x);
-//                point0.y(point0_y);
-//
-//                float jIndex = 0;
-//                for (int jj = 1; jj < length; jj++, jIndex++) {
-//                    float point1_x = fscales[ixyScale] * trace.get(jj).sPoint.x();
-//                    float point1_y = fscales[ixyScale] * trace.get(jj).sPoint.y();
-//                    CvPoint2D32f point1 = new CvPoint2D32f();
-//                    point1.x(point1_x);
-//                    point1.y(point1_y);
-//
-//                    cvLine(frame, cvPointFrom32f(point0), cvPointFrom32f(point1),
-//                            CV_RGB(0, cvFloor(255.0 * (jIndex + 1.0) / length), 0), 1, 8, 0);
-//                    point0 = point1;
-//                }
-//            }
+            for (List<PointDesc> trace : traceRecords){
+                float length = trace.size();
+
+                float point0_x = fscales[ixyScale] * trace.get(0).sPoint.x();
+                float point0_y = fscales[ixyScale] * trace.get(0).sPoint.y();
+                CvPoint2D32f point0 = new CvPoint2D32f();
+                point0.x(point0_x);
+                point0.y(point0_y);
+
+                float jIndex = 0;
+                for (int jj = 1; jj < length; jj++, jIndex++) {
+                    float point1_x = fscales[ixyScale] * trace.get(jj).sPoint.x();
+                    float point1_y = fscales[ixyScale] * trace.get(jj).sPoint.y();
+                    CvPoint2D32f point1 = new CvPoint2D32f();
+                    point1.x(point1_x);
+                    point1.y(point1_y);
+
+                    cvLine(frame, cvPointFrom32f(point0), cvPointFrom32f(point1),
+                            CV_RGB(0, cvFloor(255.0 * (jIndex + 1.0) / length), 0), 1, 8, 0);
+                    point0 = point1;
+                }
+            }
 
             opencv_core.Mat mat = new opencv_core.Mat(frame);
             producer.addFrame(new StreamFrame(frameId, mat));
