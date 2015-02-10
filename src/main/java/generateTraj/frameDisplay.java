@@ -9,6 +9,7 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_video;
+import tool.RedisStreamProducerBeta;
 import topology.RedisStreamProducer;
 import topology.Serializable;
 import topology.StreamFrame;
@@ -28,10 +29,14 @@ import static topology.StormConfigManager.getString;
  * Input is raw video frames, output optical flow results between every two consecutive frames.
  * Maybe use global grouping and only one task/executor
  * Similar to frame producer, maintain an ordered list of frames
+ *
+ * Strange issue, need to use RedisStreamProducerBeta????
  */
 public class frameDisplay extends BaseRichBolt {
     OutputCollector collector;
-    RedisStreamProducer producer;
+
+    //RedisStreamProducer producer;
+    RedisStreamProducerBeta producer;
 
     private HashMap<Integer, Serializable.Mat> rawFrameMap;
     //private HashMap<Integer, List<TraceRecord>> traceData;
@@ -40,6 +45,10 @@ public class frameDisplay extends BaseRichBolt {
     private String host;
     private int port;
     private String queueName;
+
+    private int sleepTime;
+    private int startFrameID;
+    private int maxWaitCount;
     private int accumulateFrameSize;
 
     static int scale_num = 1;
@@ -57,6 +66,9 @@ public class frameDisplay extends BaseRichBolt {
         port = getInt(map, "redis.port");
         queueName = getString(map, "redis.queueName");
 
+        this.sleepTime = ConfigUtil.getInt(map, "sleepTime", 10);
+        this.startFrameID = ConfigUtil.getInt(map, "startFrameID", 1);
+        this.maxWaitCount = ConfigUtil.getInt(map, "maxWaitCount", 4);
         accumulateFrameSize = ConfigUtil.getInt(map, "accumulateFrameSize", 1);
 
         fscales = new float[scale_num];
@@ -64,7 +76,8 @@ public class frameDisplay extends BaseRichBolt {
             fscales[i] = (float) Math.pow(scale_stride, i);
         }
 
-        producer = new RedisStreamProducer(host, port, queueName, accumulateFrameSize);
+        producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
+        //producer = new RedisStreamProducer(host, port, queueName, accumulateFrameSize);
         new Thread(producer).start();
     }
 
