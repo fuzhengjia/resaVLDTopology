@@ -6,6 +6,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import tool.RedisStreamProducerBeta;
+import topology.RedisStreamProducer;
 import topology.Serializable;
 import topology.StreamFrame;
 
@@ -26,7 +27,8 @@ import util.ConfigUtil;
 public class RedisFrameOutput extends BaseRichBolt {
     OutputCollector collector;
 
-    RedisStreamProducerBeta producer;
+    //RedisStreamProducerBeta producer;
+    RedisStreamProducer producer;
 
     private String host;
     private int port;
@@ -58,7 +60,8 @@ public class RedisFrameOutput extends BaseRichBolt {
         accumulateFrameSize = ConfigUtil.getInt(map, "accumulateFrameSize", 1);
         rawFrameMap = new HashMap<>();
 
-        producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
+        //producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
+        producer = new RedisStreamProducer(host, port, queueName, accumulateFrameSize);
         new Thread(producer).start();
 
     }
