@@ -56,12 +56,12 @@ public class FrameImplImageSource extends RedisQueueSpout {
         ImageInputStream iis = null;
 
         try {
-            iis = ImageIO.createImageInputStream(new ByteArrayInputStream(imgBytes));
-            BufferedImage img = ImageIO.read(iis);
-            opencv_core.IplImage image = opencv_core.IplImage.createFrom(img);
+            //iis = ImageIO.createImageInputStream(new ByteArrayInputStream(imgBytes));
+            //BufferedImage img = ImageIO.read(iis);
+            //opencv_core.IplImage image = opencv_core.IplImage.createFrom(img);
 
-            //byte[] imgBytes = (byte[]) tuple.getValueByField(FIELD_FRAME_BYTES);
-            //opencv_core.IplImage image = cvDecodeImage(cvMat(1, imgBytes.length, CV_8UC1, new BytePointer(imgBytes)));
+            //byte[] imgBytes = (byte[]) data.getValueByField(FIELD_FRAME_BYTES);
+            opencv_core.IplImage image = cvDecodeImage(cvMat(1, imgBytes.length, CV_8UC1, new BytePointer(imgBytes)));
 
             opencv_core.IplImage frame = cvCreateImage(cvSize(inWidth, inHeight), nDepth, nChannel);
             opencv_imgproc.cvResize(image, frame, opencv_imgproc.CV_INTER_AREA);
