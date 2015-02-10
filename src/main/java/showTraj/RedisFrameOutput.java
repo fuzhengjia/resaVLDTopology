@@ -82,6 +82,7 @@ public class RedisFrameOutput extends BaseRichBolt {
         //Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
         //producer.addFrame(new StreamFrame(frameId, sMat.toJavaCVMat()));
 
+        rawFrameMap.remove(frameId);
         System.out.println("producerAdd: " + System.currentTimeMillis() + ":" + frameId);
         collector.ack(tuple);
     }
