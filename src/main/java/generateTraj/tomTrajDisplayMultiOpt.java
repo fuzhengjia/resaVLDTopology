@@ -95,6 +95,6 @@ public class tomTrajDisplayMultiOpt {
 
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tomTrajDisplayTopology", conf, topology);
+        StormSubmitter.submitTopology("tomTrajDisplayMultiOpt", conf, topology);
     }
 }
