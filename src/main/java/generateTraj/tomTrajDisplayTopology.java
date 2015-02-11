@@ -46,7 +46,7 @@ public class tomTrajDisplayTopology {
         String optFlowTracker = "TrajOptFlowTracker";
         String traceAggregator = "TrajTraceAgg";
         String frameDisplay = "TrajDisplay";
-        String redisFrameOut = "ReidsFrameOut";
+        String redisFrameOut = "RedisFrameOut";
 
         builder.setSpout(spoutName, new FrameImplImageSource(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
