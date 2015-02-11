@@ -7,6 +7,8 @@ public interface Constant {
 
     public static String STREAM_FRAME_OUTPUT = "stream-frame";
 
+    public static String STREAM_FRAME_DISPLAY = "stream-display";
+
     public static String FIELD_FRAME_ID = "frame-id";
 
     public static String FIELD_FRAME_BYTES = "frm-bytes";

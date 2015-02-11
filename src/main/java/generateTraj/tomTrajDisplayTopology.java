@@ -46,6 +46,7 @@ public class tomTrajDisplayTopology {
         String optFlowTracker = "TrajOptFlowTracker";
         String traceAggregator = "TrajTraceAgg";
         String frameDisplay = "TrajDisplay";
+        String redisFrameOut = "ReidsFrameOut";
 
         builder.setSpout(spoutName, new FrameImplImageSource(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
@@ -75,10 +76,18 @@ public class tomTrajDisplayTopology {
                 .globalGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
-        builder.setBolt(frameDisplay, new frameDisplay(), getInt(conf, frameDisplay + ".parallelism"))
-                .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
-                .globalGrouping(traceAggregator, STREAM_PLOT_TRACE)
+//        builder.setBolt(frameDisplay, new frameDisplay(), getInt(conf, frameDisplay + ".parallelism"))
+//                .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
+//                .globalGrouping(traceAggregator, STREAM_PLOT_TRACE)
+//                .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
+        builder.setBolt(frameDisplay, new frameDisplayMulti(), getInt(conf, frameDisplay + ".parallelism"))
+                .fieldsGrouping(spoutName, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
+
+        builder.setBolt(redisFrameOut, new RedisFrameOutput(), getInt(conf, redisFrameOut + ".parallelism"))
+                .globalGrouping(frameDisplay, STREAM_FRAME_DISPLAY)
+                .setNumTasks(getInt(conf, redisFrameOut + ".tasks"));
 
         StormTopology topology = builder.createTopology();
 
