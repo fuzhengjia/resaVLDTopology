@@ -121,6 +121,7 @@ public class traceAggregator extends BaseRichBolt {
             collector.emit(STREAM_CACHE_CLEAN, new Values(frameId));
             traceMonitor.remove(frameId);
             messageQueue.remove(frameId);
+            System.out.println("emit frame: " + frameId + ", traceMonitorCnt: " + traceMonitor.size() + ", messageQueueSize: " + messageQueue.size());
 
             List<TraceMetaAndLastPoint> feedbackPoints = new ArrayList<>();
             List<String> traceToRemove = new ArrayList<>();
