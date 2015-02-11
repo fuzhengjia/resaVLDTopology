@@ -13,6 +13,8 @@ public interface Constant {
 
     public static String FIELD_FRAME_MAT = "frm-mat";
 
+    public static String FIELD_FRAME_MAT_PREV = "frm-mat-prev";
+
     public static String STREAM_OPT_FLOW = "stream-optical-flow";
 
     public static String STREAM_GREY_FLOW = "stream-grey-flow";

@@ -18,6 +18,11 @@ import static topology.StormConfigManager.*;
 
 /**
  * Created by Tom Fu on Jan 29, 2015.
+ * TODO: Notes:
+ * traceGenerator 是否可以并行？ 这样需要feedback分开，register也要分开
+ * 扩展，如果有2个scale的话，需要对当前程序扩展！
+ * 产生光流是bottleneck
+ * 此版本暂时通过测试
  */
 public class tomTrajDisplayTopology {
 
@@ -50,7 +55,8 @@ public class tomTrajDisplayTopology {
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
         builder.setBolt(optFlowGenBolt, new optlFlowGenerator(), getInt(conf, optFlowGenBolt + ".parallelism"))
-                .globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
+                //.globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
+                .directGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
         builder.setBolt(traceGenBolt, new traceGenerator(), getInt(conf, traceGenBolt + ".parallelism"))
