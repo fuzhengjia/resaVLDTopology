@@ -6,8 +6,6 @@ import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.tuple.Fields;
-import showTraj.RedisFrameOutput;
 import tool.FrameImplImageSource;
 import topology.Serializable;
 
@@ -24,7 +22,7 @@ import static topology.StormConfigManager.*;
  * 产生光流是bottleneck
  * 此版本暂时通过测试
  */
-public class tomTrajDisplayTopology {
+public class tomTrajDisplayMultiOpt {
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
@@ -50,12 +48,19 @@ public class tomTrajDisplayTopology {
         builder.setSpout(spoutName, new FrameImplImageSource(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(imgPrepareBolt, new imagePrepare(), getInt(conf, imgPrepareBolt + ".parallelism"))
+//        builder.setBolt(imgPrepareBolt, new imagePrepare(), getInt(conf, imgPrepareBolt + ".parallelism"))
+//                .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
+//                .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
+        builder.setBolt(imgPrepareBolt, new imagePrepareMultiOptFlow(), getInt(conf, imgPrepareBolt + ".parallelism"))
                 .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
-        builder.setBolt(optFlowGenBolt, new optlFlowGenerator(), getInt(conf, optFlowGenBolt + ".parallelism"))
-                .globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
+//        builder.setBolt(optFlowGenBolt, new optlFlowGenerator(), getInt(conf, optFlowGenBolt + ".parallelism"))
+//                .globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
+//                .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
+        builder.setBolt(optFlowGenBolt, new optlFlowGeneratorMultiOptFlow(), getInt(conf, optFlowGenBolt + ".parallelism"))
+                //.globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
+                .directGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
         builder.setBolt(traceGenBolt, new traceGenerator(), getInt(conf, traceGenBolt + ".parallelism"))
