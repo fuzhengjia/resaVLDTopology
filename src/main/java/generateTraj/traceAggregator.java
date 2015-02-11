@@ -66,15 +66,20 @@ public class traceAggregator extends BaseRichBolt {
             messageQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).add(message);
 
         } else if (streamId.equals(STREAM_REGISTER_TRACE)) {
-            List<String> registerTraceIDList = (List<String>)tuple.getValueByField(FIELD_TRACE_IDENTIFIER);
+            List<String> registerTraceIDList = (List<String>) tuple.getValueByField(FIELD_TRACE_IDENTIFIER);
             ///TODO: to deal with special case when registerTraceIDList is empty!!!
             HashSet<String> traceIDset = new HashSet<>();
-            registerTraceIDList.forEach(k->traceIDset.add(k));
-            System.out.println("Register frame: " + frameId + ", registerTraceListCnt: " + registerTraceIDList.size() + ", traceSetSize: " + traceIDset.size());
+            registerTraceIDList.forEach(k -> traceIDset.add(k));
+            System.out.println("Register frame: " + frameId
+                            + ", registerTraceListCnt: " + registerTraceIDList.size()
+                            + ", traceSetSize: " + traceIDset.size()
+                            + ", traceMonitorCnt: " + traceMonitor.size()
+                            + ", messageQueueSize: " + messageQueue.size()
+            );
             traceMonitor.put(frameId, traceIDset);
         }
 
-        if (traceMonitor.containsKey(frameId) && messageQueue.containsKey(frameId)){
+        if (traceMonitor.containsKey(frameId) && messageQueue.containsKey(frameId)) {
             aggregateTraceRecords(frameId);
         }
         collector.ack(tuple);
@@ -87,55 +92,56 @@ public class traceAggregator extends BaseRichBolt {
         outputFieldsDeclarer.declareStream(STREAM_RENEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_META_LAST_POINT));
     }
 
-    public void aggregateTraceRecords(int frameId){
+    public void aggregateTraceRecords(int frameId) {
         Queue<Object> messages = messageQueue.get(frameId);
         HashSet<String> traceIDset = traceMonitor.get(frameId);
-        while(!messages.isEmpty()){
+        while (!messages.isEmpty()) {
             Object m = messages.poll();
-            if (m instanceof TraceMetaAndLastPoint){
+            if (m instanceof TraceMetaAndLastPoint) {
                 ///m  is from Exist_trace
-                TraceMetaAndLastPoint trace = (TraceMetaAndLastPoint)m;
-                if (!traceIDset.contains(trace.traceID)){
+                TraceMetaAndLastPoint trace = (TraceMetaAndLastPoint) m;
+                if (!traceIDset.contains(trace.traceID)) {
                     throw new IllegalArgumentException("traceIDset.contains(trace.traceID) is false, frameID: " + frameId + ",tID: " + trace.traceID);
                 } else {
                     traceIDset.remove(trace.traceID);
                 }
-                traceData.computeIfAbsent(trace.traceID, k->new ArrayList<>()).add(new PointDesc(mbhInfo, trace.lastPoint));
+                traceData.computeIfAbsent(trace.traceID, k -> new ArrayList<>()).add(new PointDesc(mbhInfo, trace.lastPoint));
 
-            } else if (m instanceof String){
-                String traceID2Remove = (String)m;
-                if (!traceIDset.contains(traceID2Remove)){
+            } else if (m instanceof String) {
+                String traceID2Remove = (String) m;
+                if (!traceIDset.contains(traceID2Remove)) {
                     throw new IllegalArgumentException("traceIDset.contains(trace.traceID) is false, frameID: " + frameId + ",tID: " + traceID2Remove);
                 } else {
                     traceIDset.remove(traceID2Remove);
                 }
 
-                traceData.computeIfPresent(traceID2Remove, (k, v)->traceData.remove(k));
+                traceData.computeIfPresent(traceID2Remove, (k, v) -> traceData.remove(k));
             }
         }
 
-        if (traceIDset.isEmpty()){//all traces are processed.
+        if (traceIDset.isEmpty()) {//all traces are processed.
             List<List<PointDesc>> traceRecords = new ArrayList<List<PointDesc>>(traceData.values());
             //List<List<PointDesc>> traceRecords = traceData.values().stream().collect(Collectors.toList());
             collector.emit(STREAM_PLOT_TRACE, new Values(frameId, traceRecords));
             collector.emit(STREAM_CACHE_CLEAN, new Values(frameId));
             traceMonitor.remove(frameId);
             messageQueue.remove(frameId);
-            System.out.println("emit frame: " + frameId + ", traceMonitorCnt: " + traceMonitor.size() + ", messageQueueSize: " + messageQueue.size());
+            System.out.println("emit frame: " + frameId + ", traceMonitorCnt: "
+                    + traceMonitor.size() + ", messageQueueSize: " + messageQueue.size());
 
             List<TraceMetaAndLastPoint> feedbackPoints = new ArrayList<>();
             List<String> traceToRemove = new ArrayList<>();
             //System.out.println("beforeRemove, traceDataSize: " + traceData.size());
-            traceData.forEach((k,v)->{
-                if (v.size() > maxTrackerLength){
+            traceData.forEach((k, v) -> {
+                if (v.size() > maxTrackerLength) {
                     traceToRemove.add(k);
                 } else {
-                    feedbackPoints.add(new TraceMetaAndLastPoint(k, v.get(v.size()-1).sPoint));
+                    feedbackPoints.add(new TraceMetaAndLastPoint(k, v.get(v.size() - 1).sPoint));
                 }
             });
-            int nextFrameID = frameId+1;
+            int nextFrameID = frameId + 1;
             collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, feedbackPoints));
-            traceToRemove.forEach(item->traceData.remove(item));
+            traceToRemove.forEach(item -> traceData.remove(item));
             //System.out.println("AfterRemove, traceDataSize: " + traceData.size() + ", removedSize: " + traceToRemove.size());
         }
     }
