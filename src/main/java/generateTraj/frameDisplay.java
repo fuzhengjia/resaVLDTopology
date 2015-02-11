@@ -29,7 +29,7 @@ import static topology.StormConfigManager.getString;
  * Input is raw video frames, output optical flow results between every two consecutive frames.
  * Maybe use global grouping and only one task/executor
  * Similar to frame producer, maintain an ordered list of frames
- *
+ * <p>
  * Strange issue, need to use RedisStreamProducerBeta????
  */
 public class frameDisplay extends BaseRichBolt {
@@ -72,7 +72,7 @@ public class frameDisplay extends BaseRichBolt {
         accumulateFrameSize = ConfigUtil.getInt(map, "accumulateFrameSize", 1);
 
         fscales = new float[scale_num];
-        for (int i = 0; i < scale_num; i ++){
+        for (int i = 0; i < scale_num; i++) {
             fscales[i] = (float) Math.pow(scale_stride, i);
         }
 
@@ -87,26 +87,26 @@ public class frameDisplay extends BaseRichBolt {
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
-        if (frameId == 0){
+        if (frameId == 0) {
             collector.ack(tuple);
             return;
         }
         //System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
         IplImage fake = new IplImage();
-        if (streamId.equals(STREAM_FRAME_OUTPUT)){
+        if (streamId.equals(STREAM_FRAME_OUTPUT)) {
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-            rawFrameMap.computeIfAbsent(frameId, k->sMat);
+            rawFrameMap.computeIfAbsent(frameId, k -> sMat);
 
-        } else if (streamId.equals(STREAM_PLOT_TRACE)){
-            List<List<PointDesc>> traceRecords = (List<List<PointDesc>>)tuple.getValueByField(FIELD_TRACE_RECORD);
-            traceData.computeIfAbsent(frameId, k->traceRecords);
+        } else if (streamId.equals(STREAM_PLOT_TRACE)) {
+            List<List<PointDesc>> traceRecords = (List<List<PointDesc>>) tuple.getValueByField(FIELD_TRACE_RECORD);
+            traceData.computeIfAbsent(frameId, k -> traceRecords);
         }
 
-        if (rawFrameMap.containsKey(frameId) && traceData.containsKey(frameId)){
+        if (rawFrameMap.containsKey(frameId) && traceData.containsKey(frameId)) {
             opencv_core.Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
             IplImage frame = orgMat.asIplImage();
             List<List<PointDesc>> traceRecords = traceData.get(frameId);
-            for (List<PointDesc> trace : traceRecords){
+            for (List<PointDesc> trace : traceRecords) {
                 float length = trace.size();
 
                 float point0_x = fscales[ixyScale] * trace.get(0).sPoint.x();
@@ -138,7 +138,8 @@ public class frameDisplay extends BaseRichBolt {
         }
 
         System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId
-                + ",rawFrameMap: " + rawFrameMap.containsKey(frameId) + ",traceData: " + traceData.containsKey(frameId)
+                        + ",rawFrameMap(" + rawFrameMap.containsKey(frameId) + ").Size: " + rawFrameMap.size()
+                        + ",traceData(" + traceData.containsKey(frameId) + ").Size: " + traceData.size()
         );
         collector.ack(tuple);
     }
