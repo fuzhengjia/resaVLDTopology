@@ -99,7 +99,6 @@ public class traceAggregatorBeta extends BaseRichBolt {
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_RECORD));
         outputFieldsDeclarer.declareStream(STREAM_CACHE_CLEAN, new Fields(FIELD_FRAME_ID));
-        //outputFieldsDeclarer.declareStream(STREAM_RENEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_META_LAST_POINT));
         outputFieldsDeclarer.declareStream(STREAM_RENEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_META_LAST_POINT));
         outputFieldsDeclarer.declareStream(STREAM_INDICATOR_TRACE, new Fields(FIELD_FRAME_ID, FIELD_COUNTERS_INDEX));
     }
@@ -159,8 +158,10 @@ public class traceAggregatorBeta extends BaseRichBolt {
                 } else {
                     traceToRegister.add(trace.getKey());
                     TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(trace.getKey(), trace.getValue().get(traceLen - 1).sPoint);
+                    System.out.println("AFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
                     collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, fdPt));
 
+                    System.out.println("BFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
                     int x = cvFloor(fdPt.lastPoint.x() / min_distance);
                     int y = cvFloor(fdPt.lastPoint.y() / min_distance);
                     int ywx = y * width + x;
@@ -169,7 +170,7 @@ public class traceAggregatorBeta extends BaseRichBolt {
                         feedbackIndicators.add(ywx);
                     }
                     //feedbackPoints.add(new TraceMetaAndLastPoint(k, v.get(v.size() - 1).sPoint));
-                    System.out.println("Frame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
+                    System.out.println("CFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
                 }
             }
 
