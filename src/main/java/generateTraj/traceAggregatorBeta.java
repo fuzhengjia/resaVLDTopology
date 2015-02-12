@@ -72,7 +72,10 @@ public class traceAggregatorBeta extends BaseRichBolt {
             HashSet<String> traceIDset = new HashSet<>();
             registerTraceIDList.forEach(k -> traceIDset.add(k));
             //traceMonitor.put(frameId, traceIDset);
-            if (frameId > 1 && !traceMonitor.containsKey(frameId)){
+            if (frameId == 1){
+                traceMonitor.put(frameId, new HashSet<>());
+            }
+            if (!traceMonitor.containsKey(frameId)){
                 throw new IllegalArgumentException("!traceMonitor.containsKey(frameId), frameID: " + frameId);
             }
             traceMonitor.get(frameId).addAll(traceIDset);
@@ -81,7 +84,8 @@ public class traceAggregatorBeta extends BaseRichBolt {
                     + ", traceSetSize: " + traceIDset.size()
                     + ", traceMonitorCnt: " + traceMonitor.size()
                     + ", messageQueueSize: " + messageQueue.size()
-                    + ", newPointsWHInfoSize: " + newPointsWHInfo.size());
+                    + ", newPointsWHInfoSize: " + newPointsWHInfo.size()
+                    + ", totalRegistered: " + traceMonitor.get(frameId).size());
         }
 
         if (traceMonitor.containsKey(frameId) && messageQueue.containsKey(frameId) && newPointsWHInfo.containsKey(frameId)) {
