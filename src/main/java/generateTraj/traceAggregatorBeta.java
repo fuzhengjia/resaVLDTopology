@@ -72,7 +72,7 @@ public class traceAggregatorBeta extends BaseRichBolt {
             HashSet<String> traceIDset = new HashSet<>();
             registerTraceIDList.forEach(k -> traceIDset.add(k));
             //traceMonitor.put(frameId, traceIDset);
-            if (!traceMonitor.containsKey(frameId)){
+            if (frameId > 1 && !traceMonitor.containsKey(frameId)){
                 throw new IllegalArgumentException("!traceMonitor.containsKey(frameId), frameID: " + frameId);
             }
             traceMonitor.get(frameId).addAll(traceIDset);
