@@ -157,18 +157,23 @@ public class traceAggregatorBeta extends BaseRichBolt {
                     traceToRemove.add(trace.getKey());
                 } else {
                     traceToRegister.add(trace.getKey());
-                    TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(trace.getKey(), trace.getValue().get(traceLen - 1).sPoint);
+                    Serializable.CvPoint2D32f point = new Serializable.CvPoint2D32f(trace.getValue().get(traceLen - 1).sPoint);
+                    TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(trace.getKey(), point);
                     System.out.println("AFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
-                    collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, fdPt));
 
-                    System.out.println("BFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
-                    int x = cvFloor(fdPt.lastPoint.x() / min_distance);
-                    int y = cvFloor(fdPt.lastPoint.y() / min_distance);
+                    int x = cvFloor(point.x() / min_distance);
+                    int y = cvFloor(point.y() / min_distance);
                     int ywx = y * width + x;
 
-                    if (fdPt.lastPoint.x() < min_distance * width && fdPt.lastPoint.y() < min_distance * height) {
+                    if (point.x() < min_distance * width && point.y() < min_distance * height) {
                         feedbackIndicators.add(ywx);
                     }
+
+                    System.out.println("BFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
+                    collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, fdPt));
+
+
+
                     //feedbackPoints.add(new TraceMetaAndLastPoint(k, v.get(v.size() - 1).sPoint));
                     System.out.println("CFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
                 }
