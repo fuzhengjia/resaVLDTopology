@@ -7,6 +7,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import org.bytedeco.javacpp.opencv_core;
 import topology.Serializable;
 import util.ConfigUtil;
 
@@ -48,6 +49,8 @@ public class traceAggregatorBeta extends BaseRichBolt {
         this.min_distance = ConfigUtil.getDouble(map, "min_distance", 5.0);
         this.maxTrackerLength = ConfigUtil.getInt(map, "maxTrackerLength", 15);
         this.mbhInfo = new DescInfo(8, 0, 1, patch_size, nxy_cell, nt_cell, min_flow);
+
+        opencv_core.IplImage fk = new opencv_core.IplImage();
     }
 
     //tuple format:  STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_BYTES)
