@@ -50,7 +50,7 @@ public class optFlowTracker extends BaseRichBolt {
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
-        if (streamId.equals(STREAM_EXIST_TRACE)) {
+        if (streamId.equals(STREAM_RENEW_TRACE) || streamId.equals(STREAM_NEW_TRACE)) {
             TraceMetaAndLastPoint trace = (TraceMetaAndLastPoint) tuple.getValueByField(FIELD_TRACE_META_LAST_POINT);
             traceQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).add(trace);
             if (optFlowMap.containsKey(frameId)) {

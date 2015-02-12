@@ -100,8 +100,8 @@ public class traceAggregatorBeta extends BaseRichBolt {
         outputFieldsDeclarer.declareStream(STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_RECORD));
         outputFieldsDeclarer.declareStream(STREAM_CACHE_CLEAN, new Fields(FIELD_FRAME_ID));
         //outputFieldsDeclarer.declareStream(STREAM_RENEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_META_LAST_POINT));
-        outputFieldsDeclarer.declareStream(STREAM_EXIST_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_META_LAST_POINT));
-        outputFieldsDeclarer.declareStream(STREAM_RENEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_COUNTERS_INDEX));
+        outputFieldsDeclarer.declareStream(STREAM_RENEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_META_LAST_POINT));
+        outputFieldsDeclarer.declareStream(STREAM_INDICATOR_TRACE, new Fields(FIELD_FRAME_ID, FIELD_COUNTERS_INDEX));
     }
 
     public void aggregateTraceRecords(int frameId) {
@@ -159,7 +159,7 @@ public class traceAggregatorBeta extends BaseRichBolt {
                 } else {
                     traceToRegister.add(trace.getKey());
                     TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(trace.getKey(), trace.getValue().get(traceLen - 1).sPoint);
-                    collector.emit(STREAM_EXIST_TRACE, new Values(nextFrameID, fdPt));
+                    collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, fdPt));
 
                     int x = cvFloor(fdPt.lastPoint.x() / min_distance);
                     int y = cvFloor(fdPt.lastPoint.y() / min_distance);
@@ -173,7 +173,7 @@ public class traceAggregatorBeta extends BaseRichBolt {
                 }
             }
 
-            collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, feedbackIndicators));
+            collector.emit(STREAM_INDICATOR_TRACE, new Values(nextFrameID, feedbackIndicators));
             traceToRemove.forEach(item -> traceData.remove(item));
             traceMonitor.remove(frameId);
             messageQueue.remove(frameId);

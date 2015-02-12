@@ -29,6 +29,8 @@ public interface Constant {
 
     public static String STREAM_RENEW_TRACE = "stream-renew-trace";
 
+    public static String STREAM_INDICATOR_TRACE = "stream-ind-trace";
+
     public static String STREAM_REMOVE_TRACE = "stream-remove-trace";
 
     public static String STREAM_PLOT_TRACE = "stream-plot-trace";

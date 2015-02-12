@@ -146,7 +146,7 @@ public class traceGeneratorBeta extends BaseRichBolt {
                         TraceMetaAndLastPoint newTrace = new TraceMetaAndLastPoint(traceID, lastPt);
                         totalValidedCount++;
                         registerTraceIDList.add(newTrace.traceID);
-                        collector.emit(STREAM_EXIST_TRACE, new Values(frameId, newTrace));
+                        collector.emit(STREAM_NEW_TRACE, new Values(frameId, newTrace));
                     }
                 }
             } else {
@@ -168,7 +168,7 @@ public class traceGeneratorBeta extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(STREAM_EXIST_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_META_LAST_POINT));
+        outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_META_LAST_POINT));
         outputFieldsDeclarer.declareStream(STREAM_REGISTER_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_IDENTIFIER, FIELD_WIDTH_HEIGHT));
     }
 
