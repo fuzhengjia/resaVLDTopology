@@ -83,7 +83,7 @@ public class traceGeneratorBeta extends BaseRichBolt {
                 feedbackIndicatorList.put(frameId, emptySet);
             }
 
-        } else if (streamId.equals(STREAM_RENEW_TRACE)) {
+        } else if (streamId.equals(STREAM_INDICATOR_TRACE)) {
 //            List<TraceMetaAndLastPoint> feedbackPoints = (List<TraceMetaAndLastPoint>) tuple.getValueByField(FIELD_TRACE_META_LAST_POINT);
 //            if (!feedbackPointsList.containsKey(frameId)) {
 //                feedbackPointsList.put(frameId, feedbackPoints);
