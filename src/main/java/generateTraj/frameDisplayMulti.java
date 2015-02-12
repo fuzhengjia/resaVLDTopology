@@ -129,16 +129,15 @@ public class frameDisplayMulti extends BaseRichBolt {
             Serializable.Mat sMat = new Serializable.Mat(mat);
             collector.emit(STREAM_FRAME_DISPLAY, tuple, new Values(frameId, sMat));
             //producer.addFrame(new StreamFrame(frameId, mat));
-            //System.out.println("finishedAdd: " + frameId + ", tCnt: " + traceRecords.size()
-            //        + "@" + System.currentTimeMillis());
+            System.out.println("FrameDisplay-finishedAdd: " + frameId + ", tCnt: " + traceRecords.size()
+                    + "@" + System.currentTimeMillis());
             rawFrameMap.remove(frameId);
             traceData.remove(frameId);
+        } else {
+            System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId
+                            + ",rawFrameMap(" + rawFrameMap.containsKey(frameId) + ").Size: " + rawFrameMap.size()
+                            + ",traceData(" + traceData.containsKey(frameId) + ").Size: " + traceData.size());
         }
-
-        System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId
-                        + ",rawFrameMap(" + rawFrameMap.containsKey(frameId) + ").Size: " + rawFrameMap.size()
-                        + ",traceData(" + traceData.containsKey(frameId) + ").Size: " + traceData.size()
-        );
         collector.ack(tuple);
     }
 
