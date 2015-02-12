@@ -158,7 +158,7 @@ public class traceAggregatorBeta extends BaseRichBolt {
                     traceToRegister.add(trace.getKey());
                     Serializable.CvPoint2D32f point = new Serializable.CvPoint2D32f(trace.getValue().get(traceLen - 1).sPoint);
                     TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(trace.getKey(), point);
-                    System.out.println("AFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
+                    System.out.println("AFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback," + point.toString());
 
                     //int x = opencv_core.cvFloor(point.x() / min_distance);
                     //int y = opencv_core.cvFloor(point.y() / min_distance);
