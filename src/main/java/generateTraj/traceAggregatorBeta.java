@@ -7,6 +7,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import clojure.lang.MapEntry;
 import topology.Serializable;
 import util.ConfigUtil;
 
@@ -146,25 +147,27 @@ public class traceAggregatorBeta extends BaseRichBolt {
             int height = wh.getV2();
             int nextFrameID = frameId + 1;
             //System.out.println("beforeRemove, traceDataSize: " + traceData.size());
-            traceData.forEach((k, v) -> {
-                if (v.size() > maxTrackerLength) {
-                    traceToRemove.add(k);
+            for (Map.Entry<String, List<PointDesc>> trace: traceData.entrySet()) {
+                //traceData.forEach((k, v) -> {
+                int traceLen = trace.getValue().size();
+                if (traceLen > maxTrackerLength) {
+                    traceToRemove.add(trace.getKey());
                 } else {
-                    traceToRegister.add(k);
-                    TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(k, v.get(v.size() - 1).sPoint);
+                    traceToRegister.add(trace.getKey());
+                    TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(trace.getKey(), trace.getValue().get(traceLen - 1).sPoint);
                     collector.emit(STREAM_EXIST_TRACE, new Values(nextFrameID, fdPt));
 
-                    Serializable.CvPoint2D32f point = fdPt.lastPoint;
-                    int x = cvFloor(point.x() / min_distance);
-                    int y = cvFloor(point.y() / min_distance);
+                    int x = cvFloor(fdPt.lastPoint.x() / min_distance);
+                    int y = cvFloor(fdPt.lastPoint.y() / min_distance);
                     int ywx = y * width + x;
 
-                    if (point.x() < min_distance * width && point.y() < min_distance * height) {
+                    if (fdPt.lastPoint.x() < min_distance * width && fdPt.lastPoint.y() < min_distance * height) {
                         feedbackIndicators.add(ywx);
                     }
                     //feedbackPoints.add(new TraceMetaAndLastPoint(k, v.get(v.size() - 1).sPoint));
+                    System.out.println("Frame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
                 }
-            });
+            }
 
             collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, feedbackIndicators));
             traceToRemove.forEach(item -> traceData.remove(item));
@@ -173,7 +176,7 @@ public class traceAggregatorBeta extends BaseRichBolt {
             newPointsWHInfo.remove(frameId);
             traceMonitor.put(nextFrameID, traceToRegister);
 
-            System.out.println("eframe: " + frameId + ", tMCnt: " + traceMonitor.size()
+            System.out.println("ef: " + frameId + ", tMCnt: " + traceMonitor.size()
                     + ", mQS: " + messageQueue.size() + ", nPWHS: " + newPointsWHInfo.size()
             + "tDS: " + traceData.size() + ", removeSize: " + traceToRemove.size() + ", exisSize: " + traceToRegister.size());
 
