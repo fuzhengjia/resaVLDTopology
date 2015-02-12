@@ -139,6 +139,10 @@ public class traceAggregatorBeta extends BaseRichBolt {
             collector.emit(STREAM_PLOT_TRACE, new Values(frameId, traceRecords));
             collector.emit(STREAM_CACHE_CLEAN, new Values(frameId));
 
+            System.out.println("ef: " + frameId + ", tMCnt: " + traceMonitor.size()
+                    + ", mQS: " + messageQueue.size() + ", nPWHS: " + newPointsWHInfo.size()
+                    + "tDS: " + traceData.size());
+
             //List<TraceMetaAndLastPoint> feedbackPoints = new ArrayList<>();
             List<Integer> feedbackIndicators = new ArrayList<>();
             HashSet<String> traceToRegister = new HashSet<>();
@@ -178,8 +182,7 @@ public class traceAggregatorBeta extends BaseRichBolt {
 
             System.out.println("ef: " + frameId + ", tMCnt: " + traceMonitor.size()
                     + ", mQS: " + messageQueue.size() + ", nPWHS: " + newPointsWHInfo.size()
-            + "tDS: " + traceData.size() + ", removeSize: " + traceToRemove.size() + ", exisSize: " + traceToRegister.size());
-
+                    + "tDS: " + traceData.size() + ", removeSize: " + traceToRemove.size() + ", exisSize: " + traceToRegister.size());
         }
     }
 }
