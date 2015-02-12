@@ -7,12 +7,11 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import clojure.lang.MapEntry;
+import org.bytedeco.javacpp.opencv_core;
 import topology.Serializable;
 import util.ConfigUtil;
 
 import java.util.*;
-import static org.bytedeco.javacpp.opencv_core.*;
 
 import static tool.Constant.*;
 
@@ -161,8 +160,8 @@ public class traceAggregatorBeta extends BaseRichBolt {
                     TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(trace.getKey(), point);
                     System.out.println("AFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
 
-                    int x = cvFloor(point.x() / min_distance);
-                    int y = cvFloor(point.y() / min_distance);
+                    int x = opencv_core.cvFloor(point.x() / min_distance);
+                    int y = opencv_core.cvFloor(point.y() / min_distance);
                     int ywx = y * width + x;
 
                     if (point.x() < min_distance * width && point.y() < min_distance * height) {
