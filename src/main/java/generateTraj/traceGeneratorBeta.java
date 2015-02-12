@@ -159,9 +159,10 @@ public class traceGeneratorBeta extends BaseRichBolt {
             this.newPointsWHInfo.remove(frameId);
             //this.feedbackPointsList.remove(frameId);
             this.feedbackIndicatorList.remove(frameId);
+        } else {
+            System.out.println("FrameID: " + frameId + ", streamID: " + streamId
+                    + ", newListCnt: " + newPointsList.size() + ",fbPointsListCnt: " + feedbackIndicatorList.size());
         }
-        System.out.println("FrameID: " + frameId + ", streamID: " + streamId
-                + ", newListCnt: " + newPointsList.size() + ",fbPointsListCnt: " + feedbackIndicatorList.size());
 
         collector.ack(tuple);
     }

@@ -139,9 +139,9 @@ public class traceAggregatorBeta extends BaseRichBolt {
             collector.emit(STREAM_PLOT_TRACE, new Values(frameId, traceRecords));
             collector.emit(STREAM_CACHE_CLEAN, new Values(frameId));
 
-            System.out.println("ef: " + frameId + ", tMCnt: " + traceMonitor.size()
-                    + ", mQS: " + messageQueue.size() + ", nPWHS: " + newPointsWHInfo.size()
-                    + "tDS: " + traceData.size());
+//            System.out.println("ef: " + frameId + ", tMCnt: " + traceMonitor.size()
+//                    + ", mQS: " + messageQueue.size() + ", nPWHS: " + newPointsWHInfo.size()
+//                    + "tDS: " + traceData.size());
 
             //List<TraceMetaAndLastPoint> feedbackPoints = new ArrayList<>();
             List<Integer> feedbackIndicators = new ArrayList<>();
@@ -160,25 +160,23 @@ public class traceAggregatorBeta extends BaseRichBolt {
                     traceToRegister.add(trace.getKey());
                     Serializable.CvPoint2D32f point = new Serializable.CvPoint2D32f(trace.getValue().get(traceLen - 1).sPoint);
                     TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(trace.getKey(), point);
-                    System.out.println("AFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback," + point.toString());
+                    //System.out.println("AFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback," + point.toString());
 
                     int x = cvFloor(point.x() / min_distance);
                     int y = cvFloor(point.y() / min_distance);
-                    //int x = (int)Math.floor(point.x() / min_distance);
-                    //int y = (int)Math.floor(point.x() / min_distance);
                     int ywx = y * width + x;
 
                     if (point.x() < min_distance * width && point.y() < min_distance * height) {
                         feedbackIndicators.add(ywx);
                     }
 
-                    System.out.println("BFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
+                    //System.out.println("BFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
                     collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, fdPt));
 
 
 
                     //feedbackPoints.add(new TraceMetaAndLastPoint(k, v.get(v.size() - 1).sPoint));
-                    System.out.println("CFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
+                    //System.out.println("CFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
                 }
             }
 
