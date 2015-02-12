@@ -83,6 +83,8 @@ public class optlFlowGenerator extends BaseRichBolt {
 
             //collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat, mbhMatX, mbhMatY));
             collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat));
+            ///Test speed of optical flow generating
+            System.out.println("optFlowAdd: " + System.currentTimeMillis() + ":" + frameId);
         }
 
         this.prev_grey = cvCloneImage(this.grey);

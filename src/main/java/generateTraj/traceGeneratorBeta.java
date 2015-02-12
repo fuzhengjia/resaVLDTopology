@@ -10,13 +10,9 @@ import backtype.storm.tuple.Values;
 import topology.Serializable;
 import util.ConfigUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.bytedeco.javacpp.opencv_core.cvFloor;
-import static org.bytedeco.javacpp.opencv_core.cvPoint2D32f;
+import static org.bytedeco.javacpp.opencv_core.*;
 import static tool.Constant.*;
 
 /**
@@ -25,13 +21,14 @@ import static tool.Constant.*;
  * Maybe use global grouping and only one task/executor
  * Similar to frame producer, maintain an ordered list of frames
  */
-public class traceGenerator extends BaseRichBolt {
+public class traceGeneratorBeta extends BaseRichBolt {
     OutputCollector collector;
 
     private HashMap<Integer, List<NewDensePoint>> newPointsList;
     private HashMap<Integer, TwoIntegers> newPointsWHInfo;
 
-    private HashMap<Integer, List<TraceMetaAndLastPoint>> feedbackPointsList;
+    //private HashMap<Integer, List<TraceMetaAndLastPoint>> feedbackPointsList;
+    private HashMap<Integer, List<Integer>> feedbackIndicatorList;
     private List<String> registerTraceIDList;
 
     double min_distance;
@@ -54,7 +51,8 @@ public class traceGenerator extends BaseRichBolt {
 
         this.newPointsList = new HashMap<>();
         this.newPointsWHInfo = new HashMap<>();
-        this.feedbackPointsList = new HashMap<>();
+        //this.feedbackPointsList = new HashMap<>();
+        this.feedbackIndicatorList = new HashMap<>();
         this.registerTraceIDList = new ArrayList<>();
     }
 
@@ -79,23 +77,30 @@ public class traceGenerator extends BaseRichBolt {
             }
             ///This is to deal with the first special frame, where there are no feedback traces.
             if (frameId == 1) {
-                List<TraceMetaAndLastPoint> emptySet = new ArrayList<>();
-                feedbackPointsList.put(frameId, emptySet);
+                //List<TraceMetaAndLastPoint> emptySet = new ArrayList<>();
+                //feedbackPointsList.put(frameId, emptySet);
+                List<Integer> emptySet = new ArrayList<>();
+                feedbackIndicatorList.put(frameId, emptySet);
             }
 
         } else if (streamId.equals(STREAM_RENEW_TRACE)) {
-            List<TraceMetaAndLastPoint> feedbackPoints = (List<TraceMetaAndLastPoint>) tuple.getValueByField(FIELD_TRACE_META_LAST_POINT);
-
-            if (!feedbackPointsList.containsKey(frameId)) {
-                feedbackPointsList.put(frameId, feedbackPoints);
+//            List<TraceMetaAndLastPoint> feedbackPoints = (List<TraceMetaAndLastPoint>) tuple.getValueByField(FIELD_TRACE_META_LAST_POINT);
+//            if (!feedbackPointsList.containsKey(frameId)) {
+//                feedbackPointsList.put(frameId, feedbackPoints);
+//            }
+            List<Integer> feedbackIndicators = (List<Integer>) tuple.getValueByField(FIELD_COUNTERS_INDEX);
+            if (!feedbackIndicatorList.containsKey(frameId)) {
+                feedbackIndicatorList.put(frameId, feedbackIndicators);
             }
         }
 
         ///Now, the two FrameID are synchronized!!!
-        if (newPointsList.containsKey(frameId) && feedbackPointsList.containsKey(frameId)) {
+        //if (newPointsList.containsKey(frameId) && feedbackPointsList.containsKey(frameId)) {
+        if (newPointsList.containsKey(frameId) && feedbackIndicatorList.containsKey(frameId)) {
             List<NewDensePoint> newPoints = newPointsList.get(frameId);
             TwoIntegers wh = newPointsWHInfo.get(frameId);
-            List<TraceMetaAndLastPoint> feedbackPoints = feedbackPointsList.get(frameId);
+            //List<TraceMetaAndLastPoint> feedbackPoints = feedbackPointsList.get(frameId);
+            List<Integer> feedbackIndicators = feedbackIndicatorList.get(frameId);
 
             registerTraceIDList.clear();
 
@@ -104,20 +109,23 @@ public class traceGenerator extends BaseRichBolt {
             ///Make sure, the width and height information are valid!
 
             boolean[] counters = new boolean[width * height];
-            if (feedbackPoints.size() > 0) {
-                for (TraceMetaAndLastPoint feedbackPoint : feedbackPoints) {
-
-                    Serializable.CvPoint2D32f point = feedbackPoint.lastPoint;
-                    int x = cvFloor(point.x() / min_distance);
-                    int y = cvFloor(point.y() / min_distance);
-                    int ywx = y * width + x;
-
-                    if (point.x() < min_distance * width && point.y() < min_distance * height) {
-                        counters[ywx] = true;
-                    }
-
-                    registerTraceIDList.add(feedbackPoint.traceID);
-                    collector.emit(STREAM_EXIST_TRACE, new Values(frameId, feedbackPoint));
+//            if (feedbackPoints.size() > 0) {
+//                for (TraceMetaAndLastPoint feedbackPoint : feedbackPoints) {
+//                    Serializable.CvPoint2D32f point = feedbackPoint.lastPoint;
+//                    int x = cvFloor(point.x() / min_distance);
+//                    int y = cvFloor(point.y() / min_distance);
+//                    int ywx = y * width + x;
+//
+//                    if (point.x() < min_distance * width && point.y() < min_distance * height) {
+//                        counters[ywx] = true;
+//                    }
+//
+//                    registerTraceIDList.add(feedbackPoint.traceID);
+//                    collector.emit(STREAM_EXIST_TRACE, new Values(frameId, feedbackPoint));
+//                }
+            if (feedbackIndicators.size() > 0) {
+                for (int index : feedbackIndicators) {
+                    counters[index] = true;
                 }
             } else {
                 System.out.println("No new feedback points generated for frame: " + frameId);
@@ -145,14 +153,15 @@ public class traceGenerator extends BaseRichBolt {
                 System.out.println("No new dense point generated for frame: " + frameId);
             }
             System.out.println("Frame: " + frameId + " emitted: " + registerTraceIDList.size()
-                    + ", newPt: " + newPoints.size() + ",newV: " + totalValidedCount + ",fd: " + feedbackPoints.size());
-            collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, registerTraceIDList));
+                    + ", newPt: " + newPoints.size() + ",newV: " + totalValidedCount + ",fd: " + feedbackIndicators.size());
+            collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, registerTraceIDList, wh));
             this.newPointsList.remove(frameId);
             this.newPointsWHInfo.remove(frameId);
-            this.feedbackPointsList.remove(frameId);
+            //this.feedbackPointsList.remove(frameId);
+            this.feedbackIndicatorList.remove(frameId);
         }
         System.out.println("FrameID: " + frameId + ", streamID: " + streamId
-                + ", newListCnt: " + newPointsList.size() + ",fbPointsListCnt: " + feedbackPointsList.size());
+                + ", newListCnt: " + newPointsList.size() + ",fbPointsListCnt: " + feedbackIndicatorList.size());
 
         collector.ack(tuple);
     }
@@ -160,7 +169,7 @@ public class traceGenerator extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_EXIST_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_META_LAST_POINT));
-        outputFieldsDeclarer.declareStream(STREAM_REGISTER_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_IDENTIFIER));
+        outputFieldsDeclarer.declareStream(STREAM_REGISTER_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_IDENTIFIER, FIELD_WIDTH_HEIGHT));
     }
 
     public String generateTraceID(int frameID) {
