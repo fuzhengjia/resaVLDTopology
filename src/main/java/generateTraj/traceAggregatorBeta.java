@@ -160,8 +160,10 @@ public class traceAggregatorBeta extends BaseRichBolt {
                     TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(trace.getKey(), point);
                     System.out.println("AFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
 
-                    int x = opencv_core.cvFloor(point.x() / min_distance);
-                    int y = opencv_core.cvFloor(point.y() / min_distance);
+                    //int x = opencv_core.cvFloor(point.x() / min_distance);
+                    //int y = opencv_core.cvFloor(point.y() / min_distance);
+                    int x = (int)Math.floor(point.x() / min_distance);
+                    int y = (int)Math.floor(point.x() / min_distance);
                     int ywx = y * width + x;
 
                     if (point.x() < min_distance * width && point.y() < min_distance * height) {
