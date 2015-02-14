@@ -26,7 +26,7 @@ import static topology.StormConfigManager.*;
  * 尝试将optFlowGen and optFlowAgg 分布式化
  * test Gamma version!
  */
-public class tomTrajDisplayTopology {
+public class tomTrajDisplayTopGamma {
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
@@ -53,7 +53,7 @@ public class tomTrajDisplayTopology {
         builder.setSpout(spoutName, new FrameImplImageSource(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(imgPrepareBolt, new imagePrepare(), getInt(conf, imgPrepareBolt + ".parallelism"))
+        builder.setBolt(imgPrepareBolt, new imagePrepareGamma(), getInt(conf, imgPrepareBolt + ".parallelism"))
                 .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
@@ -61,9 +61,9 @@ public class tomTrajDisplayTopology {
                 .globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
-        builder.setBolt(traceGenBolt, new traceGeneratorBeta(), getInt(conf, traceGenBolt + ".parallelism"))
-                .globalGrouping(imgPrepareBolt, STREAM_NEW_TRACE)
-                .globalGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
+        builder.setBolt(traceGenBolt, new traceGeneratorGamma(), getInt(conf, traceGenBolt + ".parallelism"))
+                .fieldsGrouping(imgPrepareBolt, STREAM_GREY_FLOW, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping(traceAggregator, STREAM_INDICATOR_TRACE, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
 
         builder.setBolt(optFlowTracker, new optFlowTracker(), getInt(conf, optFlowTracker + ".parallelism"))
@@ -96,6 +96,6 @@ public class tomTrajDisplayTopology {
 
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tomTrajDisplayTop-Beta", conf, topology);
+        StormSubmitter.submitTopology("tomTrajDisplayTopGamma", conf, topology);
     }
 }
