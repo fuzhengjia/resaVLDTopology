@@ -61,14 +61,14 @@ public class tomTrajDisplayTopology {
                 .globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
-//        builder.setBolt(traceGenBolt, new traceGeneratorBeta(), getInt(conf, traceGenBolt + ".parallelism"))
-//                .globalGrouping(imgPrepareBolt, STREAM_NEW_TRACE)
-//                .globalGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
-//                .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
-        builder.setBolt(traceGenBolt, new traceGeneratorGamma(), getInt(conf, traceGenBolt + ".parallelism"))
+        builder.setBolt(traceGenBolt, new traceGeneratorBeta(), getInt(conf, traceGenBolt + ".parallelism"))
                 .globalGrouping(imgPrepareBolt, STREAM_NEW_TRACE)
                 .globalGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
+//        builder.setBolt(traceGenBolt, new traceGeneratorGamma(), getInt(conf, traceGenBolt + ".parallelism"))
+//                .globalGrouping(imgPrepareBolt, STREAM_NEW_TRACE)
+//                .globalGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
+//                .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
 
         builder.setBolt(optFlowTracker, new optFlowTracker(), getInt(conf, optFlowTracker + ".parallelism"))
                 .shuffleGrouping(traceGenBolt, STREAM_NEW_TRACE)
@@ -77,16 +77,16 @@ public class tomTrajDisplayTopology {
                 .allGrouping(traceAggregator, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
 
-//        builder.setBolt(traceAggregator, new traceAggregatorBeta(), getInt(conf, traceAggregator + ".parallelism"))
-//                .globalGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
-//                .globalGrouping(optFlowTracker, STREAM_EXIST_TRACE)
-//                .globalGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
-//                .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
-        builder.setBolt(traceAggregator, new traceAggregatorGamma(), getInt(conf, traceAggregator + ".parallelism"))
+        builder.setBolt(traceAggregator, new traceAggregatorBeta(), getInt(conf, traceAggregator + ".parallelism"))
                 .globalGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
                 .globalGrouping(optFlowTracker, STREAM_EXIST_TRACE)
                 .globalGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
+//        builder.setBolt(traceAggregator, new traceAggregatorGamma(), getInt(conf, traceAggregator + ".parallelism"))
+//                .globalGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
+//                .globalGrouping(optFlowTracker, STREAM_EXIST_TRACE)
+//                .globalGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
+//                .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
         builder.setBolt(frameDisplay, new frameDisplayMulti(), getInt(conf, frameDisplay + ".parallelism"))
                 .fieldsGrouping(spoutName, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
@@ -105,6 +105,6 @@ public class tomTrajDisplayTopology {
 
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tomTrajDisplayTop-Gamma", conf, topology);
+        StormSubmitter.submitTopology("tomTrajDisplayTop-Beta", conf, topology);
     }
 }
