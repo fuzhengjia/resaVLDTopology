@@ -65,7 +65,7 @@ public class tomTrajDisplayTopology {
 //                .globalGrouping(imgPrepareBolt, STREAM_NEW_TRACE)
 //                .globalGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
 //                .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
-        builder.setBolt(traceGenBolt, new traceAggregatorGamma(), getInt(conf, traceGenBolt + ".parallelism"))
+        builder.setBolt(traceGenBolt, new traceGeneratorGamma(), getInt(conf, traceGenBolt + ".parallelism"))
                 .globalGrouping(imgPrepareBolt, STREAM_NEW_TRACE)
                 .globalGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
