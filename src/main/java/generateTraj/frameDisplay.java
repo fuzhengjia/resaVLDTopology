@@ -110,7 +110,7 @@ public class frameDisplay extends BaseRichBolt {
             for (List<PointDesc> trace : traceRecords) {
                 float length = trace.size();
                 sampleN ++;
-                if (sampleN % 10 == 0) {
+                if (sampleN % 100 == 0) {
                     float point0_x = fscales[ixyScale] * trace.get(0).sPoint.x();
                     float point0_y = fscales[ixyScale] * trace.get(0).sPoint.y();
                     CvPoint2D32f point0 = new CvPoint2D32f();
