@@ -40,8 +40,11 @@ public class traceGeneratorGamma extends BaseRichBolt {
     double quality;
     int init_counter;
 
-    long tracerIDCnt;
-    int thisTaskID;
+    private long tracerIDCnt;
+    private int thisTaskID;
+
+    private int thisTaskIndex;
+    private int taskCntOfThisComponent;
 
     static int scale_num = 1;
     static float scale_stride = (float) Math.sqrt(2.0);
@@ -51,6 +54,8 @@ public class traceGeneratorGamma extends BaseRichBolt {
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
 
+        this.thisTaskIndex = topologyContext.getThisTaskIndex();
+        this.taskCntOfThisComponent = topologyContext.getComponentTasks(topologyContext.getThisComponentId()).size();
         thisTaskID = topologyContext.getThisTaskId();
         tracerIDCnt = 0;
 
@@ -128,19 +133,21 @@ public class traceGeneratorGamma extends BaseRichBolt {
                 for (int i = 0; i < height; i++) {
                     for (int j = 0; j < width; j++) {
                         int ywx = i * width + j;
-                        if (counters[ywx] == false) {
-                            int x = opencv_core.cvFloor(j * min_distance + offset);
-                            int y = opencv_core.cvFloor(i * min_distance + offset);
-                            FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
-                            float ve = floatBuffer.get(x);
+                        if (ywx % taskCntOfThisComponent == thisTaskIndex) {
+                            if (counters[ywx] == false) {
+                                int x = opencv_core.cvFloor(j * min_distance + offset);
+                                int y = opencv_core.cvFloor(i * min_distance + offset);
+                                FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
+                                float ve = floatBuffer.get(x);
 
-                            if (ve > threshold) {
-                                String traceID = generateTraceID(frameId);
-                                Serializable.CvPoint2D32f lastPt = new Serializable.CvPoint2D32f(cvPoint2D32f(x, y));
-                                TraceMetaAndLastPoint newTrace = new TraceMetaAndLastPoint(traceID, lastPt);
-                                totalValidedCount++;
-                                registerTraceIDList.add(newTrace.traceID);
-                                collector.emit(STREAM_NEW_TRACE, new Values(frameId, newTrace));
+                                if (ve > threshold) {
+                                    String traceID = generateTraceID(frameId);
+                                    Serializable.CvPoint2D32f lastPt = new Serializable.CvPoint2D32f(cvPoint2D32f(x, y));
+                                    TraceMetaAndLastPoint newTrace = new TraceMetaAndLastPoint(traceID, lastPt);
+                                    totalValidedCount++;
+                                    registerTraceIDList.add(newTrace.traceID);
+                                    collector.emit(STREAM_NEW_TRACE, new Values(frameId, newTrace));
+                                }
                             }
                         }
                     }
