@@ -23,6 +23,8 @@ import static topology.StormConfigManager.*;
  * 扩展，如果有2个scale的话，需要对当前程序扩展！
  * 产生光流是bottleneck
  * 此版本暂时通过测试
+ * 尝试将optFlowGen and optFlowAgg 分布式化
+ * test Gamma version!
  */
 public class tomTrajDisplayTopology {
 
@@ -59,11 +61,11 @@ public class tomTrajDisplayTopology {
                 .globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
-//        builder.setBolt(traceGenBolt, new traceGenerator(), getInt(conf, traceGenBolt + ".parallelism"))
+//        builder.setBolt(traceGenBolt, new traceGeneratorBeta(), getInt(conf, traceGenBolt + ".parallelism"))
 //                .globalGrouping(imgPrepareBolt, STREAM_NEW_TRACE)
-//                .globalGrouping(traceAggregator, STREAM_RENEW_TRACE)
+//                .globalGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
 //                .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
-        builder.setBolt(traceGenBolt, new traceGeneratorBeta(), getInt(conf, traceGenBolt + ".parallelism"))
+        builder.setBolt(traceGenBolt, new traceAggregatorGamma(), getInt(conf, traceGenBolt + ".parallelism"))
                 .globalGrouping(imgPrepareBolt, STREAM_NEW_TRACE)
                 .globalGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
@@ -75,21 +77,17 @@ public class tomTrajDisplayTopology {
                 .allGrouping(traceAggregator, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
 
-//        builder.setBolt(traceAggregator, new traceAggregator(), getInt(conf, traceAggregator + ".parallelism"))
+//        builder.setBolt(traceAggregator, new traceAggregatorBeta(), getInt(conf, traceAggregator + ".parallelism"))
 //                .globalGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
 //                .globalGrouping(optFlowTracker, STREAM_EXIST_TRACE)
 //                .globalGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
 //                .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
-        builder.setBolt(traceAggregator, new traceAggregatorBeta(), getInt(conf, traceAggregator + ".parallelism"))
+        builder.setBolt(traceAggregator, new traceAggregatorGamma(), getInt(conf, traceAggregator + ".parallelism"))
                 .globalGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
                 .globalGrouping(optFlowTracker, STREAM_EXIST_TRACE)
                 .globalGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
-//        builder.setBolt(frameDisplay, new frameDisplay(), getInt(conf, frameDisplay + ".parallelism"))
-//                .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
-//                .globalGrouping(traceAggregator, STREAM_PLOT_TRACE)
-//                .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
         builder.setBolt(frameDisplay, new frameDisplayMulti(), getInt(conf, frameDisplay + ".parallelism"))
                 .fieldsGrouping(spoutName, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
                 .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
@@ -102,13 +100,11 @@ public class tomTrajDisplayTopology {
         StormTopology topology = builder.createTopology();
 
         int numberOfWorkers = getInt(conf, "TrajNumOfWorkers");
-        //int numberOfAckers = getInt(conf, "numberOfAckers");
         conf.setNumWorkers(numberOfWorkers);
-        //conf.setNumAckers(numberOfAckers);
         conf.setMaxSpoutPending(getInt(conf, "TrajMaxPending"));
 
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tomTrajDisplayTopology", conf, topology);
+        StormSubmitter.submitTopology("tomTrajDisplayTop-Gamma", conf, topology);
     }
 }

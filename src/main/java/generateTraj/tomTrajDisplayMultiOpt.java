@@ -51,18 +51,11 @@ public class tomTrajDisplayMultiOpt {
         builder.setSpout(spoutName, new FrameImplImageSource(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-//        builder.setBolt(imgPrepareBolt, new imagePrepare(), getInt(conf, imgPrepareBolt + ".parallelism"))
-//                .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
-//                .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
         builder.setBolt(imgPrepareBolt, new imagePrepareMultiOptFlow(), getInt(conf, imgPrepareBolt + ".parallelism"))
                 .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
-//        builder.setBolt(optFlowGenBolt, new optlFlowGenerator(), getInt(conf, optFlowGenBolt + ".parallelism"))
-//                .globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
-//                .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
         builder.setBolt(optFlowGenBolt, new optlFlowGeneratorMultiOptFlow(), getInt(conf, optFlowGenBolt + ".parallelism"))
-                //.globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .directGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
@@ -96,9 +89,7 @@ public class tomTrajDisplayMultiOpt {
         StormTopology topology = builder.createTopology();
 
         int numberOfWorkers = getInt(conf, "TrajNumOfWorkers");
-        //int numberOfAckers = getInt(conf, "numberOfAckers");
         conf.setNumWorkers(numberOfWorkers);
-        //conf.setNumAckers(numberOfAckers);
         conf.setMaxSpoutPending(getInt(conf, "TrajMaxPending"));
 
         conf.registerSerialization(Serializable.Mat.class);
