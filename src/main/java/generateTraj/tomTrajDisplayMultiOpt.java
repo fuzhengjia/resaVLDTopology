@@ -66,27 +66,24 @@ public class tomTrajDisplayMultiOpt {
                 .directGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
-        builder.setBolt(traceGenBolt, new traceGenerator(), getInt(conf, traceGenBolt + ".parallelism"))
+        builder.setBolt(traceGenBolt, new traceGeneratorBeta(), getInt(conf, traceGenBolt + ".parallelism"))
                 .globalGrouping(imgPrepareBolt, STREAM_NEW_TRACE)
-                .globalGrouping(traceAggregator, STREAM_RENEW_TRACE)
+                .globalGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
 
         builder.setBolt(optFlowTracker, new optFlowTracker(), getInt(conf, optFlowTracker + ".parallelism"))
-                .shuffleGrouping(traceGenBolt, STREAM_EXIST_TRACE)
+                .shuffleGrouping(traceGenBolt, STREAM_NEW_TRACE)
+                .shuffleGrouping(traceAggregator, STREAM_RENEW_TRACE)
                 .allGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
                 .allGrouping(traceAggregator, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
 
-        builder.setBolt(traceAggregator, new traceAggregator(), getInt(conf, traceAggregator + ".parallelism"))
+        builder.setBolt(traceAggregator, new traceAggregatorBeta(), getInt(conf, traceAggregator + ".parallelism"))
                 .globalGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
                 .globalGrouping(optFlowTracker, STREAM_EXIST_TRACE)
                 .globalGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
-//        builder.setBolt(frameDisplay, new frameDisplay(), getInt(conf, frameDisplay + ".parallelism"))
-//                .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
-//                .globalGrouping(traceAggregator, STREAM_PLOT_TRACE)
-//                .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
         builder.setBolt(frameDisplay, new frameDisplayMulti(), getInt(conf, frameDisplay + ".parallelism"))
                 .fieldsGrouping(spoutName, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
                 .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))

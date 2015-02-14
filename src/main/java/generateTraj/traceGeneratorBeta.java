@@ -174,7 +174,7 @@ public class traceGeneratorBeta extends BaseRichBolt {
     }
 
     public String generateTraceID(int frameID) {
-        return "t-" + thisTaskID + "-" + "f-" + frameID + "-" + (this.tracerIDCnt++);
+        return thisTaskID + "-" + frameID + "-" + (this.tracerIDCnt++);
     }
 
 }
