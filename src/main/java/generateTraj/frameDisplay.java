@@ -106,11 +106,11 @@ public class frameDisplay extends BaseRichBolt {
             opencv_core.Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
             IplImage frame = orgMat.asIplImage();
             List<List<PointDesc>> traceRecords = traceData.get(frameId);
-            int sampleN = 0;
+            //int sampleN = 0;
             for (List<PointDesc> trace : traceRecords) {
                 float length = trace.size();
-                sampleN ++;
-                if (sampleN % 100 == 0) {
+                //sampleN ++;
+                //if (sampleN % 100 == 0) {
                     float point0_x = fscales[ixyScale] * trace.get(0).sPoint.x();
                     float point0_y = fscales[ixyScale] * trace.get(0).sPoint.y();
                     CvPoint2D32f point0 = new CvPoint2D32f();
@@ -129,7 +129,7 @@ public class frameDisplay extends BaseRichBolt {
                                 CV_RGB(0, cvFloor(255.0 * (jIndex + 1.0) / length), 0), 1, 8, 0);
                         point0 = point1;
                     }
-                }
+                //}
             }
 
             opencv_core.Mat mat = new opencv_core.Mat(frame);
