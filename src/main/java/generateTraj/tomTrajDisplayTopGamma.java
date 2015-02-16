@@ -61,7 +61,7 @@ public class tomTrajDisplayTopGamma {
                 .globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
-        builder.setBolt(traceGenBolt, new traceGeneratorGamma(), getInt(conf, traceGenBolt + ".parallelism"))
+        builder.setBolt(traceGenBolt, new traceGeneratorGamma2(), getInt(conf, traceGenBolt + ".parallelism"))
                 //.fieldsGrouping(imgPrepareBolt, STREAM_GREY_FLOW, new Fields(FIELD_FRAME_ID))
                 //.fieldsGrouping(traceAggregator, STREAM_INDICATOR_TRACE, new Fields(FIELD_FRAME_ID))
                 .allGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
@@ -75,7 +75,7 @@ public class tomTrajDisplayTopGamma {
                 .allGrouping(traceAggregator, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
 
-        builder.setBolt(traceAggregator, new traceAggregatorGamma(traceGenBolt), getInt(conf, traceAggregator + ".parallelism"))
+        builder.setBolt(traceAggregator, new traceAggregatorGamma2(traceGenBolt), getInt(conf, traceAggregator + ".parallelism"))
                 .globalGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
                 .globalGrouping(optFlowTracker, STREAM_EXIST_TRACE)
                 .globalGrouping(optFlowTracker, STREAM_REMOVE_TRACE)

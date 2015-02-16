@@ -171,38 +171,15 @@ public class traceAggregatorGamma extends BaseRichBolt {
             int width = wh.getV1();
             int height = wh.getV2();
             int nextFrameID = frameId + 1;
-            //System.out.println("beforeRemove, traceDataSize: " + traceData.size());
-//            for (Map.Entry<String, List<PointDesc>> trace : traceData.entrySet()) {
-//                //traceData.forEach((k, v) -> {
-//                int traceLen = trace.getValue().size();
-//                if (traceLen > maxTrackerLength) {
-//                    traceToRemove.add(trace.getKey());
-//                } else {
-//                    traceToRegister.add(trace.getKey());
-//                    Serializable.CvPoint2D32f point = new Serializable.CvPoint2D32f(trace.getValue().get(traceLen - 1).sPoint);
-//                    TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(trace.getKey(), point);
-//
-//                    int x = cvFloor(point.x() / min_distance);
-//                    int y = cvFloor(point.y() / min_distance);
-//                    int ywx = y * width + x;
-//
-//                    if (point.x() < min_distance * width && point.y() < min_distance * height) {
-//                        feedbackIndicators.add(ywx);
-//                    }
-//
-//                    collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, fdPt));
-//                }
-//            }
 
-            traceData.forEach((k, v) -> {
-                int traceLen = v.size();
+            for (Map.Entry<String, List<PointDesc>> trace : traceData.entrySet()) {
+                int traceLen = trace.getValue().size();
                 if (traceLen > maxTrackerLength) {
-                    traceToRemove.add(k);
+                    traceToRemove.add(trace.getKey());
                 } else {
-                    traceToRegister.add(k);
-                    Serializable.CvPoint2D32f point = new Serializable.CvPoint2D32f(v.get(traceLen - 1).sPoint);
-                    TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(k, point);
-                    collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, fdPt));
+                    traceToRegister.add(trace.getKey());
+                    Serializable.CvPoint2D32f point = new Serializable.CvPoint2D32f(trace.getValue().get(traceLen - 1).sPoint);
+                    TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(trace.getKey(), point);
 
                     int x = cvFloor(point.x() / min_distance);
                     int y = cvFloor(point.y() / min_distance);
@@ -211,8 +188,30 @@ public class traceAggregatorGamma extends BaseRichBolt {
                     if (point.x() < min_distance * width && point.y() < min_distance * height) {
                         feedbackIndicators.add(ywx);
                     }
+
+                    collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, fdPt));
                 }
-            });
+            }
+
+//            traceData.forEach((k, v) -> {
+//                int traceLen = v.size();
+//                if (traceLen > maxTrackerLength) {
+//                    traceToRemove.add(k);
+//                } else {
+//                    traceToRegister.add(k);
+//                    Serializable.CvPoint2D32f point = new Serializable.CvPoint2D32f(v.get(traceLen - 1).sPoint);
+//                    TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(k, point);
+//                    collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, fdPt));
+//
+//                    int x = cvFloor(point.x() / min_distance);
+//                    int y = cvFloor(point.y() / min_distance);
+//                    int ywx = y * width + x;
+//
+//                    if (point.x() < min_distance * width && point.y() < min_distance * height) {
+//                        feedbackIndicators.add(ywx);
+//                    }
+//                }
+//            });
 
             collector.emit(STREAM_INDICATOR_TRACE, new Values(nextFrameID, feedbackIndicators));
             traceToRemove.forEach(item -> traceData.remove(item));

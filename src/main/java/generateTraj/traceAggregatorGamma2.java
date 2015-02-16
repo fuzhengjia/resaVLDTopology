@@ -153,17 +153,10 @@ public class traceAggregatorGamma2 extends BaseRichBolt {
         }
 
         if (traceMonitor.get(frameId) == 0){
-        //if (traceIDset.isEmpty()) {//all traces are processed.
             List<List<PointDesc>> traceRecords = new ArrayList<List<PointDesc>>(traceData.values());
-            //List<List<PointDesc>> traceRecords = traceData.values().stream().collect(Collectors.toList());
             collector.emit(STREAM_PLOT_TRACE, new Values(frameId, traceRecords));
             collector.emit(STREAM_CACHE_CLEAN, new Values(frameId));
 
-//            System.out.println("ef: " + frameId + ", tMCnt: " + traceMonitor.size()
-//                    + ", mQS: " + messageQueue.size() + ", nPWHS: " + newPointsWHInfo.size()
-//                    + "tDS: " + traceData.size());
-
-            //List<TraceMetaAndLastPoint> feedbackPoints = new ArrayList<>();
             List<Integer> feedbackIndicators = new ArrayList<>();
             //HashSet<String> traceToRegister = new HashSet<>();
             int traceToRegisterCnt = 0;
@@ -171,18 +164,15 @@ public class traceAggregatorGamma2 extends BaseRichBolt {
             int width = wh.getV1();
             int height = wh.getV2();
             int nextFrameID = frameId + 1;
-            //System.out.println("beforeRemove, traceDataSize: " + traceData.size());
+
             for (Map.Entry<String, List<PointDesc>> trace: traceData.entrySet()) {
-                //traceData.forEach((k, v) -> {
                 int traceLen = trace.getValue().size();
                 if (traceLen > maxTrackerLength) {
                     traceToRemove.add(trace.getKey());
                 } else {
-                    //traceToRegister.add(trace.getKey());
                     traceToRegisterCnt++;
                     Serializable.CvPoint2D32f point = new Serializable.CvPoint2D32f(trace.getValue().get(traceLen - 1).sPoint);
                     TraceMetaAndLastPoint fdPt = new TraceMetaAndLastPoint(trace.getKey(), point);
-                    //System.out.println("AFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback," + point.toString());
 
                     int x = cvFloor(point.x() / min_distance);
                     int y = cvFloor(point.y() / min_distance);
@@ -192,12 +182,7 @@ public class traceAggregatorGamma2 extends BaseRichBolt {
                         feedbackIndicators.add(ywx);
                     }
 
-                    //System.out.println("BFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
                     collector.emit(STREAM_RENEW_TRACE, new Values(nextFrameID, fdPt));
-
-
-                    //feedbackPoints.add(new TraceMetaAndLastPoint(k, v.get(v.size() - 1).sPoint));
-                    //System.out.println("CFrame: " + frameId + ",tID: " + trace.getKey() + ", toFeedback");
                 }
             }
 
@@ -206,14 +191,12 @@ public class traceAggregatorGamma2 extends BaseRichBolt {
             traceMonitor.remove(frameId);
             messageQueue.remove(frameId);
             newPointsWHInfo.remove(frameId);
-            //traceMonitor.put(nextFrameID, traceToRegister);
             traceMonitor.put(nextFrameID, traceToRegisterCnt);
 
             System.out.println("ef: " + frameId + ", tMCnt: " + traceMonitor.size()
                     + ", mQS: " + messageQueue.size() + ", nPWHS: " + newPointsWHInfo.size()
                     + "tDS: " + traceData.size() + ", removeSize: " + traceToRemove.size()
                     + ", exisSize: " + traceToRegisterCnt
-                    //+ ", exisSize: " + traceToRegister.size()
             );
         }
     }

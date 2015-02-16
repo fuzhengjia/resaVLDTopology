@@ -113,7 +113,7 @@ public class traceGeneratorGamma2 extends BaseRichBolt {
                 System.out.println("No new feedback points generated for frame: " + frameId);
             }
 
-            List<String> registerTraceIDList = new ArrayList<>();
+            //List<String> registerTraceIDList = new ArrayList<>();
             int totalValidedCount = 0;
             if (frameId > 0 && frameId % init_counter == 0) {
 
@@ -145,7 +145,7 @@ public class traceGeneratorGamma2 extends BaseRichBolt {
                                     Serializable.CvPoint2D32f lastPt = new Serializable.CvPoint2D32f(cvPoint2D32f(x, y));
                                     TraceMetaAndLastPoint newTrace = new TraceMetaAndLastPoint(traceID, lastPt);
                                     totalValidedCount++;
-                                    registerTraceIDList.add(newTrace.traceID);
+                                    //registerTraceIDList.add(newTrace.traceID);
                                     collector.emit(STREAM_NEW_TRACE, new Values(frameId, newTrace));
                                 }
                             }
@@ -155,9 +155,10 @@ public class traceGeneratorGamma2 extends BaseRichBolt {
             } else {
                 System.out.println("No new dense point generated for frame: " + frameId);
             }
-            System.out.println("Frame: " + frameId + " emitted: " + registerTraceIDList.size()
+            System.out.println("Frame: " + frameId + " emitted: " //+ registerTraceIDList.size()
                     + ",validCnt: " + totalValidedCount + ",fd: " + feedbackIndicators.size());
-            collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, registerTraceIDList, new TwoIntegers(width, height)));
+            //collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, registerTraceIDList, new TwoIntegers(width, height)));
+            collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, totalValidedCount, new TwoIntegers(width, height)));
             this.feedbackIndicatorList.remove(frameId);
             this.grayFrameMap.remove(frameId);
         } else {
