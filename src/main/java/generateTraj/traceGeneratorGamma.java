@@ -31,8 +31,6 @@ import static tool.Constant.*;
 public class traceGeneratorGamma extends BaseRichBolt {
     OutputCollector collector;
 
-    IplImagePyramid eig_pyramid;
-
     private HashMap<Integer, List<Integer>> feedbackIndicatorList;
     private HashMap<Integer, Serializable.Mat> eigFrameMap;
     private HashMap<Integer, EigRelatedInfo> eigInfoMap;
@@ -79,7 +77,7 @@ public class traceGeneratorGamma extends BaseRichBolt {
         //}
         System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
 
-        if (streamId.equals(STREAM_GREY_FLOW)) {///from traceInit bolt
+        if (streamId.equals(STREAM_EIG_FLOW)) {///from traceInit bolt
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
             eigFrameMap.computeIfAbsent(frameId, k -> sMat);
             EigRelatedInfo eigInfo = (EigRelatedInfo) tuple.getValueByField(FIELD_EIG_INFO);
