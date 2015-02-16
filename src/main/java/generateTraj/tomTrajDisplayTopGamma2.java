@@ -9,6 +9,7 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
 import tool.FrameImplImageSource;
+import tool.FrameImplImageSourceGamma;
 import topology.Serializable;
 
 import java.io.FileNotFoundException;
@@ -26,7 +27,7 @@ import static topology.StormConfigManager.*;
  * 尝试将optFlowGen and optFlowAgg 分布式化
  * test Gamma version!
  */
-public class tomTrajDisplayTopGammaB {
+public class tomTrajDisplayTopGamma2 {
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
@@ -50,15 +51,15 @@ public class tomTrajDisplayTopGammaB {
         String frameDisplay = "TrajDisplay";
         String redisFrameOut = "RedisFrameOut";
 
-        builder.setSpout(spoutName, new FrameImplImageSource(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new FrameImplImageSourceGamma(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(imgPrepareBolt, new imagePrepareGamma2(), getInt(conf, imgPrepareBolt + ".parallelism"))
-                .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
+                .shuffleGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
-        builder.setBolt(optFlowGenBolt, new optlFlowGenerator(), getInt(conf, optFlowGenBolt + ".parallelism"))
-                .globalGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
+        builder.setBolt(optFlowGenBolt, new optlFlowGeneratorMultiOptFlow(), getInt(conf, optFlowGenBolt + ".parallelism"))
+                .shuffleGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
         builder.setBolt(traceGenBolt, new traceGeneratorGamma2(), getInt(conf, traceGenBolt + ".parallelism"))
@@ -96,6 +97,6 @@ public class tomTrajDisplayTopGammaB {
 
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tomTrajDisplayTopGamma-B", conf, topology);
+        StormSubmitter.submitTopology("tomTrajDisplayTopGamma-2", conf, topology);
     }
 }

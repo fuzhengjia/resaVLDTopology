@@ -27,8 +27,8 @@ import static tool.Constant.*;
 public class imagePrepareGamma2 extends BaseRichBolt {
     OutputCollector collector;
 
-    IplImage frame, image, grey;
-    IplImagePyramid grey_pyramid;
+    IplImage image, prev_image, grey, prev_grey;
+    IplImagePyramid grey_pyramid, prev_grey_pyramid;
     IplImage eig;
     IplImagePyramid eig_pyramid;
 
@@ -44,32 +44,45 @@ public class imagePrepareGamma2 extends BaseRichBolt {
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
-        this.frame = null;
         this.image = null;
+        this.prev_image = null;
         this.grey = null;
+        this.prev_grey = null;
 
         this.grey_pyramid = null;
+        this.prev_grey_pyramid = null;
 
         this.min_distance = ConfigUtil.getDouble(map, "min_distance", 5.0);
         this.quality = ConfigUtil.getDouble(map, "quality", 0.001);
         this.init_counter = ConfigUtil.getInt(map, "init_counter", 1);
+
+        IplImage imageFK = new IplImage();
     }
 
     @Override
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        IplImage imageFK = new IplImage();
-        Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-        frame = sMat.toJavaCVMat().asIplImage();
 
-        if (this.image == null || frameId == 0) { //only first time
+        Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
+        IplImage frame = sMat.toJavaCVMat().asIplImage();
+
+        Serializable.Mat sMatPrev = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT_PREV);
+        IplImage framePrev = sMatPrev.toJavaCVMat().asIplImage();
+
+        if (this.image == null || frameId == 1) { //only first time
             image = cvCreateImage(cvGetSize(frame), 8, 3);
             image.origin(frame.origin());
+
+            prev_image = cvCreateImage(cvGetSize(frame), 8, 3);
+            prev_image.origin(frame.origin());
 
             grey = cvCreateImage(cvGetSize(frame), 8, 1);
             grey_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(frame), 8, 1);
 
-            this.eig_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(this.grey), 32, 1);
+            prev_grey = cvCreateImage(cvGetSize(frame), 8, 1);
+            prev_grey_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(frame), 8, 1);
+
+            eig_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(this.grey), 32, 1);
         }
 
         cvCopy(frame, image, null);
@@ -81,17 +94,22 @@ public class imagePrepareGamma2 extends BaseRichBolt {
         Mat gMat = new Mat(grey_temp);
         Serializable.Mat sgMat = new Serializable.Mat(gMat);
 
-        //collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat, mbhMatX, mbhMatY));
-        collector.emit(STREAM_GREY_FLOW, tuple, new Values(frameId, sgMat));
+        cvCopy(framePrev, prev_image, null);
+        opencv_imgproc.cvCvtColor(prev_image, prev_grey, opencv_imgproc.CV_BGR2GRAY);
+        prev_grey_pyramid.rebuild(prev_grey);
+
+        IplImage prev_grey_temp = cvCloneImage(prev_grey_pyramid.getImage(ixyScale));
+
+        Mat gMatPrev = new Mat(prev_grey_temp);
+        Serializable.Mat sgMatPrev = new Serializable.Mat(gMatPrev);
+
+        collector.emit(STREAM_GREY_FLOW, tuple, new Values(frameId, sgMat, sgMatPrev));
 
         int width = cvFloor(grey.width() / min_distance);
         int height = cvFloor(grey.height() / min_distance);
         if (frameId > 0) {
-//            List<NewDensePoint> newPoints = new ArrayList<>();
-//            if (frameId % init_counter == 0) { ///every init_counter frames, generate new dense points.
-//
-            this.eig = cvCloneImage(eig_pyramid.getImage(ixyScale));
 
+            this.eig = cvCloneImage(eig_pyramid.getImage(ixyScale));
             double[] maxVal = new double[1];
             maxVal[0] = 0.0;
             opencv_imgproc.cvCornerMinEigenVal(grey, this.eig, 3, 3);
@@ -127,7 +145,7 @@ public class imagePrepareGamma2 extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(STREAM_GREY_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
+        outputFieldsDeclarer.declareStream(STREAM_GREY_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_FRAME_MAT_PREV));
         outputFieldsDeclarer.declareStream(STREAM_EIG_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_EIG_INFO));
     }
 }

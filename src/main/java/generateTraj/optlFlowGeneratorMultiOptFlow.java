@@ -23,7 +23,6 @@ import static tool.Constant.*;
  */
 public class optlFlowGeneratorMultiOptFlow extends BaseRichBolt {
     OutputCollector collector;
-
     IplImage grey, prev_grey;
 
 //    float scale_stride;
@@ -41,7 +40,6 @@ public class optlFlowGeneratorMultiOptFlow extends BaseRichBolt {
 
         this.grey = null;
         this.prev_grey = null;
-
 //        mbhInfo = new DescInfo(8, 0, 1, patch_size, nxy_cell, nt_cell, min_flow);
     }
 
@@ -56,8 +54,6 @@ public class optlFlowGeneratorMultiOptFlow extends BaseRichBolt {
         Serializable.Mat sMatPrev = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT_PREV);
         this.prev_grey = sMatPrev.toJavaCVMat().asIplImage();
 
-//        if (frameId > 0){
-        //for the first frame
         IplImage flow = cvCreateImage(cvGetSize(this.grey), IPL_DEPTH_32F, 2);
 
         opencv_video.cvCalcOpticalFlowFarneback(this.prev_grey, this.grey, flow,
@@ -66,9 +62,7 @@ public class optlFlowGeneratorMultiOptFlow extends BaseRichBolt {
         Mat fMat = new Mat(flow);
         Serializable.Mat sfMat = new Serializable.Mat(fMat);
 
-        //collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat, mbhMatX, mbhMatY));
         collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat));
-//        }
         collector.ack(tuple);
     }
 

@@ -55,6 +55,7 @@ public class imagePrepareMultiOptFlow extends BaseRichBolt {
         this.prev_grey = null;
 
         this.grey_pyramid = null;
+        this.eig_pyramid = null;
 
         this.min_distance = ConfigUtil.getDouble(map, "min_distance", 5.0);
         this.quality = ConfigUtil.getDouble(map, "quality", 0.001);
