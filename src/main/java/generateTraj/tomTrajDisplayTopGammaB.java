@@ -53,7 +53,7 @@ public class tomTrajDisplayTopGammaB {
         builder.setSpout(spoutName, new FrameImplImageSource(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(imgPrepareBolt, new imagePrepareGamma(), getInt(conf, imgPrepareBolt + ".parallelism"))
+        builder.setBolt(imgPrepareBolt, new imagePrepareGamma2(), getInt(conf, imgPrepareBolt + ".parallelism"))
                 .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
@@ -62,9 +62,7 @@ public class tomTrajDisplayTopGammaB {
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
         builder.setBolt(traceGenBolt, new traceGeneratorGamma2(), getInt(conf, traceGenBolt + ".parallelism"))
-                //.fieldsGrouping(imgPrepareBolt, STREAM_GREY_FLOW, new Fields(FIELD_FRAME_ID))
-                //.fieldsGrouping(traceAggregator, STREAM_INDICATOR_TRACE, new Fields(FIELD_FRAME_ID))
-                .allGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
+                .allGrouping(imgPrepareBolt, STREAM_EIG_FLOW)
                 .allGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
 

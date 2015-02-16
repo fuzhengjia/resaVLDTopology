@@ -21,6 +21,8 @@ public interface Constant {
 
     public static String STREAM_GREY_FLOW = "stream-grey-flow";
 
+    public static String STREAM_EIG_FLOW = "stream-eig-flow";
+
     public static String STREAM_NEW_TRACE = "stream-new-trace";
 
     public static String STREAM_EXIST_TRACE = "stream-exist-trace";
@@ -48,6 +50,8 @@ public interface Constant {
     public static String FIELD_NEW_POINTS = "new-pts";
 
     public static String FIELD_WIDTH_HEIGHT = "wid-hei";
+
+    public static String FIELD_EIG_INFO = "eig-info";
 
     public static String FIELD_FLOW_IMPL = "flow-impl";
 
