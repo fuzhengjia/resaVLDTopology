@@ -129,6 +129,13 @@ public class traceAggregatorGamma extends BaseRichBolt {
         HashSet<String> traceIDset = traceMonitor.get(frameId);
         TwoIntegers wh = newPointsWHInfo.get(frameId).get(0);
 
+        if (sampleCount % 100 == 0){
+            System.out.println("aggregateTraceRecords frame: " + frameId
+                    + ", messageSize: " + messages.size()
+                    + ", traceIDset: " + traceIDset.size()
+                    + ", sampleCount: " + sampleCount);
+        }
+
         while (!messages.isEmpty()) {
             Object m = messages.poll();
             if (m instanceof TraceMetaAndLastPoint) {
