@@ -62,9 +62,7 @@ public class tomTrajDisplayTopGamma {
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
         builder.setBolt(traceGenBolt, new traceGeneratorGamma(), getInt(conf, traceGenBolt + ".parallelism"))
-                //.fieldsGrouping(imgPrepareBolt, STREAM_GREY_FLOW, new Fields(FIELD_FRAME_ID))
-                //.fieldsGrouping(traceAggregator, STREAM_INDICATOR_TRACE, new Fields(FIELD_FRAME_ID))
-                .allGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
+                .allGrouping(imgPrepareBolt, STREAM_EIG_FLOW)
                 .allGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
 

@@ -11,9 +11,6 @@ import org.bytedeco.javacpp.opencv_imgproc;
 import topology.Serializable;
 import util.ConfigUtil;
 
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.*;
@@ -56,12 +53,14 @@ public class imagePrepareGamma extends BaseRichBolt {
         this.min_distance = ConfigUtil.getDouble(map, "min_distance", 5.0);
         this.quality = ConfigUtil.getDouble(map, "quality", 0.001);
         this.init_counter = ConfigUtil.getInt(map, "init_counter", 1);
+
+        IplImage imageFK = new IplImage();
     }
 
     @Override
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        IplImage imageFK = new IplImage();
+
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
         frame = sMat.toJavaCVMat().asIplImage();
 
@@ -84,51 +83,30 @@ public class imagePrepareGamma extends BaseRichBolt {
         Mat gMat = new Mat(grey_temp);
         Serializable.Mat sgMat = new Serializable.Mat(gMat);
 
-        //collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat, mbhMatX, mbhMatY));
         collector.emit(STREAM_GREY_FLOW, tuple, new Values(frameId, sgMat));
 
-//        int width = cvFloor(grey.width() / min_distance);
-//        int height = cvFloor(grey.height() / min_distance);
-//        if (frameId > 0) {
-//            List<NewDensePoint> newPoints = new ArrayList<>();
-//            if (frameId % init_counter == 0) { ///every init_counter frames, generate new dense points.
-//
-//                this.eig = cvCloneImage(eig_pyramid.getImage(ixyScale));
-//
-//                double[] maxVal = new double[1];
-//                maxVal[0] = 0.0;
-//                opencv_imgproc.cvCornerMinEigenVal(grey, this.eig, 3, 3);
-//                cvMinMaxLoc(eig, null, maxVal, null, null, null);
-//                double threshold = maxVal[0] * quality;
-//                int offset = cvFloor(min_distance / 2.0);
-//
-//                for (int i = 0; i < height; i++) {
-//                    for (int j = 0; j < width; j++) {
-//                        int x = cvFloor(j * min_distance + offset);
-//                        int y = cvFloor(i * min_distance + offset);
-//
-//                        FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
-//                        float ve = floatBuffer.get(x);
-//
-//                        NewDensePoint np = new NewDensePoint(x, y, j, i);
-//                        ///Level I by tom, we send out all the new dense points as a group.
-//                        //int coutersIndex = LastPoint.calCountersIndexForNewTrace(j, i, width);
-//                        if (ve > threshold) {
-//                            //collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, lp, coutersIndex));
-//                            newPoints.add(np);
-//                        }
-//                    }
-//                }
-//            }
-//            ///We require that, every round, this message will be sent out!
-//            collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, newPoints, new TwoIntegers(width, height)));
-//        }
+        int width = cvFloor(grey.width() / min_distance);
+        int height = cvFloor(grey.height() / min_distance);
+        if (frameId > 0) {
+
+            this.eig = cvCloneImage(eig_pyramid.getImage(ixyScale));
+            double[] maxVal = new double[1];
+            maxVal[0] = 0.0;
+            opencv_imgproc.cvCornerMinEigenVal(grey, this.eig, 3, 3);
+            cvMinMaxLoc(eig, null, maxVal, null, null, null);
+            double threshold = maxVal[0] * quality;
+            int offset = cvFloor(min_distance / 2.0);
+
+            Mat eigMat = new Mat(eig);
+            Serializable.Mat sEigMat = new Serializable.Mat(eigMat);
+            collector.emit(STREAM_EIG_FLOW, tuple, new Values(frameId, sEigMat, new EigRelatedInfo(width, height, offset, threshold)));
+        }
         collector.ack(tuple);
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_GREY_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
-        //outputFieldsDeclarer.declareStream(STREAM_NEW_TRACE, new Fields(FIELD_FRAME_ID, FIELD_NEW_POINTS, FIELD_WIDTH_HEIGHT));
+        outputFieldsDeclarer.declareStream(STREAM_EIG_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_EIG_INFO));
     }
 }
