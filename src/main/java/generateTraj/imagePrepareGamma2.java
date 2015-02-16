@@ -118,7 +118,9 @@ public class imagePrepareGamma2 extends BaseRichBolt {
 //                }
 //            }
 //            ///We require that, every round, this message will be sent out!
-            collector.emit(STREAM_EIG_FLOW, tuple, new Values(frameId, eig, new EigRelatedInfo(width, height, offset, threshold)));
+            Mat eigMat = new Mat(eig);
+            Serializable.Mat sEigMat = new Serializable.Mat(eigMat);
+            collector.emit(STREAM_EIG_FLOW, tuple, new Values(frameId, sEigMat, new EigRelatedInfo(width, height, offset, threshold)));
         }
         collector.ack(tuple);
     }
