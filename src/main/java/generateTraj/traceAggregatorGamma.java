@@ -42,6 +42,8 @@ public class traceAggregatorGamma extends BaseRichBolt {
     String traceGenBoltNameString;
     int traceGenBoltTaskNumber;
 
+    int sampleCount = 0;
+
     public traceAggregatorGamma(String traceGenBoltNameString) {
         this.traceGenBoltNameString = traceGenBoltNameString;
     }
@@ -61,6 +63,7 @@ public class traceAggregatorGamma extends BaseRichBolt {
         this.traceGenBoltTaskNumber = topologyContext.getComponentTasks(traceGenBoltNameString).size();
 
         IplImage fk = new IplImage();
+        sampleCount = 0;
     }
 
     @Override
@@ -72,6 +75,15 @@ public class traceAggregatorGamma extends BaseRichBolt {
         if (streamId.equals(STREAM_EXIST_TRACE) || streamId.equals(STREAM_REMOVE_TRACE)) {
             Object message = tuple.getValueByField(FIELD_TRACE_IDENTIFIER);
             messageQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).add(message);
+
+            if (++sampleCount % 100 == 0){
+                System.out.println("exist_remove frame: " + frameId
+                        + ", traceMonitorCnt: " + traceMonitor.size()
+                        + ", messageQueueSize: " + messageQueue.size()
+                        + ", newPointsWHInfoSize: " + newPointsWHInfo.size()
+                        + ", totalRegistered: " + traceMonitor.get(frameId).size()
+                        + ", sampleCount: " + sampleCount);
+            }
 
         } else if (streamId.equals(STREAM_REGISTER_TRACE)) {
             List<String> registerTraceIDList = (List<String>) tuple.getValueByField(FIELD_TRACE_IDENTIFIER);
@@ -205,6 +217,7 @@ public class traceAggregatorGamma extends BaseRichBolt {
             System.out.println("ef: " + frameId + ", tMCnt: " + traceMonitor.size()
                     + ", mQS: " + messageQueue.size() + ", nPWHS: " + newPointsWHInfo.size()
                     + "tDS: " + traceData.size() + ", removeSize: " + traceToRemove.size() + ", exisSize: " + traceToRegister.size());
+            sampleCount = 0;
         }
     }
 }
