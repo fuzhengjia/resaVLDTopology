@@ -8,6 +8,7 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
+import showTraj.RedisFrameOutputRC;
 import tool.FrameImplImageSource;
 import tool.FrameImplImageSourceGamma;
 import topology.Serializable;
@@ -85,8 +86,10 @@ public class tomTrajDisplayTopGamma2 {
                 .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
 
-        builder.setBolt(redisFrameOut, new RedisFrameOutput(), getInt(conf, redisFrameOut + ".parallelism"))
+        builder.setBolt(redisFrameOut, new RedisFrameOutputRC(), getInt(conf, redisFrameOut + ".parallelism"))
                 .globalGrouping(frameDisplay, STREAM_FRAME_DISPLAY)
+                .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
+                .globalGrouping(redisFrameOut, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, redisFrameOut + ".tasks"));
 
         StormTopology topology = builder.createTopology();
