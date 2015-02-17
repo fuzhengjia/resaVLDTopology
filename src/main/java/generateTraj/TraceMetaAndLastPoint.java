@@ -21,7 +21,7 @@ public class TraceMetaAndLastPoint implements java.io.Serializable {
         if (traceID == null){
             throw new NullPointerException("traceID is null");
         }
-        return taskList.get(traceID.hashCode() % size);
+        return taskList.get(Math.abs(traceID.hashCode()) % size);
     }
 }
 

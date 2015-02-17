@@ -151,7 +151,7 @@ public class traceGeneratorDelta extends BaseRichBolt {
                                     Serializable.CvPoint2D32f lastPt = new Serializable.CvPoint2D32f(cvPoint2D32f(x, y));
                                     TraceMetaAndLastPoint newTrace = new TraceMetaAndLastPoint(traceID, lastPt);
                                     totalValidedCount++;
-                                    int tIDindex = traceID.hashCode() % totalValidCntList.length;
+                                    int tIDindex = Math.abs(traceID.hashCode()) % totalValidCntList.length;
                                     System.out.println("traceID: " + traceID + ",tIDindex: " + tIDindex + ", totalValidCntList.Len: "  +totalValidCntList.length);
                                     totalValidCntList[tIDindex]++;
                                     collector.emit(STREAM_NEW_TRACE, new Values(frameId, newTrace));
