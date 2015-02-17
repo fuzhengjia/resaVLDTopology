@@ -45,6 +45,7 @@ public class tomTrajDisplayTopDelta {
         String imgPrepareBolt = "TrajImgPrep";
         String optFlowGenBolt = "TrajOptFlowGen";
         String traceGenBolt = "TrajTraceGen";
+        String optFlowTrans = "TrajOptFlowTrans";
         String optFlowTracker = "TrajOptFlowTracker";
         String traceAggregator = "TrajTraceAgg";
         String frameDisplay = "TrajDisplay";
@@ -61,6 +62,10 @@ public class tomTrajDisplayTopDelta {
                 .shuffleGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
+        builder.setBolt(optFlowTrans, new optlFlowTrans(optFlowTracker), getInt(conf, optFlowTrans + ".parallelism"))
+                .allGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
+                .setNumTasks(getInt(conf, optFlowTrans + ".tasks"));
+
         builder.setBolt(traceGenBolt, new traceGeneratorDelta(traceAggregator), getInt(conf, traceGenBolt + ".parallelism"))
                 .allGrouping(imgPrepareBolt, STREAM_EIG_FLOW)
                 .allGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
@@ -69,7 +74,8 @@ public class tomTrajDisplayTopDelta {
         builder.setBolt(optFlowTracker, new optFlowTrackerDelta(traceAggregator), getInt(conf, optFlowTracker + ".parallelism"))
                 .shuffleGrouping(traceGenBolt, STREAM_NEW_TRACE)
                 .shuffleGrouping(traceAggregator, STREAM_RENEW_TRACE)
-                .allGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
+                ///.allGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
+                .directGrouping(optFlowTrans, STREAM_OPT_FLOW)
                 .allGrouping(frameDisplay, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
 
