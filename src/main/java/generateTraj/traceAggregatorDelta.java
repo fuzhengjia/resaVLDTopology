@@ -99,15 +99,15 @@ public class traceAggregatorDelta extends BaseRichBolt {
             }
             //traceMonitor.get(frameId).addAll(traceIDset);
             traceMonitor.computeIfPresent(frameId, (k,v)->v+registerTraceCnt);
-            System.out.println("Register frame: " + frameId
-                    //+ ", registerTraceListCnt: " + registerTraceIDList.size()
-                    + ", registerTraceCnt: " + registerTraceCnt
-                    //+ ", traceSetSize: " + traceIDset.size()
-                    + ", traceMonitorCnt: " + traceMonitor.size()
-                    + ", messageQueueSize: " + messageQueue.size()
-                    + ", newPointsWHInfoSize: " + newPointsWHInfo.size()
-                    //+ ", totalRegistered: " + traceMonitor.get(frameId).size()
-                    );
+//            System.out.println("Register frame: " + frameId
+//                    //+ ", registerTraceListCnt: " + registerTraceIDList.size()
+//                    + ", registerTraceCnt: " + registerTraceCnt
+//                    //+ ", traceSetSize: " + traceIDset.size()
+//                    + ", traceMonitorCnt: " + traceMonitor.size()
+//                    + ", messageQueueSize: " + messageQueue.size()
+//                    + ", newPointsWHInfoSize: " + newPointsWHInfo.size()
+//                    //+ ", totalRegistered: " + traceMonitor.get(frameId).size()
+//                    );
         }
 
         if (traceMonitor.containsKey(frameId) && messageQueue.containsKey(frameId)
@@ -185,11 +185,11 @@ public class traceAggregatorDelta extends BaseRichBolt {
             newPointsWHInfo.remove(frameId);
             traceMonitor.put(nextFrameID, traceToRegisterCnt);
 
-            System.out.println("ef: " + frameId + ", tMCnt: " + traceMonitor.size()
-                    + ", mQS: " + messageQueue.size() + ", nPWHS: " + newPointsWHInfo.size()
-                    + "tDS: " + traceData.size() + ", removeSize: " + traceToRemove.size()
-                    + ", exisSize: " + traceToRegisterCnt
-            );
+//            System.out.println("ef: " + frameId + ", tMCnt: " + traceMonitor.size()
+//                    + ", mQS: " + messageQueue.size() + ", nPWHS: " + newPointsWHInfo.size()
+//                    + "tDS: " + traceData.size() + ", removeSize: " + traceToRemove.size()
+//                    + ", exisSize: " + traceToRegisterCnt
+//            );
         }
     }
 }

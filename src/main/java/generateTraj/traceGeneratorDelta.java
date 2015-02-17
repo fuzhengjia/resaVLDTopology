@@ -83,7 +83,7 @@ public class traceGeneratorDelta extends BaseRichBolt {
         //if (streamId.equals(STREAM_RENEW_TRACE)) {
         //    frameId++;///here we adjust the frameID of renewTrace
         //}
-        System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
+        //System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
 
         if (streamId.equals(STREAM_EIG_FLOW)) {///from traceInit bolt
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
@@ -124,7 +124,7 @@ public class traceGeneratorDelta extends BaseRichBolt {
                     counters[index] = true;
                 }
             } else {
-                System.out.println("No new feedback points generated for frame: " + frameId);
+                //System.out.println("No new feedback points generated for frame: " + frameId);
             }
 
             //List<String> registerTraceIDList = new ArrayList<>();
@@ -152,7 +152,7 @@ public class traceGeneratorDelta extends BaseRichBolt {
                                     TraceMetaAndLastPoint newTrace = new TraceMetaAndLastPoint(traceID, lastPt);
                                     totalValidedCount++;
                                     int tIDindex = Math.abs(traceID.hashCode()) % totalValidCntList.length;
-                                    System.out.println("traceID: " + traceID + ",tIDindex: " + tIDindex + ", totalValidCntList.Len: "  +totalValidCntList.length);
+                                    //System.out.println("traceID: " + traceID + ",tIDindex: " + tIDindex + ", totalValidCntList.Len: "  +totalValidCntList.length);
                                     totalValidCntList[tIDindex]++;
                                     collector.emit(STREAM_NEW_TRACE, new Values(frameId, newTrace));
                                 }
@@ -161,10 +161,10 @@ public class traceGeneratorDelta extends BaseRichBolt {
                     }
                 }
             } else {
-                System.out.println("No new dense point generated for frame: " + frameId);
+                //System.out.println("No new dense point generated for frame: " + frameId);
             }
-            System.out.println("Frame: " + frameId + " emitted: " //+ registerTraceIDList.size()
-                    + ",validCnt: " + totalValidedCount + ",fd: " + feedbackIndicators.size());
+            //System.out.println("Frame: " + frameId + " emitted: " //+ registerTraceIDList.size()
+            //       + ",validCnt: " + totalValidedCount + ",fd: " + feedbackIndicators.size());
             //collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, registerTraceIDList, new TwoIntegers(width, height)));
             //collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, totalValidedCount, new TwoIntegers(width, height)));
             for (int i = 0; i < totalValidCntList.length; i++)
@@ -177,8 +177,8 @@ public class traceGeneratorDelta extends BaseRichBolt {
             this.eigInfoMap.remove(frameId);
             this.feedbackMonitor.remove(frameId);
         } else {
-            System.out.println("FrameID: " + frameId + ", streamID: " + streamId
-                    + ", greyFrameMapCnt: " + eigFrameMap.size() + ",fbPointsListCnt: " + feedbackIndicatorList.size());
+//            System.out.println("FrameID: " + frameId + ", streamID: " + streamId
+//                    + ", greyFrameMapCnt: " + eigFrameMap.size() + ",fbPointsListCnt: " + feedbackIndicatorList.size());
         }
 
         collector.ack(tuple);

@@ -75,7 +75,7 @@ public class optFlowTrackerDelta extends BaseRichBolt {
         } else if (streamId.equals(STREAM_CACHE_CLEAN)) {
             optFlowMap.remove(frameId);
             traceQueue.remove(frameId);
-            System.out.println("clean_cache of frame: " + frameId);
+            //System.out.println("clean_cache of frame: " + frameId);
         }
 
         collector.ack(tuple);
