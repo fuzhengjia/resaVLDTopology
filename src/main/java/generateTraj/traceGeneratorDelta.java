@@ -68,6 +68,7 @@ public class traceGeneratorDelta extends BaseRichBolt {
         this.feedbackIndicatorList = new HashMap<>();
         eigFrameMap = new HashMap<>();
         eigInfoMap = new HashMap<>();
+        this.feedbackMonitor = new HashMap<>();
 
         opencv_core.IplImage fk = new opencv_core.IplImage();
     }
@@ -92,6 +93,7 @@ public class traceGeneratorDelta extends BaseRichBolt {
             ///This is to deal with the first special frame, where there are no feedback traces.
             if (frameId == 1) {
                 feedbackIndicatorList.computeIfAbsent(frameId, k -> new ArrayList<>());
+                feedbackMonitor.computeIfAbsent(frameId, k->this.traceAggBoltTasks.size());
             }
 
         } else if (streamId.equals(STREAM_INDICATOR_TRACE)) {
