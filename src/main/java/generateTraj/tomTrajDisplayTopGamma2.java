@@ -86,9 +86,9 @@ public class tomTrajDisplayTopGamma2 {
                 .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
 
-        builder.setBolt(redisFrameOut, new RedisFrameOutputRC(), getInt(conf, redisFrameOut + ".parallelism"))
-                .globalGrouping(frameDisplay, STREAM_FRAME_DISPLAY)
-                .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
+        builder.setBolt(redisFrameOut, new RedisFrameOutput(), getInt(conf, redisFrameOut + ".parallelism"))
+                //.globalGrouping(frameDisplay, STREAM_FRAME_DISPLAY)
+                //.globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .globalGrouping(redisFrameOut, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, redisFrameOut + ".tasks"));
 
