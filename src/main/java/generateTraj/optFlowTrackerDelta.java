@@ -7,7 +7,6 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import org.bytedeco.javacpp.opencv_core;
 import topology.Serializable;
 
 import java.nio.FloatBuffer;
@@ -23,7 +22,7 @@ import static tool.Constant.*;
  * Similar to frame producer, maintain an ordered list of frames
  */
 ///TODO: maybe move the mbhInfo generation to another bolt, which also needs opticalFlow data.
-public class optFlowTracker extends BaseRichBolt {
+public class optFlowTrackerDelta extends BaseRichBolt {
     OutputCollector collector;
 
     private HashMap<Integer, Serializable.Mat> optFlowMap;
@@ -35,12 +34,21 @@ public class optFlowTracker extends BaseRichBolt {
     static int nt_cell = 3;
     static float min_flow = 0.4f * 0.4f;
 
+    String traceAggBoltNameString;
+    List<Integer> traceAggBoltTasks;
+
+    public optFlowTrackerDelta(String traceAggBoltNameString) {
+        this.traceAggBoltNameString = traceAggBoltNameString;
+    }
+
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
         this.mbhInfo = new DescInfo(8, 0, 1, patch_size, nxy_cell, nt_cell, min_flow);
         optFlowMap = new HashMap<>();
         traceQueue = new HashMap<>();
+
+        this.traceAggBoltTasks = topologyContext.getComponentTasks(traceAggBoltNameString);
     }
 
     @Override
@@ -57,7 +65,7 @@ public class optFlowTracker extends BaseRichBolt {
             }
 
         } else if (streamId.equals(STREAM_OPT_FLOW)) {
-            opencv_core.IplImage fake = new opencv_core.IplImage();
+            IplImage fake = new IplImage();
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
             optFlowMap.computeIfAbsent(frameId, k->sMat);
             if (traceQueue.containsKey(frameId)) {
@@ -75,26 +83,28 @@ public class optFlowTracker extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        //outputFieldsDeclarer.declareStream(STREAM_EXIST_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_META_LAST_POINT));
-        outputFieldsDeclarer.declareStream(STREAM_EXIST_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_CONTENT));
-        outputFieldsDeclarer.declareStream(STREAM_REMOVE_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_CONTENT));
+        //outputFieldsDeclarer.declareStream(STREAM_EXIST_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_CONTENT));
+        //outputFieldsDeclarer.declareStream(STREAM_REMOVE_TRACE, new Fields(FIELD_FRAME_ID, FIELD_TRACE_CONTENT));
+        outputFieldsDeclarer.declareStream(STREAM_EXIST_TRACE, true, new Fields(FIELD_FRAME_ID, FIELD_TRACE_CONTENT, FIELD_TRACE_ID));
+        outputFieldsDeclarer.declareStream(STREAM_REMOVE_TRACE, true, new Fields(FIELD_FRAME_ID, FIELD_TRACE_CONTENT, FIELD_TRACE_ID));
     }
 
     public void processTraceRecords(int frameId) {
         IplImage imageFK = new IplImage();
         Serializable.Mat sMat = optFlowMap.get(frameId);
-        opencv_core.Mat orgMat = sMat.toJavaCVMat();
+        Mat orgMat = sMat.toJavaCVMat();
         IplImage flow = orgMat.asIplImage();
         Queue<TraceMetaAndLastPoint> traceRecords = traceQueue.get(frameId);
         while (!traceRecords.isEmpty()) {
             TraceMetaAndLastPoint trace = traceRecords.poll();
             Serializable.CvPoint2D32f pointOut = getNextFlowPoint(flow, trace.lastPoint);
+            int tID = trace.getTargetTaskID(this.traceAggBoltTasks);
+
             if (pointOut != null) {
                 TraceMetaAndLastPoint traceNext = new TraceMetaAndLastPoint(trace.traceID, pointOut);
-                collector.emit(STREAM_EXIST_TRACE, new Values(frameId, traceNext));
+                collector.emitDirect(tID, STREAM_EXIST_TRACE, new Values(frameId, traceNext, trace.traceID));
             } else {
-                ///not valid after flowTracker.
-                collector.emit(STREAM_REMOVE_TRACE, new Values(frameId, trace.traceID));
+                collector.emitDirect(tID, STREAM_REMOVE_TRACE, new Values(frameId, trace.traceID, trace.traceID));
             }
         }
     }

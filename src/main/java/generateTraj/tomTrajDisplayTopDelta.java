@@ -8,7 +8,7 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
-import tool.FrameImplImageSource;
+import tool.FrameImplImageSourceGamma;
 import topology.Serializable;
 
 import java.io.FileNotFoundException;
@@ -23,8 +23,10 @@ import static topology.StormConfigManager.*;
  * 扩展，如果有2个scale的话，需要对当前程序扩展！
  * 产生光流是bottleneck
  * 此版本暂时通过测试
+ * 尝试将optFlowGen and optFlowAgg 分布式化
+ * test Gamma version!
  */
-public class tomTrajDisplayMultiOpt {
+public class tomTrajDisplayTopDelta {
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
@@ -48,36 +50,36 @@ public class tomTrajDisplayMultiOpt {
         String frameDisplay = "TrajDisplay";
         String redisFrameOut = "RedisFrameOut";
 
-        builder.setSpout(spoutName, new FrameImplImageSource(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new FrameImplImageSourceGamma(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(imgPrepareBolt, new imagePrepareMultiOptFlow(), getInt(conf, imgPrepareBolt + ".parallelism"))
-                .globalGrouping(spoutName, STREAM_FRAME_OUTPUT)
+        builder.setBolt(imgPrepareBolt, new imagePrepareGamma2(), getInt(conf, imgPrepareBolt + ".parallelism"))
+                .shuffleGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
         builder.setBolt(optFlowGenBolt, new optlFlowGeneratorMultiOptFlow(), getInt(conf, optFlowGenBolt + ".parallelism"))
-                .directGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
+                .shuffleGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
-        builder.setBolt(traceGenBolt, new traceGeneratorBeta(), getInt(conf, traceGenBolt + ".parallelism"))
-                .globalGrouping(imgPrepareBolt, STREAM_NEW_TRACE)
-                .globalGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
+        builder.setBolt(traceGenBolt, new traceGeneratorDelta(traceAggregator), getInt(conf, traceGenBolt + ".parallelism"))
+                .allGrouping(imgPrepareBolt, STREAM_EIG_FLOW)
+                .allGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
 
-        builder.setBolt(optFlowTracker, new optFlowTracker(), getInt(conf, optFlowTracker + ".parallelism"))
+        builder.setBolt(optFlowTracker, new optFlowTrackerDelta(traceAggregator), getInt(conf, optFlowTracker + ".parallelism"))
                 .shuffleGrouping(traceGenBolt, STREAM_NEW_TRACE)
                 .shuffleGrouping(traceAggregator, STREAM_RENEW_TRACE)
                 .allGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
-                .allGrouping(traceAggregator, STREAM_CACHE_CLEAN)
+                .allGrouping(frameDisplay, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
 
-        builder.setBolt(traceAggregator, new traceAggregatorBeta(), getInt(conf, traceAggregator + ".parallelism"))
-                .globalGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
-                .globalGrouping(optFlowTracker, STREAM_EXIST_TRACE)
-                .globalGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
+        builder.setBolt(traceAggregator, new traceAggregatorDelta(traceGenBolt), getInt(conf, traceAggregator + ".parallelism"))
+                .directGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
+                .directGrouping(optFlowTracker, STREAM_EXIST_TRACE)
+                .directGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
-        builder.setBolt(frameDisplay, new frameDisplayMulti(), getInt(conf, frameDisplay + ".parallelism"))
+        builder.setBolt(frameDisplay, new frameDisplayMultiDelta(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
                 .fieldsGrouping(spoutName, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
                 .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
@@ -94,6 +96,6 @@ public class tomTrajDisplayMultiOpt {
 
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tomTrajDisplayMultiOpt", conf, topology);
+        StormSubmitter.submitTopology("tomTrajDisplayTopGamma-2", conf, topology);
     }
 }

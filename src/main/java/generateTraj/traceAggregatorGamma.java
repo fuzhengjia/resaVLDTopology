@@ -73,7 +73,7 @@ public class traceAggregatorGamma extends BaseRichBolt {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
         if (streamId.equals(STREAM_EXIST_TRACE) || streamId.equals(STREAM_REMOVE_TRACE)) {
-            Object message = tuple.getValueByField(FIELD_TRACE_IDENTIFIER);
+            Object message = tuple.getValueByField(FIELD_TRACE_CONTENT);
             messageQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).add(message);
 
             if (++sampleCount % 100 == 0){
@@ -86,7 +86,7 @@ public class traceAggregatorGamma extends BaseRichBolt {
             }
 
         } else if (streamId.equals(STREAM_REGISTER_TRACE)) {
-            List<String> registerTraceIDList = (List<String>) tuple.getValueByField(FIELD_TRACE_IDENTIFIER);
+            List<String> registerTraceIDList = (List<String>) tuple.getValueByField(FIELD_TRACE_CONTENT);
             TwoIntegers wh = (TwoIntegers) tuple.getValueByField(FIELD_WIDTH_HEIGHT);
             newPointsWHInfo.computeIfAbsent(frameId, k -> new ArrayList<>()).add(wh);
 

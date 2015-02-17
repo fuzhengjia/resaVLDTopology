@@ -7,20 +7,11 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import org.apache.commons.lang.NullArgumentException;
-import topology.Serializable;
 import util.ConfigUtil;
 
-import java.lang.reflect.Array;
-import java.nio.FloatBuffer;
 import java.util.*;
-import java.util.concurrent.LinkedTransferQueue;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
-import static org.bytedeco.javacpp.opencv_core.*;
 import static tool.Constant.*;
-import static topology.Constants.CACHE_CLEAR_STREAM;
 
 /**
  * Created by Tom Fu
@@ -62,11 +53,11 @@ public class traceAggregator extends BaseRichBolt {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
         if (streamId.equals(STREAM_EXIST_TRACE) || streamId.equals(STREAM_REMOVE_TRACE)) {
-            Object message = tuple.getValueByField(FIELD_TRACE_IDENTIFIER);
+            Object message = tuple.getValueByField(FIELD_TRACE_CONTENT);
             messageQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).add(message);
 
         } else if (streamId.equals(STREAM_REGISTER_TRACE)) {
-            List<String> registerTraceIDList = (List<String>) tuple.getValueByField(FIELD_TRACE_IDENTIFIER);
+            List<String> registerTraceIDList = (List<String>) tuple.getValueByField(FIELD_TRACE_CONTENT);
             ///TODO: to deal with special case when registerTraceIDList is empty!!!
             HashSet<String> traceIDset = new HashSet<>();
             registerTraceIDList.forEach(k -> traceIDset.add(k));

@@ -39,7 +39,9 @@ public interface Constant {
 
     public static String STREAM_CACHE_CLEAN = "stream-cache-clean";
 
-    public static String FIELD_TRACE_IDENTIFIER = "trace-identifier";
+    public static String FIELD_TRACE_CONTENT = "trace-content";
+
+    public static String FIELD_TRACE_ID = "trace-id";
 
     public static String FIELD_TRACE_RECORD = "trace-record";
 
