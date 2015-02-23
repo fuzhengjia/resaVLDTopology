@@ -109,7 +109,7 @@ public class imagePrepareDelta extends BaseRichBolt {
 
         int width = cvFloor(grey.width() / min_distance);
         int height = cvFloor(grey.height() / min_distance);
-        if (frameId > 0) {
+        if (frameId == 1 || frameId % init_counter == 0) {
 
             this.eig = cvCloneImage(eig_pyramid.getImage(ixyScale));
             double[] maxVal = new double[1];

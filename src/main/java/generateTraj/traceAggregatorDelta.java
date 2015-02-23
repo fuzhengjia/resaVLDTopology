@@ -21,7 +21,7 @@ import static tool.Constant.*;
  * Input is raw video frames, output optical flow results between every two consecutive frames.
  * Maybe use global grouping and only one task/executor
  * Similar to frame producer, maintain an ordered list of frames
- *
+ * <p>
  * We design the delta version, to make traceAgg distributable, i.e., each instance takes a subset of all the traces,
  * partitioned by traceID
  */
@@ -37,6 +37,7 @@ public class traceAggregatorDelta extends BaseRichBolt {
     int maxTrackerLength;
     DescInfo mbhInfo;
     double min_distance;
+    int init_counter;
 
     static int patch_size = 32;
     static int nxy_cell = 2;
@@ -46,7 +47,7 @@ public class traceAggregatorDelta extends BaseRichBolt {
     String traceGenBoltNameString;
     int traceGenBoltTaskNumber;
 
-    public traceAggregatorDelta(String traceGenBoltNameString){
+    public traceAggregatorDelta(String traceGenBoltNameString) {
         this.traceGenBoltNameString = traceGenBoltNameString;
     }
 
@@ -61,6 +62,7 @@ public class traceAggregatorDelta extends BaseRichBolt {
         this.min_distance = ConfigUtil.getDouble(map, "min_distance", 5.0);
         this.maxTrackerLength = ConfigUtil.getInt(map, "maxTrackerLength", 15);
         this.mbhInfo = new DescInfo(8, 0, 1, patch_size, nxy_cell, nt_cell, min_flow);
+        this.init_counter = ConfigUtil.getInt(map, "init_counter", 1);
 
         this.traceGenBoltTaskNumber = topologyContext.getComponentTasks(traceGenBoltNameString).size();
 
@@ -81,24 +83,24 @@ public class traceAggregatorDelta extends BaseRichBolt {
         } else if (streamId.equals(STREAM_REGISTER_TRACE)) {
             //List<String> registerTraceIDList = (List<String>) tuple.getValueByField(FIELD_TRACE_CONTENT);
             Integer registerTraceCnt = tuple.getIntegerByField(FIELD_TRACE_CONTENT);
-            TwoIntegers wh = (TwoIntegers)tuple .getValueByField(FIELD_WIDTH_HEIGHT);
+            TwoIntegers wh = (TwoIntegers) tuple.getValueByField(FIELD_WIDTH_HEIGHT);
             //newPointsWHInfo.put(frameId, wh);
-            newPointsWHInfo.computeIfAbsent(frameId, k->new ArrayList<TwoIntegers>()).add(wh);
+            newPointsWHInfo.computeIfAbsent(frameId, k -> new ArrayList<TwoIntegers>()).add(wh);
 
             ///TODO: to deal with special case when registerTraceIDList is empty!!!
             ///TODO: one point to optimize, the register for feedback traces are not necessary, can directly added in this bolt.
             //HashSet<String> traceIDset = new HashSet<>();
             //registerTraceIDList.forEach(k -> traceIDset.add(k));
             //traceMonitor.put(frameId, traceIDset);
-            if (frameId == 1 && !traceMonitor.containsKey(frameId)){
+            if (frameId == 1 && !traceMonitor.containsKey(frameId)) {
                 //traceMonitor.put(frameId, new HashSet<>());
                 traceMonitor.put(frameId, 0);
             }
-            if (!traceMonitor.containsKey(frameId)){
+            if (!traceMonitor.containsKey(frameId)) {
                 throw new IllegalArgumentException("!traceMonitor.containsKey(frameId), frameID: " + frameId);
             }
             //traceMonitor.get(frameId).addAll(traceIDset);
-            traceMonitor.computeIfPresent(frameId, (k,v)->v+registerTraceCnt);
+            traceMonitor.computeIfPresent(frameId, (k, v) -> v + registerTraceCnt);
 //            System.out.println("Register frame: " + frameId
 //                    //+ ", registerTraceListCnt: " + registerTraceIDList.size()
 //                    + ", registerTraceCnt: " + registerTraceCnt
@@ -129,7 +131,7 @@ public class traceAggregatorDelta extends BaseRichBolt {
     public void aggregateTraceRecords(int frameId) {
         Queue<Object> messages = messageQueue.get(frameId);
         TwoIntegers wh = newPointsWHInfo.get(frameId).get(0);
-        traceMonitor.computeIfPresent(frameId, (k, v)-> v-messages.size());
+        traceMonitor.computeIfPresent(frameId, (k, v) -> v - messages.size());
 
         while (!messages.isEmpty()) {
             Object m = messages.poll();
@@ -143,7 +145,7 @@ public class traceAggregatorDelta extends BaseRichBolt {
             }
         }
 
-        if (traceMonitor.get(frameId) == 0){
+        if (traceMonitor.get(frameId) == 0) {
             List<List<PointDesc>> traceRecords = new ArrayList<List<PointDesc>>(traceData.values());
             collector.emit(STREAM_PLOT_TRACE, new Values(frameId, traceRecords));
             //collector.emit(STREAM_CACHE_CLEAN, new Values(frameId));
@@ -156,7 +158,7 @@ public class traceAggregatorDelta extends BaseRichBolt {
             int height = wh.getV2();
             int nextFrameID = frameId + 1;
 
-            for (Map.Entry<String, List<PointDesc>> trace: traceData.entrySet()) {
+            for (Map.Entry<String, List<PointDesc>> trace : traceData.entrySet()) {
                 int traceLen = trace.getValue().size();
                 if (traceLen > maxTrackerLength) {
                     traceToRemove.add(trace.getKey());
@@ -177,12 +179,22 @@ public class traceAggregatorDelta extends BaseRichBolt {
                 }
             }
             ///leave this for the next bolt!
-            collector.emit(STREAM_INDICATOR_TRACE, new Values(nextFrameID, feedbackIndicators));
 
             traceToRemove.forEach(item -> traceData.remove(item));
             traceMonitor.remove(frameId);
             messageQueue.remove(frameId);
             newPointsWHInfo.remove(frameId);
+
+            if (nextFrameID % init_counter == 0) {
+                collector.emit(STREAM_INDICATOR_TRACE, new Values(nextFrameID, feedbackIndicators));
+            } else {
+                List<TwoIntegers> empty = new ArrayList<>();
+                for (int i = 0; i < traceGenBoltTaskNumber; i++){
+                    empty.add(new TwoIntegers(wh.getV1(), wh.getV2()));
+                }
+                newPointsWHInfo.put(nextFrameID, empty);
+            }
+
             traceMonitor.put(nextFrameID, traceToRegisterCnt);
 
 //            System.out.println("ef: " + frameId + ", tMCnt: " + traceMonitor.size()

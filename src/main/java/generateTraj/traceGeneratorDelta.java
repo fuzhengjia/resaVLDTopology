@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.cvPoint2D32f;
+import static org.bytedeco.javacpp.opencv_core.format;
 import static tool.Constant.*;
 
 /**
@@ -78,6 +79,10 @@ public class traceGeneratorDelta extends BaseRichBolt {
 
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
+
+        if ((frameId != 1) && (frameId % init_counter > 0)) {
+            throw new IllegalArgumentException("FrameID: " + frameId + ", init_counter: " + init_counter);
+        }
         ///TODO: Make sure, this frameID ++ is done by the traceAgg bolt!!!
         ///TODO: be careful about the processing of init_counter, this should also collaborate with Feedback
         //if (streamId.equals(STREAM_RENEW_TRACE)) {
