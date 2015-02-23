@@ -54,7 +54,7 @@ public class tomTrajDisplayTopDelta {
         builder.setSpout(spoutName, new FrameImplImageSourceGamma(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(imgPrepareBolt, new imagePrepareGamma2(), getInt(conf, imgPrepareBolt + ".parallelism"))
+        builder.setBolt(imgPrepareBolt, new imagePrepareDelta(), getInt(conf, imgPrepareBolt + ".parallelism"))
                 .shuffleGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
@@ -74,7 +74,6 @@ public class tomTrajDisplayTopDelta {
         builder.setBolt(optFlowTracker, new optFlowTrackerDelta(traceAggregator), getInt(conf, optFlowTracker + ".parallelism"))
                 .shuffleGrouping(traceGenBolt, STREAM_NEW_TRACE)
                 .shuffleGrouping(traceAggregator, STREAM_RENEW_TRACE)
-                ///.allGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
                 .directGrouping(optFlowTrans, STREAM_OPT_FLOW)
                 .allGrouping(frameDisplay, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
@@ -86,7 +85,7 @@ public class tomTrajDisplayTopDelta {
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
         builder.setBolt(frameDisplay, new frameDisplayMultiDelta(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
-                .fieldsGrouping(spoutName, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping(imgPrepareBolt, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
                 .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
 
