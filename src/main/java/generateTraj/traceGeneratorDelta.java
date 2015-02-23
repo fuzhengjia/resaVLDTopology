@@ -135,7 +135,7 @@ public class traceGeneratorDelta extends BaseRichBolt {
             //List<String> registerTraceIDList = new ArrayList<>();
             int totalValidedCount = 0;
             int[] totalValidCntList = new int[this.traceAggBoltTasks.size()];
-            if (frameId > 0 && frameId % init_counter == 0) {
+            if (frameId > 0) {
 
                 opencv_core.IplImage eig = orgMat.asIplImage();
                 double threshold = eigInfo.getTh();
