@@ -97,7 +97,8 @@ public class optFlowTrackerDelta extends BaseRichBolt {
         Queue<TraceMetaAndLastPoint> traceRecords = traceQueue.get(frameId);
         while (!traceRecords.isEmpty()) {
             TraceMetaAndLastPoint trace = traceRecords.poll();
-            Serializable.CvPoint2D32f pointOut = getNextFlowPoint(flow, trace.lastPoint);
+            //Serializable.CvPoint2D32f pointOut = getNextFlowPoint(flow, trace.lastPoint);
+            Serializable.CvPoint2D32f pointOut = getNextFlowPointSimple(flow, trace.lastPoint);
             int tID = trace.getTargetTaskID(this.traceAggBoltTasks);
 
             if (pointOut != null) {
@@ -149,6 +150,29 @@ public class optFlowTrackerDelta extends BaseRichBolt {
         Serializable.CvPoint2D32f point_out = new Serializable.CvPoint2D32f();
         point_out.x(point_in.x() + offset.x());
         point_out.y(point_in.y() + offset.y());
+
+        if (point_out.x() > 0 && point_out.x() < width && point_out.y() > 0 && point_out.y() < height) {
+            return point_out;
+        } else {
+            return null;
+        }
+    }
+
+    public Serializable.CvPoint2D32f getNextFlowPointSimple(IplImage flow, Serializable.CvPoint2D32f point_in) {
+
+        int width = flow.width();
+        int height = flow.height();
+
+        int p = Math.min(Math.max(cvFloor(point_in.x()), 0), width - 1);
+        int q = Math.min(Math.max(cvFloor(point_in.y()), 0), height - 1);
+
+        FloatBuffer floatBuffer = flow.getByteBuffer(q * flow.widthStep()).asFloatBuffer();
+        int xsIndex = 2 * p;
+        int ysIndex = 2 * p + 1;
+
+        Serializable.CvPoint2D32f point_out = new Serializable.CvPoint2D32f();
+        point_out.x(point_in.x() + floatBuffer.get(xsIndex));
+        point_out.y(point_in.y() + floatBuffer.get(ysIndex));
 
         if (point_out.x() > 0 && point_out.x() < width && point_out.y() > 0 && point_out.y() < height) {
             return point_out;
