@@ -10,9 +10,7 @@ import org.bytedeco.javacpp.opencv_core;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 
 import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
@@ -40,10 +38,6 @@ public class Serializable {
     public static class Mat implements KryoSerializable, java.io.Serializable {
         private byte[] data;
         private int rows, cols, type;
-
-        public byte[] getData() {
-            return data;
-        }
 
         public int getRows() {
             return rows;
