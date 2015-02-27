@@ -37,7 +37,7 @@ public class tomByteArrTestTopology {
         builder.setSpout("fSource", new FrameSource(host, port, queueName), getInt(conf, "ShowTrajSpout.parallelism"))
                 .setNumTasks(getInt(conf, "ShowTrajSpout.tasks"));
 
-        builder.setBolt("simpleTrans", new SimpleTransBolt(), getInt(conf, "SimpleTransBolt.parallelism"))
+        builder.setBolt("simpleTrans", new SimpleTransByteArrBolt(), getInt(conf, "SimpleTransBolt.parallelism"))
                 .shuffleGrouping("fSource", STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, "SimpleTransBolt.tasks"));
 
@@ -52,7 +52,7 @@ public class tomByteArrTestTopology {
         conf.setMaxSpoutPending(getInt(conf, "st-MaxSpoutPending"));
         conf.registerSerialization(Serializable.Mat.class);
 
-        StormSubmitter.submitTopology("tomSimpleTestTopology", conf, topology);
+        StormSubmitter.submitTopology("tomByteArrTestTopology", conf, topology);
 
     }
 }
