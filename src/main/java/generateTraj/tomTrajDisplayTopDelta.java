@@ -101,6 +101,6 @@ public class tomTrajDisplayTopDelta {
 
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tomTrajDisplayTopDelta-1", conf, topology);
+        StormSubmitter.submitTopology("tomTrajDisplayTopDelta-1b", conf, topology);
     }
 }
