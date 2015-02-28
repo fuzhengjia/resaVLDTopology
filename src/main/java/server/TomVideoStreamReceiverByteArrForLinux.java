@@ -49,15 +49,7 @@ public class TomVideoStreamReceiverByteArrForLinux {
                 baData = jedis.lpop(queueName);
 
                 if (baData != null) {
-
-
-                    Kryo kryo = new Kryo();
-
-                    ByteArrayInputStream bais = new ByteArrayInputStream(baData);
-                    Input input = new Input(bais);
-                    Serializable.Mat sMat = new Serializable.Mat();
-                    sMat.read(kryo, input);
-
+                    Serializable.Mat sMat = new Serializable.Mat(baData);
                     opencv_core.Mat mat = sMat.toJavaCVMat();
                     BufferedImage bufferedImageRead = mat.getBufferedImage();
                     //BufferedImage bufferedImageRead = ImageIO.read(new ByteArrayInputStream(baData));

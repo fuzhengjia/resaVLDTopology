@@ -134,11 +134,8 @@ public class RedisStreamProducerByteArr implements Runnable {
                         //System.out.println("finish ImageIO");
 
                         Serializable.Mat sMat = new Serializable.Mat(nextFrame.image);
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        Output output = new Output(baos);
-                        Kryo kryo = new Kryo();
-                        sMat.write(kryo, output);
-                        jedis.rpush(this.queueName, baos.toByteArray());
+                        byte[] data = sMat.toByteArray();
+                        jedis.rpush(this.queueName, data);
 
 //                        int size = iplImage.arraySize();
 //                        byte[] data = new byte[size];

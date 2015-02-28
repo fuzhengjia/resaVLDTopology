@@ -41,7 +41,7 @@ public class tomByteArrTestTopology {
                 .shuffleGrouping("fSource", STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, "SimpleTransBolt.tasks"));
 
-        builder.setBolt("fOut", new RedisFrameOutput(), getInt(conf, "ShowTrajAggregatorBolt.parallelism"))
+        builder.setBolt("fOut", new RedisFrameOutputByteArr(), getInt(conf, "ShowTrajAggregatorBolt.parallelism"))
                 .globalGrouping("simpleTrans", STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, "ShowTrajAggregatorBolt.tasks"));
 
