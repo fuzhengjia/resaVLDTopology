@@ -129,7 +129,7 @@ public class Serializable {
                 byte[] int_bytes = bos.toByteArray();
                 bos.close();
 
-                System.out.println("out: " + this.rows + "-" + this.cols + "-" + this.type + "-" + this.data.length + "-" + int_bytes.length);
+                //System.out.println("out: " + this.rows + "-" + this.cols + "-" + this.type + "-" + this.data.length + "-" + int_bytes.length);
                 return int_bytes;
             } catch (IOException e) {
                 e.printStackTrace();
