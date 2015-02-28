@@ -27,6 +27,7 @@ public class TomVideoStreamReceiverByteArrForLinux {
         this.host = host;
         this.port = port;
         this.queueName = queueName.getBytes();
+        opencv_core.IplImage fk = new opencv_core.IplImage();
     }
 
     public void VideoStreamReceiver() throws IOException, FrameGrabber.Exception, InterruptedException {
