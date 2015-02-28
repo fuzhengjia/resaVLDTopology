@@ -1,17 +1,12 @@
 package tool;
 
 import backtype.storm.Config;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Output;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_highgui;
 import redis.clients.jedis.Jedis;
 import topology.Serializable;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.ByteBuffer;
 
 import static org.bytedeco.javacpp.opencv_highgui.cvLoadImage;
 import static topology.StormConfigManager.*;
@@ -70,14 +65,8 @@ public class Img2Mat2BArrSender {
                 opencv_core.Mat matOrg = opencv_highgui.imread(fileName, opencv_highgui.CV_LOAD_IMAGE_COLOR);
                 Serializable.Mat sMatOrg = new Serializable.Mat(matOrg);
 
-                BufferedImage bufferedImage = matOrg.getBufferedImage();
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-                Output output = new Output(baos);
-                Kryo kryo = new Kryo();
-                sMatOrg.write(kryo, output);
-                //ImageIO.write(bufferedImage, "JPEG", baos);
-                jedis.rpush(this.queueName, baos.toByteArray());
+                byte[] data = sMatOrg.toByteArray();
+                jedis.rpush(this.queueName, data);
 
                 generatedFrames ++;
                 if (generatedFrames % fps == 0) {

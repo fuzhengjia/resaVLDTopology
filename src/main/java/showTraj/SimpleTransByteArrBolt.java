@@ -7,20 +7,11 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.opencv_core;
 import topology.Serializable;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.Map;
 
-import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
-import static org.bytedeco.javacpp.opencv_core.cvMat;
-import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
 import static tool.Constant.*;
 
 /**
@@ -28,16 +19,6 @@ import static tool.Constant.*;
  */
 public class SimpleTransByteArrBolt extends BaseRichBolt {
     OutputCollector collector;
-
-    private ArrayList<ArrayList<Float>> frameTraj = new  ArrayList<ArrayList<Float>>();
-    private ArrayList<ArrayList<Float>> frameTrajIpnut = new  ArrayList<ArrayList<Float>>();
-    private BufferedReader reader;
-    private ArrayList<int[]> groupColor;
-    private int maxFrameID;
-    private ArrayList<Integer> groupIDs;
-
-    private String path;
-    private int repeatCount;
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -49,16 +30,9 @@ public class SimpleTransByteArrBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
 
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        byte[] imgBytes = (byte[]) tuple.getValueByField(FIELD_FRAME_BYTES);
+        byte[] data = (byte[]) tuple.getValueByField(FIELD_FRAME_BYTES);
 
-        Kryo kryo = new Kryo();
-
-        ByteArrayInputStream bais = new ByteArrayInputStream(imgBytes);
-        Input input = new Input(bais);
-        Serializable.Mat sMat = new Serializable.Mat();
-        sMat.read(kryo, input);
-
-
+        Serializable.Mat sMat = new Serializable.Mat(data);
         //opencv_core.IplImage image = cvDecodeImage(cvMat(1, imgBytes.length, CV_8UC1, new BytePointer(imgBytes)));
 
         //opencv_core.Mat mat = new opencv_core.Mat(image);
@@ -71,7 +45,6 @@ public class SimpleTransByteArrBolt extends BaseRichBolt {
         //Serializable.Mat sMat = new Serializable.Mat(mat);
         collector.emit(STREAM_FRAME_OUTPUT, tuple, new Values(frameId, sMat));
         collector.ack(tuple);
-
     }
 
     @Override

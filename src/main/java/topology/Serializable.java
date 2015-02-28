@@ -92,6 +92,52 @@ public class Serializable {
         }
 
         /**
+         * Creates new serializable Mat given its format and data.
+         * @param input Byte data containing image.
+         */
+        public Mat(byte[] input) {
+            ByteArrayInputStream bis = new ByteArrayInputStream(input);
+            ObjectInput in = null;
+            try {
+                in = new ObjectInputStream(bis);
+                this.rows = in.readInt();
+                this.cols = in.readInt();
+                this.type = in.readInt();
+                int size = in.readInt();
+                this.data = new byte[size];
+                int readed = 0;
+                while (readed < size) {
+                    readed += in.read(data, readed, size - readed);
+                }
+                //System.out.println("in: " + this.rows + "-" + this.cols + "-" + this.type + "-" + size + "-" + readed);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public byte[] toByteArray(){
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutput out = null;
+            try {
+                out = new ObjectOutputStream(bos);
+                out.writeInt(this.rows);
+                out.writeInt(this.cols);
+                out.writeInt(this.type);
+                out.writeInt(this.data.length);
+                out.write(this.data);
+                out.close();
+                byte[] int_bytes = bos.toByteArray();
+                bos.close();
+
+                System.out.println("out: " + this.rows + "-" + this.cols + "-" + this.type + "-" + this.data.length + "-" + int_bytes.length);
+                return int_bytes;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        /**
          * @return Converts this Serializable Mat into JavaCV's Mat
          */
         public opencv_core.Mat toJavaCVMat() {
