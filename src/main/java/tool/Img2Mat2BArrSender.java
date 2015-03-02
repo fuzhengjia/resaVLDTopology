@@ -1,6 +1,7 @@
 package tool;
 
 import backtype.storm.Config;
+import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_highgui;
 import org.bytedeco.javacpp.opencv_imgproc;
@@ -10,6 +11,8 @@ import util.ConfigUtil;
 
 import java.io.*;
 
+import static org.bytedeco.javacpp.opencv_core.*;
+import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
 import static org.bytedeco.javacpp.opencv_highgui.cvLoadImage;
 import static topology.StormConfigManager.*;
 
@@ -48,16 +51,7 @@ public class Img2Mat2BArrSender {
 
     public Img2Mat2BArrSender(String confile, String qName) throws FileNotFoundException {
         this(confile);
-//        Config conf = readConfig(confile);
-//        this.host = getString(conf, "redis.host");
-//        this.port = getInt(conf, "redis.port");
         this.queueName = qName.getBytes();
-//        this.path = getString(conf, "sourceFilePath");
-//
-//        nChannel = ConfigUtil.getInt(conf, "nChannel", 3);
-//        nDepth = ConfigUtil.getInt(conf, "nDepth", 8);
-//        inWidth = ConfigUtil.getInt(conf, "inWidth", 640);
-//        inHeight = ConfigUtil.getInt(conf, "inHeight", 480);
     }
 
     public void send2Queue(int st, int end, int fps) throws IOException {
@@ -80,13 +74,16 @@ public class Img2Mat2BArrSender {
                     continue;
                 }
                 //System.out.println(fileName);
-                opencv_core.IplImage imageFk = cvLoadImage(fileName);
-                opencv_core.Mat matOrg = opencv_highgui.imread(fileName, opencv_highgui.CV_LOAD_IMAGE_COLOR);
+                opencv_core.IplImage image = cvLoadImage(fileName);
+                //opencv_core.Mat matOrg = opencv_highgui.imread(fileName, opencv_highgui.CV_LOAD_IMAGE_COLOR);
+                opencv_core.IplImage frame = cvCreateImage(cvSize(inWidth, inHeight), nDepth, nChannel);
+                opencv_imgproc.cvResize(image, frame, opencv_imgproc.CV_INTER_AREA);
 
-                opencv_core.Size newSize = new opencv_core.Size(inWidth, inHeight);
-                opencv_core.Mat matNew = new opencv_core.Mat();
-                opencv_imgproc.resize(matOrg, matNew, newSize);
+                //opencv_core.Mat matNew = new opencv_core.Mat();
+                //opencv_imgproc.resize(matOrg, matNew, newSize);
 
+                //Serializable.Mat sMat = new Serializable.Mat(matNew);
+                opencv_core.Mat matNew = new opencv_core.Mat(frame);
                 Serializable.Mat sMat = new Serializable.Mat(matNew);
 
                 byte[] data = sMat.toByteArray();
