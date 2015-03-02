@@ -5,16 +5,8 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.javacpp.opencv_imgproc;
-import topology.Serializable;
-import util.ConfigUtil;
-
-import javax.imageio.stream.ImageInputStream;
 import java.util.Map;
 
-import static org.bytedeco.javacpp.opencv_core.*;
-import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
 import static tool.Constant.*;
 
 /**
