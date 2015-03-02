@@ -6,8 +6,10 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import org.bytedeco.javacpp.opencv_core;
+import tool.RedisStreamObjectProducerByteArr;
 import tool.RedisStreamProducerBeta;
 import tool.RedisStreamProducerByteArr;
+import tool.StreamObject;
 import topology.Serializable;
 import topology.StreamFrame;
 
@@ -23,8 +25,7 @@ import static util.ConfigUtil.getInt;
 public class RedisFrameOutputByteArr extends BaseRichBolt {
     OutputCollector collector;
 
-    RedisStreamProducerByteArr producer;
-    //RedisStreamProducer producer;
+    RedisStreamObjectProducerByteArr producer;
 
     private String host;
     private int port;
@@ -33,56 +34,33 @@ public class RedisFrameOutputByteArr extends BaseRichBolt {
     private int startFrameID;
     private int maxWaitCount;
 
-    //private int accumulateFrameSize;
-
-    //private HashMap<Integer, Serializable.Mat> rawFrameMap;
-    @Override
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-
-    }
-
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 
         this.collector = outputCollector;
         this.host = (String) map.get("redis.host");
         this.port = getInt(map, "redis.port", 6379);
-        this.queueName = (String) map.get("redis.queueName");
+        this.queueName = (String) map.get("redis.ofq");
 
-        this.sleepTime = getInt(map, "sleepTime", 10);
-        this.startFrameID = getInt(map, "startFrameID", 1);
-        this.maxWaitCount = getInt(map, "maxWaitCount", 4);
+        this.sleepTime = getInt(map, "of-sleepTime", 10);
+        this.startFrameID = getInt(map, "of-startFrameID", 1);
+        this.maxWaitCount = getInt(map, "of-maxWaitCount", 4);
 
-//        accumulateFrameSize = ConfigUtil.getInt(map, "accumulateFrameSize", 1);
-//        rawFrameMap = new HashMap<>();
-
-        producer = new RedisStreamProducerByteArr(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
-        //producer = new RedisStreamProducer(host, port, queueName, accumulateFrameSize);
+        producer = new RedisStreamObjectProducerByteArr(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
         new Thread(producer).start();
-
     }
 
-    // Fields("frameId", "frameMat", "patchCount")
-    // Fields("frameId", "foundRectList")
     @Override
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        opencv_core.IplImage imageFK = new opencv_core.IplImage();
+        producer.addFrame(new StreamObject(frameId, tuple.getValueByField(FIELD_FRAME_MAT)));
 
-//        Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-//        rawFrameMap.computeIfAbsent(frameId, k->sMat);
-//
-//        opencv_core.Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
-//        opencv_core.IplImage frame = orgMat.asIplImage();
-//
-//        opencv_core.Mat mat = new opencv_core.Mat(frame);
-//        producer.addFrame(new StreamFrame(frameId, mat));
-
-        Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-        producer.addFrame(new StreamFrame(frameId, sMat.toJavaCVMat()));
-
-//        rawFrameMap.remove(frameId);
         System.out.println("producerAdd: " + System.currentTimeMillis() + ":" + frameId);
         collector.ack(tuple);
+    }
+
+    @Override
+    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
+
     }
 }

@@ -51,7 +51,8 @@ public class Serializable {
             return type;
         }
 
-        public Mat(){}
+        public Mat() {
+        }
 
         /**
          * Creates new serializable Mat given its format and data.
@@ -93,6 +94,7 @@ public class Serializable {
 
         /**
          * Creates new serializable Mat given its format and data.
+         *
          * @param input Byte data containing image.
          */
         public Mat(byte[] input) {
@@ -115,7 +117,7 @@ public class Serializable {
             }
         }
 
-        public byte[] toByteArray(){
+        public byte[] toByteArray() {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutput out = null;
             try {
@@ -136,6 +138,72 @@ public class Serializable {
             }
             return null;
         }
+
+        public static byte[] toByteArray(Serializable.Mat rawFrame, Serializable.Mat optFlow) {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutput out = null;
+            try {
+                out = new ObjectOutputStream(bos);
+
+                out.writeInt(rawFrame.rows);
+                out.writeInt(rawFrame.cols);
+                out.writeInt(rawFrame.type);
+                out.writeInt(rawFrame.data.length);
+                out.write(rawFrame.data);
+
+                out.writeInt(optFlow.rows);
+                out.writeInt(optFlow.cols);
+                out.writeInt(optFlow.type);
+                out.writeInt(optFlow.data.length);
+                out.write(optFlow.data);
+
+                out.close();
+                byte[] int_bytes = bos.toByteArray();
+                bos.close();
+
+                //System.out.println("out: " + this.rows + "-" + this.cols + "-" + this.type + "-" + this.data.length + "-" + int_bytes.length);
+                return int_bytes;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        public static Serializable.Mat[] toSMat(byte[] input) {
+            ByteArrayInputStream bis = new ByteArrayInputStream(input);
+            ObjectInput in = null;
+            Serializable.Mat rawFrame = new Serializable.Mat();
+            Serializable.Mat optFlow = new Serializable.Mat();
+
+            try {
+                in = new ObjectInputStream(bis);
+                rawFrame.rows = in.readInt();
+                rawFrame.cols = in.readInt();
+                rawFrame.type = in.readInt();
+                int size = in.readInt();
+                rawFrame.data = new byte[size];
+                int readed = 0;
+                while (readed < size) {
+                    readed += in.read(rawFrame.data, readed, size - readed);
+                }
+                optFlow.rows = in.readInt();
+                optFlow.cols = in.readInt();
+                optFlow.type = in.readInt();
+                size = in.readInt();
+                optFlow.data = new byte[size];
+                readed = 0;
+                while (readed < size) {
+                    readed += in.read(optFlow.data, readed, size - readed);
+                }
+
+                return new Serializable.Mat[]{rawFrame, optFlow};
+                //System.out.println("in: " + this.rows + "-" + this.cols + "-" + this.type + "-" + size + "-" + readed);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
 
         /**
          * @return Converts this Serializable Mat into JavaCV's Mat
@@ -172,7 +240,8 @@ public class Serializable {
          */
         public int x, y, width, height;
 
-        public Rect(){}
+        public Rect() {
+        }
 
         public Rect(opencv_core.Rect rect) {
             x = rect.x();
@@ -247,7 +316,8 @@ public class Serializable {
          */
         public Rect roi;
 
-        public PatchIdentifier(){}
+        public PatchIdentifier() {
+        }
 
         /**
          * Creates PatchIdentifier with given frame id and rectangle.
@@ -315,34 +385,41 @@ public class Serializable {
         float x;
         float y;
 
-        public CvPoint2D32f(){}
-        public CvPoint2D32f(opencv_core.CvPoint2D32f p){
+        public CvPoint2D32f() {
+        }
+
+        public CvPoint2D32f(opencv_core.CvPoint2D32f p) {
             this.x = p.x();
             this.y = p.y();
         }
 
-        public CvPoint2D32f(CvPoint2D32f p){
+        public CvPoint2D32f(CvPoint2D32f p) {
             this.x = p.x();
             this.y = p.y();
         }
 
-        public opencv_core.CvPoint2D32f toJavaCvPoint2D32f(){
+        public opencv_core.CvPoint2D32f toJavaCvPoint2D32f() {
             return new opencv_core.CvPoint2D32f().x(this.x).y(this.y);
         }
 
-        public float x(){
+        public float x() {
             return this.x;
         }
 
-        public float y(){
+        public float y() {
             return this.y;
         }
 
-        public void x(float x){this.x = x;}
-        public void y(float y){this.y = y;}
+        public void x(float x) {
+            this.x = x;
+        }
+
+        public void y(float y) {
+            this.y = y;
+        }
 
         @Override
-        public void write(Kryo kryo, Output output){
+        public void write(Kryo kryo, Output output) {
             output.writeFloat(this.x);
             output.writeFloat(this.y);
         }

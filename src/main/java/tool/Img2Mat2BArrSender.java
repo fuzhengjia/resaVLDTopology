@@ -3,8 +3,10 @@ package tool;
 import backtype.storm.Config;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_highgui;
+import org.bytedeco.javacpp.opencv_imgproc;
 import redis.clients.jedis.Jedis;
 import topology.Serializable;
+import util.ConfigUtil;
 
 import java.io.*;
 
@@ -22,23 +24,40 @@ public class Img2Mat2BArrSender {
     private String path;
     private String imageFolder;
 
+    private int nChannel;
+    private int nDepth;
+    private int inHeight;
+    private int inWidth;
+
     //private BlockingQueue<File> dataQueue = new ArrayBlockingQueue<>(10000);
 
     public Img2Mat2BArrSender(String confile) throws FileNotFoundException {
+
         Config conf = readConfig(confile);
         this.host = getString(conf, "redis.host");
         this.port = getInt(conf, "redis.port");
         this.queueName = getString(conf, "redis.sourceQueueName").getBytes();
         this.path = getString(conf, "sourceFilePath");
+
+        nChannel = ConfigUtil.getInt(conf, "nChannel", 3);
+        nDepth = ConfigUtil.getInt(conf, "nDepth", 8);
+        inWidth = ConfigUtil.getInt(conf, "inWidth", 640);
+        inHeight = ConfigUtil.getInt(conf, "inHeight", 480);
     }
 
     public Img2Mat2BArrSender(String confile, String qName) throws FileNotFoundException {
-        Config conf = readConfig(confile);
-        this.host = getString(conf, "redis.host");
-        this.port = getInt(conf, "redis.port");
+        this(confile);
+//        Config conf = readConfig(confile);
+//        this.host = getString(conf, "redis.host");
+//        this.port = getInt(conf, "redis.port");
         this.queueName = qName.getBytes();
-        this.path = getString(conf, "sourceFilePath");
-        this.imageFolder = getString(conf, "imageFolder");
+//        this.path = getString(conf, "sourceFilePath");
+//        this.imageFolder = getString(conf, "imageFolder");
+//
+//        nChannel = ConfigUtil.getInt(conf, "nChannel", 3);
+//        nDepth = ConfigUtil.getInt(conf, "nDepth", 8);
+//        inWidth = ConfigUtil.getInt(conf, "inWidth", 640);
+//        inHeight = ConfigUtil.getInt(conf, "inHeight", 480);
     }
 
     public void send2Queue(int st, int end, int fps) throws IOException {
@@ -63,9 +82,14 @@ public class Img2Mat2BArrSender {
                 //System.out.println(fileName);
                 opencv_core.IplImage imageFk = cvLoadImage(fileName);
                 opencv_core.Mat matOrg = opencv_highgui.imread(fileName, opencv_highgui.CV_LOAD_IMAGE_COLOR);
-                Serializable.Mat sMatOrg = new Serializable.Mat(matOrg);
 
-                byte[] data = sMatOrg.toByteArray();
+                opencv_core.Size newSize = new opencv_core.Size(inWidth, inHeight);
+                opencv_core.Mat matNew = new opencv_core.Mat();
+                opencv_imgproc.resize(matOrg, matNew, newSize);
+
+                Serializable.Mat sMat = new Serializable.Mat(matNew);
+
+                byte[] data = sMat.toByteArray();
                 jedis.rpush(this.queueName, data);
 
                 generatedFrames ++;
