@@ -38,6 +38,7 @@ public class Img2Mat2BArrSender {
         this.port = getInt(conf, "redis.port");
         this.queueName = getString(conf, "redis.sourceQueueName").getBytes();
         this.path = getString(conf, "sourceFilePath");
+        this.imageFolder = getString(conf, "imageFolder");
 
         nChannel = ConfigUtil.getInt(conf, "nChannel", 3);
         nDepth = ConfigUtil.getInt(conf, "nDepth", 8);
@@ -52,7 +53,6 @@ public class Img2Mat2BArrSender {
 //        this.port = getInt(conf, "redis.port");
         this.queueName = qName.getBytes();
 //        this.path = getString(conf, "sourceFilePath");
-//        this.imageFolder = getString(conf, "imageFolder");
 //
 //        nChannel = ConfigUtil.getInt(conf, "nChannel", 3);
 //        nDepth = ConfigUtil.getInt(conf, "nDepth", 8);
