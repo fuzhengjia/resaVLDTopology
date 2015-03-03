@@ -20,14 +20,11 @@ import static tool.Constant.*;
 import static topology.StormConfigManager.*;
 
 /**
- * Created by Tom Fu on Jan 29, 2015.
+ * Created by Tom Fu on Mar 3, 2015.
  * TODO: Notes:
- * traceGenerator 是否可以并行？ 这样需要feedback分开，register也要分开
- * 扩展，如果有2个scale的话，需要对当前程序扩展！
- * 产生光流是bottleneck
  * 此版本暂时通过测试
- * 尝试将optFlowGen and optFlowAgg 分布式化
- * test Gamma version!
+ * 这个topology只是单独产生opt flow， 然后将optflow和rawframe以byte【】的形式output
+ * 目前以1：6：1 （3 workers）的配备达到25fps
  */
 public class tomCalOptTop {
 
@@ -66,7 +63,7 @@ public class tomCalOptTop {
         conf.setMaxSpoutPending(getInt(conf, "of-MaxPending"));
 
         conf.registerSerialization(Serializable.Mat.class);
-        conf.setStatsSampleRate(1.0);
+//        conf.setStatsSampleRate(1.0);
         StormSubmitter.submitTopology("tomCalOptTop-1", conf, topology);
     }
 }
