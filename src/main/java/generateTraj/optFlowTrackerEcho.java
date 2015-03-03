@@ -25,7 +25,7 @@ import static tool.Constant.*;
 public class optFlowTrackerEcho extends BaseRichBolt {
     OutputCollector collector;
 
-    private HashMap<Integer, List<byte[]>> optFlowMap;
+    private HashMap<Integer, List<float[]>> optFlowMap;
     private HashMap<Integer, Queue<TraceMetaAndLastPoint>> traceQueue;
     private HashMap<Integer, TwoIntegers> WHInfo;
     DescInfo mbhInfo;
@@ -73,9 +73,9 @@ public class optFlowTrackerEcho extends BaseRichBolt {
 
         } else if (streamId.equals(STREAM_OPT_FLOW)) {
             IplImage fake = new IplImage();
-            List<byte[]> byteArray = (List<byte[]>) tuple.getValueByField(FIELD_FRAME_MAT);
+            List<float[]> floatArray = (List<float[]>) tuple.getValueByField(FIELD_FRAME_MAT);
             TwoIntegers whInfo = (TwoIntegers)tuple.getValueByField(FIELD_WIDTH_HEIGHT);
-            optFlowMap.computeIfAbsent(frameId, k->byteArray);
+            optFlowMap.computeIfAbsent(frameId, k->floatArray);
             WHInfo.computeIfAbsent(frameId, k->whInfo);
             if (traceQueue.containsKey(frameId)) {
                 processTraceRecords(frameId);
@@ -101,13 +101,13 @@ public class optFlowTrackerEcho extends BaseRichBolt {
 
     public void processTraceRecords(int frameId) {
         IplImage imageFK = new IplImage();
-        List<byte[]> byteArray = optFlowMap.get(frameId);
+        List<float[]> floatArray = optFlowMap.get(frameId);
         Queue<TraceMetaAndLastPoint> traceRecords = traceQueue.get(frameId);
         TwoIntegers whInfo = WHInfo.get(frameId);
         while (!traceRecords.isEmpty()) {
             TraceMetaAndLastPoint trace = traceRecords.poll();
             //Serializable.CvPoint2D32f pointOut = getNextFlowPoint(flow, trace.lastPoint);
-            Serializable.CvPoint2D32f pointOut = getNextFlowPointSimple(byteArray, whInfo, trace.lastPoint);
+            Serializable.CvPoint2D32f pointOut = getNextFlowPointSimple(floatArray, whInfo, trace.lastPoint);
             int tID = trace.getTargetTaskID(this.traceAggBoltTasks);
 
             if (pointOut != null) {
@@ -193,7 +193,7 @@ public class optFlowTrackerEcho extends BaseRichBolt {
         }
     }
 
-    public Serializable.CvPoint2D32f getNextFlowPointSimple(List<byte[]> byteArray, TwoIntegers whInfo, Serializable.CvPoint2D32f point_in) {
+    public Serializable.CvPoint2D32f getNextFlowPointSimple(List<float[]> floatArray, TwoIntegers whInfo, Serializable.CvPoint2D32f point_in) {
 
         int width = whInfo.getV1();
         int height = whInfo.getV2();
@@ -205,18 +205,18 @@ public class optFlowTrackerEcho extends BaseRichBolt {
         int q = Math.min(Math.max(cvRound(point_in.y()), 0), height - 1);
 
         int rowIndex = q / this.taskCnt;
-        byte[] data = byteArray.get(rowIndex);
-        FloatBuffer floatBuffer = ByteBuffer.wrap(data).asFloatBuffer();
+        float[] fData = floatArray.get(rowIndex);
+        //FloatBuffer floatBuffer = ByteBuffer.wrap(data).asFloatBuffer();
 
         //FloatBuffer floatBuffer = flow.getByteBuffer(q * flow.widthStep()).asFloatBuffer();
         int xsIndex = 2 * p;
         int ysIndex = 2 * p + 1;
 
         Serializable.CvPoint2D32f point_out = new Serializable.CvPoint2D32f();
-        point_out.x(point_in.x() + floatBuffer.get(xsIndex));
-        point_out.y(point_in.y() + floatBuffer.get(ysIndex));
-//        point_out.x(point_in.x() + data[xsIndex]);
-//        point_out.y(point_in.y() + data[ysIndex]);
+//        point_out.x(point_in.x() + floatBuffer.get(xsIndex));
+//        point_out.y(point_in.y() + floatBuffer.get(ysIndex));
+        point_out.x(point_in.x() + fData[xsIndex]);
+        point_out.y(point_in.y() + fData[ysIndex]);
 
 
         if (point_out.x() > 0 && point_out.x() < width && point_out.y() > 0 && point_out.y() < height) {
