@@ -84,7 +84,7 @@ public class RedisInRedisOutBArrSender {
             System.out.println("usage: ImageSender <confFile> qinName qoutName toPop? <st> <end> <fps>");
             return;
         }
-        RedisInRedisOutBArrSender sender = new RedisInRedisOutBArrSender(args[0], args[1], args[2], Boolean.getBoolean(args[3]));
+        RedisInRedisOutBArrSender sender = new RedisInRedisOutBArrSender(args[0], args[1], args[2], Boolean.parseBoolean(args[3]));
         System.out.println("start sender, qin: " + sender.qin + ", qout: " + sender.qout + ", toPop: " + sender.toPop);
         sender.send2Queue(Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]));
         System.out.println("end sender");
