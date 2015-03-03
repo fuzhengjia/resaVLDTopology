@@ -15,7 +15,8 @@ import static org.bytedeco.javacpp.opencv_highgui.cvLoadImage;
 import static topology.StormConfigManager.*;
 
 /**
- * Created by ding on 14-3-18.
+ * Created by Tom Fu on Mar 3, 2015
+ * For moving contents among different queues with rate control mechanism
  */
 public class RedisInRedisOutBArrSender {
 
@@ -23,6 +24,7 @@ public class RedisInRedisOutBArrSender {
     private int port;
     private byte[] qin;
     private byte[] qout;
+    boolean toPop;
 
     public RedisInRedisOutBArrSender(String confile) throws FileNotFoundException {
 
@@ -33,10 +35,11 @@ public class RedisInRedisOutBArrSender {
         this.qout = getString(conf, "riro-qout").getBytes();
     }
 
-    public RedisInRedisOutBArrSender(String confile, String qIn, String qOut) throws FileNotFoundException {
+    public RedisInRedisOutBArrSender(String confile, String qIn, String qOut, boolean toPop) throws FileNotFoundException {
         this(confile);
         this.qin = qIn.getBytes();
         this.qout = qOut.getBytes();
+        this.toPop = toPop;
     }
 
     public void send2Queue(int st, int end, int fps) throws IOException {
@@ -52,7 +55,7 @@ public class RedisInRedisOutBArrSender {
 
             while (generatedFrames < targetCount) {
 
-                byte[] data = jedis.lpop(this.qin);
+                byte[] data =  this.toPop ? jedis.lpop(this.qin) : jedis.lrange(this.qin, generatedFrames, generatedFrames+1).get(0);
                 jedis.rpush(this.qout, data);
 
                 generatedFrames ++;
@@ -78,11 +81,11 @@ public class RedisInRedisOutBArrSender {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 5) {
-            System.out.println("usage: ImageSender <confFile> qinName qoutName <st> <end> <fps>");
+            System.out.println("usage: ImageSender <confFile> qinName qoutName toPop? <st> <end> <fps>");
             return;
         }
-        RedisInRedisOutBArrSender sender = new RedisInRedisOutBArrSender(args[0], args[1], args[2]);
-        System.out.println("start sender");
+        RedisInRedisOutBArrSender sender = new RedisInRedisOutBArrSender(args[0], args[1], args[2], Boolean.getBoolean(args[3]));
+        System.out.println("start sender, qin: " + sender.qin + ", qout: " + sender.qout + ", toPop: " + sender.toPop);
         sender.send2Queue(Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
         System.out.println("end sender");
     }
