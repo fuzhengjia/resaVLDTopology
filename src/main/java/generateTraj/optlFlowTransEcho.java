@@ -10,6 +10,7 @@ import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.opencv_core;
 import topology.Serializable;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,18 +52,22 @@ public class optlFlowTransEcho extends BaseRichBolt {
         opencv_core.Mat orgMat = sMat.toJavaCVMat();
         opencv_core.IplImage flow = orgMat.asIplImage();
 
-        List<List<float[]>> group = new ArrayList<>();
+        List<List<byte[]>> group = new ArrayList<>();
 
         for (int i = 0; i < targetComponentTasks.size(); i++) {
-            List<float[]> subGroup = new ArrayList<>();
+            List<byte[]> subGroup = new ArrayList<>();
             group.add(subGroup);
         }
 
         int height = flow.height();
         for (int h = 0; h < height; h++) {
-            FloatBuffer floatBuffer = flow.getByteBuffer(h * flow.widthStep()).asFloatBuffer();
+            //FloatBuffer floatBuffer = flow.getByteBuffer(h * flow.widthStep()).asFloatBuffer();
+            ByteBuffer bb =  flow.getByteBuffer(h * flow.widthStep());
+            byte[] byteArray = new byte[flow.widthStep()];
+            bb.get(byteArray, 0, byteArray.length);
+
             int index = h % targetComponentTasks.size();
-            group.get(index).add(floatBuffer.array());
+            group.get(index).add(byteArray);
         }
 
         //collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sfMat));

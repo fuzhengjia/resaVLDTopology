@@ -64,6 +64,7 @@ public class traceGeneratorEcho extends BaseRichBolt {
         thisTaskID = topologyContext.getThisTaskId();
         tracerIDCnt = 0;
         this.traceAggBoltTasks = topologyContext.getComponentTasks(traceAggBoltNameString);
+        this.flowTrackerTasks = topologyContext.getComponentTasks(flowTrackerName);
 
         this.min_distance = ConfigUtil.getDouble(map, "min_distance", 5.0);
         this.quality = ConfigUtil.getDouble(map, "quality", 0.001);
