@@ -100,8 +100,9 @@ public class tomTrajDisplayTopEcho {
         conf.setNumWorkers(numberOfWorkers);
         conf.setMaxSpoutPending(getInt(conf, "TrajMaxPending"));
 
+        int min_dis = getInt(conf, "min_distance");
         //conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tomTrajDisplayTopEcho-1a", conf, topology);
+        StormSubmitter.submitTopology("tomTrajDisplayTopEcho-1a-" + min_dis, conf, topology);
     }
 }
