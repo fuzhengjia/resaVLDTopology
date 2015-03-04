@@ -9,6 +9,7 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
 import tool.FrameImplImageSourceGamma;
+import tool.FrameOptFlowSource;
 import topology.Serializable;
 
 import java.io.FileNotFoundException;
@@ -40,7 +41,7 @@ public class tomTrajDisOFInputEcho {
 
         String host = getString(conf, "redis.host");
         int port = getInt(conf, "redis.port");
-        String queueName = getString(conf, "redis.sourceQueueName");
+        String queueName = getString(conf, "redis.ofSource");
 
         String spoutName = "TrajSpout";
         String imgPrepareBolt = "TrajImgPrep";
@@ -52,19 +53,15 @@ public class tomTrajDisOFInputEcho {
         String frameDisplay = "TrajDisplay";
         String redisFrameOut = "RedisFrameOut";
 
-        builder.setSpout(spoutName, new FrameImplImageSourceGamma(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new FrameOptFlowSource(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(imgPrepareBolt, new imagePrepareDelta(), getInt(conf, imgPrepareBolt + ".parallelism"))
+        builder.setBolt(imgPrepareBolt, new imagePrepareDeltaOFIn(), getInt(conf, imgPrepareBolt + ".parallelism"))
                 .shuffleGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
-        builder.setBolt(optFlowGenBolt, new optlFlowGeneratorMultiOptFlow(), getInt(conf, optFlowGenBolt + ".parallelism"))
-                .shuffleGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
-                .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
-
         builder.setBolt(optFlowTrans, new optlFlowTransEcho(optFlowTracker), getInt(conf, optFlowTrans + ".parallelism"))
-                .shuffleGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
+                .shuffleGrouping(spoutName, STREAM_OPT_FLOW)
                 .setNumTasks(getInt(conf, optFlowTrans + ".tasks"));
 
         builder.setBolt(traceGenBolt, new traceGeneratorEcho(traceAggregator, optFlowTracker), getInt(conf, traceGenBolt + ".parallelism"))
@@ -102,6 +99,6 @@ public class tomTrajDisOFInputEcho {
 
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tomTrajDisplayTopEcho-1a", conf, topology);
+        StormSubmitter.submitTopology("tomTrajDisOFInputEcho-1a", conf, topology);
     }
 }
