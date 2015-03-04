@@ -19,15 +19,15 @@ import static topology.StormConfigManager.*;
 /**
  * Created by Tom Fu on Jan 29, 2015.
  * TODO: Notes:
- * traceGenerator 是否可以并行？ 这样需要feedback分开，register也要分开
  * 扩展，如果有2个scale的话，需要对当前程序扩展！
  * 产生光流是bottleneck-> done
  * 此版本暂时通过测试
  * 尝试将optFlowGen and optFlowAgg 分布式化->done
  * 在echo 版本中， optFlowTracker也作了细分，大大降低了传输的network cost
  * test Echo version!
+ * 这个版本不同于echo version，区别在于使用新的输入，假设optFlow已经计算好的情况下，因此需要新的spout和稍作修改的topology
  */
-public class tomTrajDisplayTopEcho {
+public class tomTrajDisOFInputEcho {
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
@@ -100,7 +100,7 @@ public class tomTrajDisplayTopEcho {
         conf.setNumWorkers(numberOfWorkers);
         conf.setMaxSpoutPending(getInt(conf, "TrajMaxPending"));
 
-        //conf.registerSerialization(Serializable.Mat.class);
+        conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
         StormSubmitter.submitTopology("tomTrajDisplayTopEcho-1a", conf, topology);
     }
