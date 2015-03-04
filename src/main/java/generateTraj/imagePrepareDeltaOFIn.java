@@ -58,21 +58,26 @@ public class imagePrepareDeltaOFIn extends BaseRichBolt {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-        IplImage frame = sMat.toJavaCVMat().asIplImage();
+        Serializable.Mat sOptMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT_PREV);
 
-        if (this.image == null || frameId == 1) { //only first time
-            image = cvCreateImage(cvGetSize(frame), 8, 3);
-            image.origin(frame.origin());
-            grey = cvCreateImage(cvGetSize(frame), 8, 1);
-            eig_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(this.grey), 32, 1);
-        }
+        collector.emit(STREAM_FRAME_OUTPUT, tuple, new Values(frameId, sMat));
+        collector.emit(STREAM_OPT_FLOW, tuple, new Values(frameId, sOptMat));
 
-        cvCopy(frame, image, null);
-        opencv_imgproc.cvCvtColor(image, grey, opencv_imgproc.CV_BGR2GRAY);
-
-        int width = cvFloor(grey.width() / min_distance);
-        int height = cvFloor(grey.height() / min_distance);
         if (frameId == 1 || frameId % init_counter == 0) {
+
+            IplImage frame = sMat.toJavaCVMat().asIplImage();
+            if (this.image == null || frameId == 1) { //only first time
+                image = cvCreateImage(cvGetSize(frame), 8, 3);
+                image.origin(frame.origin());
+                grey = cvCreateImage(cvGetSize(frame), 8, 1);
+                eig_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(this.grey), 32, 1);
+            }
+
+            cvCopy(frame, image, null);
+            opencv_imgproc.cvCvtColor(image, grey, opencv_imgproc.CV_BGR2GRAY);
+
+            int width = cvFloor(grey.width() / min_distance);
+            int height = cvFloor(grey.height() / min_distance);
 
             this.eig = cvCloneImage(eig_pyramid.getImage(ixyScale));
             double[] maxVal = new double[1];
@@ -92,5 +97,7 @@ public class imagePrepareDeltaOFIn extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_EIG_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_EIG_INFO));
+        outputFieldsDeclarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
+        outputFieldsDeclarer.declareStream(STREAM_OPT_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
     }
 }

@@ -52,8 +52,7 @@ public class FrameOptFlowSource extends RedisQueueSpout {
             Serializable.Mat rawMat = sMats[0];
             Serializable.Mat optMat = sMats[1];
 
-            collector.emit(STREAM_FRAME_OUTPUT, new Values(frameId, rawMat), id);
-            collector.emit(STREAM_OPT_FLOW, new Values(frameId, optMat), id);
+            collector.emit(STREAM_FRAME_OUTPUT, new Values(frameId, rawMat, optMat), id);
 
             long nowTime = System.currentTimeMillis();
             System.out.printf("Sendout: " + nowTime + "," + frameId);
@@ -65,7 +64,6 @@ public class FrameOptFlowSource extends RedisQueueSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
-        declarer.declareStream(STREAM_OPT_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
+        declarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_FRAME_MAT_PREV));
     }
 }

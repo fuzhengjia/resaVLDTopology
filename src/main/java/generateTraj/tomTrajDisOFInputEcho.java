@@ -61,7 +61,7 @@ public class tomTrajDisOFInputEcho {
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
         builder.setBolt(optFlowTrans, new optlFlowTransEcho(optFlowTracker), getInt(conf, optFlowTrans + ".parallelism"))
-                .shuffleGrouping(spoutName, STREAM_OPT_FLOW)
+                .shuffleGrouping(imgPrepareBolt, STREAM_OPT_FLOW)
                 .setNumTasks(getInt(conf, optFlowTrans + ".tasks"));
 
         builder.setBolt(traceGenBolt, new traceGeneratorEcho(traceAggregator, optFlowTracker), getInt(conf, traceGenBolt + ".parallelism"))
@@ -83,7 +83,7 @@ public class tomTrajDisOFInputEcho {
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
         builder.setBolt(frameDisplay, new frameDisplayMultiDelta(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
-                .fieldsGrouping(spoutName, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping(imgPrepareBolt, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
                 .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
 
