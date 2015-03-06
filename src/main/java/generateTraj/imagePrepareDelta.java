@@ -118,26 +118,7 @@ public class imagePrepareDelta extends BaseRichBolt {
             cvMinMaxLoc(eig, null, maxVal, null, null, null);
             double threshold = maxVal[0] * quality;
             int offset = cvFloor(min_distance / 2.0);
-//
-//                for (int i = 0; i < height; i++) {
-//                    for (int j = 0; j < width; j++) {
-//                        int x = cvFloor(j * min_distance + offset);
-//                        int y = cvFloor(i * min_distance + offset);
-//
-//                        FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
-//                        float ve = floatBuffer.get(x);
-//
-//                        NewDensePoint np = new NewDensePoint(x, y, j, i);
-//                        ///Level I by tom, we send out all the new dense points as a group.
-//                        //int coutersIndex = LastPoint.calCountersIndexForNewTrace(j, i, width);
-//                        if (ve > threshold) {
-//                            //collector.emit(STREAM_NEW_TRACE, tuple, new Values(frameId, lp, coutersIndex));
-//                            newPoints.add(np);
-//                        }
-//                    }
-//                }
-//            }
-//            ///We require that, every round, this message will be sent out!
+
             Mat eigMat = new Mat(eig);
             Serializable.Mat sEigMat = new Serializable.Mat(eigMat);
             collector.emit(STREAM_EIG_FLOW, tuple, new Values(frameId, sEigMat, new EigRelatedInfo(width, height, offset, threshold)));

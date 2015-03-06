@@ -23,12 +23,12 @@ import static tool.Constant.*;
  * This version is an alternative implementation, which every time emit two consecutive raw frames,
  * it ease the processing of imagePrepare and opticalFlow calculation, at the cost of more network transmissions
  */
-public class FrameOptFlowSource extends RedisQueueSpout {
+public class OFInFrameSourceA extends RedisQueueSpout {
 
     private int frameId;
     private Serializable.Mat sMatPrev;
 
-    public FrameOptFlowSource(String host, int port, String queue) {
+    public OFInFrameSourceA(String host, int port, String queue) {
         super(host, port, queue, true);
     }
 
@@ -44,7 +44,6 @@ public class FrameOptFlowSource extends RedisQueueSpout {
     protected void emitData(Object data) {
         String id = String.valueOf(frameId);
         byte[] imgBytes = (byte[]) data;
-        ImageInputStream iis = null;
 
         try {
 

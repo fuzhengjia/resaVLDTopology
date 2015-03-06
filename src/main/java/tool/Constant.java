@@ -15,6 +15,8 @@ public interface Constant {
 
     public static String FIELD_FRAME_MAT = "frm-mat";
 
+    public static String FIELD_OPT_MAT = "opt-mat";
+
     public static String FIELD_FRAME_MAT_PREV = "frm-mat-prev";
 
     public static String STREAM_OPT_FLOW = "stream-optical-flow";
@@ -22,6 +24,8 @@ public interface Constant {
     public static String STREAM_GREY_FLOW = "stream-grey-flow";
 
     public static String STREAM_EIG_FLOW = "stream-eig-flow";
+
+    public static String STREAM_RAW_FRAME = "stream-raw-frm";
 
     public static String STREAM_NEW_TRACE = "stream-new-trace";
 
@@ -34,6 +38,8 @@ public interface Constant {
     public static String STREAM_INDICATOR_TRACE = "stream-ind-trace";
 
     public static String STREAM_REMOVE_TRACE = "stream-remove-trace";
+
+    public static String STREAM_EXIST_REMOVE_TRACE = "stream-e-r-trace";
 
     public static String STREAM_PLOT_TRACE = "stream-plot-trace";
 

@@ -9,8 +9,6 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
 import tool.FrameImplImageSourceGamma;
-import tool.FrameOptFlowSource;
-import topology.Serializable;
 
 import java.io.FileNotFoundException;
 
@@ -20,15 +18,15 @@ import static topology.StormConfigManager.*;
 /**
  * Created by Tom Fu on Jan 29, 2015.
  * TODO: Notes:
+ * traceGenerator 是否可以并行？ 这样需要feedback分开，register也要分开
  * 扩展，如果有2个scale的话，需要对当前程序扩展！
  * 产生光流是bottleneck-> done
  * 此版本暂时通过测试
  * 尝试将optFlowGen and optFlowAgg 分布式化->done
  * 在echo 版本中， optFlowTracker也作了细分，大大降低了传输的network cost
  * test Echo version!
- * 这个版本不同于echo version，区别在于使用新的输入，假设optFlow已经计算好的情况下，因此需要新的spout和稍作修改的topology
  */
-public class tomTrajDisOFInputEcho {
+public class tomTrajDisplayTopEchoBatch {
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
@@ -41,7 +39,7 @@ public class tomTrajDisOFInputEcho {
 
         String host = getString(conf, "redis.host");
         int port = getInt(conf, "redis.port");
-        String queueName = getString(conf, "redis.ofSource");
+        String queueName = getString(conf, "redis.sourceQueueName");
 
         String spoutName = "TrajSpout";
         String imgPrepareBolt = "TrajImgPrep";
@@ -53,15 +51,19 @@ public class tomTrajDisOFInputEcho {
         String frameDisplay = "TrajDisplay";
         String redisFrameOut = "RedisFrameOut";
 
-        builder.setSpout(spoutName, new FrameOptFlowSource(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new FrameImplImageSourceGamma(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(imgPrepareBolt, new imagePrepareDeltaOFIn(), getInt(conf, imgPrepareBolt + ".parallelism"))
+        builder.setBolt(imgPrepareBolt, new imagePrepareDelta(), getInt(conf, imgPrepareBolt + ".parallelism"))
                 .shuffleGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
+        builder.setBolt(optFlowGenBolt, new optlFlowGeneratorMultiOptFlow(), getInt(conf, optFlowGenBolt + ".parallelism"))
+                .shuffleGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
+                .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
+
         builder.setBolt(optFlowTrans, new optlFlowTransEcho(optFlowTracker), getInt(conf, optFlowTrans + ".parallelism"))
-                .shuffleGrouping(imgPrepareBolt, STREAM_OPT_FLOW)
+                .shuffleGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
                 .setNumTasks(getInt(conf, optFlowTrans + ".tasks"));
 
         builder.setBolt(traceGenBolt, new traceGeneratorEcho(traceAggregator, optFlowTracker), getInt(conf, traceGenBolt + ".parallelism"))
@@ -69,14 +71,14 @@ public class tomTrajDisOFInputEcho {
                 .allGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
 
-        builder.setBolt(optFlowTracker, new optFlowTrackerEcho(traceAggregator), getInt(conf, optFlowTracker + ".parallelism"))
+        builder.setBolt(optFlowTracker, new optFlowTrackerEchoBatch(traceAggregator), getInt(conf, optFlowTracker + ".parallelism"))
                 .directGrouping(traceGenBolt, STREAM_NEW_TRACE)
                 .directGrouping(traceAggregator, STREAM_RENEW_TRACE)
                 .directGrouping(optFlowTrans, STREAM_OPT_FLOW)
                 .allGrouping(frameDisplay, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
 
-        builder.setBolt(traceAggregator, new traceAggregatorEcho(traceGenBolt, optFlowTracker), getInt(conf, traceAggregator + ".parallelism"))
+        builder.setBolt(traceAggregator, new traceAggregatorEchoBatch(traceGenBolt, optFlowTracker), getInt(conf, traceAggregator + ".parallelism"))
                 .directGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
                 .directGrouping(optFlowTracker, STREAM_EXIST_TRACE)
                 .directGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
@@ -97,8 +99,9 @@ public class tomTrajDisOFInputEcho {
         conf.setNumWorkers(numberOfWorkers);
         conf.setMaxSpoutPending(getInt(conf, "TrajMaxPending"));
 
-        conf.registerSerialization(Serializable.Mat.class);
+        int min_dis = getInt(conf, "min_distance");
+        //conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tomTrajDisOFInputEcho-1a", conf, topology);
+        StormSubmitter.submitTopology("tomTrajDisplayTopEchoBatch-1-" + min_dis, conf, topology);
     }
 }
