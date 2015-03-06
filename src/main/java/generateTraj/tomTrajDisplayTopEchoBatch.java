@@ -80,8 +80,9 @@ public class tomTrajDisplayTopEchoBatch {
 
         builder.setBolt(traceAggregator, new traceAggregatorEchoBatch(traceGenBolt, optFlowTracker), getInt(conf, traceAggregator + ".parallelism"))
                 .directGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
-                .directGrouping(optFlowTracker, STREAM_EXIST_TRACE)
-                .directGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
+                //.directGrouping(optFlowTracker, STREAM_EXIST_TRACE)
+                //.directGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
+                .directGrouping(optFlowTracker, STREAM_EXIST_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
         builder.setBolt(frameDisplay, new frameDisplayMultiDelta(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
