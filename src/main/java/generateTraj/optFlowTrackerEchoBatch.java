@@ -64,15 +64,18 @@ public class optFlowTrackerEchoBatch extends BaseRichBolt {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
         if (streamId.equals(STREAM_NEW_TRACE)) {
-            TraceMetaAndLastPoint trace = (TraceMetaAndLastPoint) tuple.getValueByField(FIELD_TRACE_META_LAST_POINT);
-            traceQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).add(trace);
+            //TraceMetaAndLastPoint trace = (TraceMetaAndLastPoint) tuple.getValueByField(FIELD_TRACE_META_LAST_POINT);
+            List<TraceMetaAndLastPoint> traces = (List<TraceMetaAndLastPoint>) tuple.getValueByField(FIELD_TRACE_META_LAST_POINT);
+            //traceQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).add(trace);
+            traceQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).addAll(traces);
             if (optFlowMap.containsKey(frameId)) {
                 processTraceRecords(frameId);
             }
         }else if (streamId.equals(STREAM_RENEW_TRACE)) {
-            List<TraceMetaAndLastPoint> renewTrace = (List<TraceMetaAndLastPoint>) tuple.getValueByField(FIELD_TRACE_META_LAST_POINT);
-            traceQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).addAll(renewTrace);
+            //TraceMetaAndLastPoint renewTrace = (TraceMetaAndLastPoint) tuple.getValueByField(FIELD_TRACE_META_LAST_POINT);
+            List<TraceMetaAndLastPoint> renewTraces = (List<TraceMetaAndLastPoint>) tuple.getValueByField(FIELD_TRACE_META_LAST_POINT);
             //renewTrace.forEach(v->traceQueue.get(frameId).add(v));
+            traceQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).addAll(renewTraces);
             if (optFlowMap.containsKey(frameId)) {
                 processTraceRecords(frameId);
             }
