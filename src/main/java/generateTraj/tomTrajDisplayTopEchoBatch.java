@@ -54,7 +54,7 @@ public class tomTrajDisplayTopEchoBatch {
         builder.setSpout(spoutName, new FrameImplImageSourceGamma(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(imgPrepareBolt, new imagePrepareDelta(), getInt(conf, imgPrepareBolt + ".parallelism"))
+        builder.setBolt(imgPrepareBolt, new imagePrepareEcho(traceGenBolt), getInt(conf, imgPrepareBolt + ".parallelism"))
                 .shuffleGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
@@ -67,7 +67,8 @@ public class tomTrajDisplayTopEchoBatch {
                 .setNumTasks(getInt(conf, optFlowTrans + ".tasks"));
 
         builder.setBolt(traceGenBolt, new traceGeneratorEchoBatch(traceAggregator, optFlowTracker), getInt(conf, traceGenBolt + ".parallelism"))
-                .allGrouping(imgPrepareBolt, STREAM_EIG_FLOW)
+                //.allGrouping(imgPrepareBolt, STREAM_EIG_FLOW)
+                .directGrouping(imgPrepareBolt, STREAM_EIG_FLOW)
                 .allGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
 
