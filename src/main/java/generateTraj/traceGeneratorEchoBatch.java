@@ -155,6 +155,7 @@ public class traceGeneratorEchoBatch extends BaseRichBolt {
                     newTraces.add(new ArrayList<>());
                 }
 
+                System.out.println("i: " + this.thisTaskIndex + ", tID: " + this.thisTaskID + ", size: " + floatArray.size() + ",w: "+ width + ", h: " + height + ",off: " + offset);
                 for (int i = 0; i < height; i++) {
                     int y = opencv_core.cvFloor(i * min_distance + offset);
                     ///only for particular rows
