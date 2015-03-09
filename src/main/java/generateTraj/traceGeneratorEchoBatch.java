@@ -155,18 +155,19 @@ public class traceGeneratorEchoBatch extends BaseRichBolt {
                     newTraces.add(new ArrayList<>());
                 }
 
-                System.out.println("i: " + this.thisTaskIndex + ", tID: " + this.thisTaskID + ", size: " + floatArray.size() + ",w: "+ width + ", h: " + height + ",off: " + offset);
+                System.out.println("i: " + this.thisTaskIndex + ", tID: " + this.thisTaskID + ", size: " + floatArray.size()
+                        + ",w: "+ width + ", h: " + height + ",off: " + offset + ", min_dis:" + min_distance);
                 for (int i = 0; i < height; i++) {
-                    int y = opencv_core.cvFloor(i * min_distance + offset);
                     ///only for particular rows
-                    if (y % taskCnt == thisTaskIndex) {
+                    if (i % taskCnt == thisTaskIndex) {
                         for (int j = 0; j < width; j++) {
                             int ywx = i * width + j;
                             if (counters[ywx] == false) {
                                 //FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
                                 //float ve = floatBuffer.get(x);
                                 int x = opencv_core.cvFloor(j * min_distance + offset);
-                                int rowIndex = y / this.taskCnt;
+                                int y = opencv_core.cvFloor(i * min_distance + offset);
+                                int rowIndex = i / this.taskCnt;
                                 float[] fData = floatArray.get(rowIndex);
                                 float ve = fData[x];
 
