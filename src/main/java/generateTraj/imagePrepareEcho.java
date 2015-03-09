@@ -138,7 +138,7 @@ public class imagePrepareEcho extends BaseRichBolt {
                 group.add(subGroup);
             }
 
-            int floatArraySize = opencv_core.cvFloor(width * min_distance + offset);
+            int floatArraySize = grey.width() + offset  + 1;
             for (int i = 0; i < height; i++) {
                 int y = opencv_core.cvFloor(i * min_distance + offset);
 
