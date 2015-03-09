@@ -155,7 +155,7 @@ public class imagePrepareEcho extends BaseRichBolt {
             //collector.emit(STREAM_EIG_FLOW, tuple, new Values(frameId, sEigMat, new EigRelatedInfo(width, height, offset, threshold)));
             for (int i = 0; i < traceGeneratorTasks.size(); i++) {
                 int tID = traceGeneratorTasks.get(i);
-                System.out.println("i: " + i + ", tID: " + tID + ", size: " + group.get(i).size() + ",w: "+ width + ", h: " + height + ",off: " + offset + ", min_dis:" + min_distance);
+                //System.out.println("i: " + i + ", tID: " + tID + ", size: " + group.get(i).size() + ",w: "+ width + ", h: " + height + ",off: " + offset + ", min_dis:" + min_distance);
                 collector.emitDirect(tID, STREAM_EIG_FLOW, tuple, new Values(frameId, group.get(i), new EigRelatedInfo(width, height, offset, threshold)));
             }
         }

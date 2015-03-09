@@ -155,8 +155,8 @@ public class traceGeneratorEchoBatch extends BaseRichBolt {
                     newTraces.add(new ArrayList<>());
                 }
 
-                System.out.println("i: " + this.thisTaskIndex + ", tID: " + this.thisTaskID + ", size: " + floatArray.size()
-                        + ",w: "+ width + ", h: " + height + ",off: " + offset + ", min_dis:" + min_distance);
+                //System.out.println("i: " + this.thisTaskIndex + ", tID: " + this.thisTaskID + ", size: " + floatArray.size()
+                //        + ",w: "+ width + ", h: " + height + ",off: " + offset + ", min_dis:" + min_distance);
                 for (int i = 0; i < height; i++) {
                     ///only for particular rows
                     if (i % taskCnt == thisTaskIndex) {

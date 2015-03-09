@@ -2,8 +2,8 @@ package generateTraj;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -11,7 +11,6 @@ import org.bytedeco.javacpp.opencv_core;
 import topology.Serializable;
 import util.ConfigUtil;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +31,7 @@ public class traceGeneratorEcho extends BaseRichBolt {
 
     private HashMap<Integer, List<Integer>> feedbackIndicatorList;
     private HashMap<Integer, Integer> feedbackMonitor;
-    private HashMap<Integer, Serializable.Mat> eigFrameMap;
+    private HashMap<Integer, List<float[]>> eigFrameMap;
     private HashMap<Integer, EigRelatedInfo> eigInfoMap;
 
     double min_distance;
@@ -43,7 +42,7 @@ public class traceGeneratorEcho extends BaseRichBolt {
     private int thisTaskID;
 
     private int thisTaskIndex;
-    private int taskCntOfThisComponent;
+    private int taskCnt;
 
     String traceAggBoltNameString;
     List<Integer> traceAggBoltTasks;
@@ -60,7 +59,7 @@ public class traceGeneratorEcho extends BaseRichBolt {
         this.collector = outputCollector;
 
         this.thisTaskIndex = topologyContext.getThisTaskIndex();
-        this.taskCntOfThisComponent = topologyContext.getComponentTasks(topologyContext.getThisComponentId()).size();
+        this.taskCnt = topologyContext.getComponentTasks(topologyContext.getThisComponentId()).size();
         thisTaskID = topologyContext.getThisTaskId();
         tracerIDCnt = 0;
         this.traceAggBoltTasks = topologyContext.getComponentTasks(traceAggBoltNameString);
@@ -95,14 +94,16 @@ public class traceGeneratorEcho extends BaseRichBolt {
         //System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
 
         if (streamId.equals(STREAM_EIG_FLOW)) {///from traceInit bolt
-            Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-            eigFrameMap.computeIfAbsent(frameId, k -> sMat);
+            //Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
+            //eigFrameMap.computeIfAbsent(frameId, k -> sMat);
+            List<float[]> floatArray = (List<float[]>) tuple.getValueByField(FIELD_FRAME_MAT);
+            eigFrameMap.computeIfAbsent(frameId, k -> floatArray);
             EigRelatedInfo eigInfo = (EigRelatedInfo) tuple.getValueByField(FIELD_EIG_INFO);
             eigInfoMap.computeIfAbsent(frameId, k -> eigInfo);
             ///This is to deal with the first special frame, where there are no feedback traces.
             if (frameId == 1) {
                 feedbackIndicatorList.computeIfAbsent(frameId, k -> new ArrayList<>());
-                feedbackMonitor.computeIfAbsent(frameId, k->this.traceAggBoltTasks.size());
+                feedbackMonitor.computeIfAbsent(frameId, k -> this.traceAggBoltTasks.size());
             }
 
         } else if (streamId.equals(STREAM_INDICATOR_TRACE)) {
@@ -110,8 +111,8 @@ public class traceGeneratorEcho extends BaseRichBolt {
             if (!feedbackMonitor.containsKey(frameId)) {
                 feedbackMonitor.put(frameId, 1);
                 feedbackIndicatorList.put(frameId, feedbackIndicators);
-            }else {
-                feedbackMonitor.computeIfPresent(frameId, (k,v)->v+1);
+            } else {
+                feedbackMonitor.computeIfPresent(frameId, (k, v) -> v + 1);
                 feedbackIndicatorList.get(frameId).addAll(feedbackIndicators);
             }
             //feedbackIndicatorList.computeIfAbsent(frameId, k -> feedbackIndicators);
@@ -121,7 +122,8 @@ public class traceGeneratorEcho extends BaseRichBolt {
         if (eigFrameMap.containsKey(frameId) && feedbackIndicatorList.containsKey(frameId)
                 && feedbackMonitor.get(frameId) == traceAggBoltTasks.size()) {
             List<Integer> feedbackIndicators = feedbackIndicatorList.get(frameId);
-            opencv_core.Mat orgMat = eigFrameMap.get(frameId).toJavaCVMat();
+            //opencv_core.Mat orgMat = eigFrameMap.get(frameId).toJavaCVMat();
+            List<float[]> floatArray = eigFrameMap.get(frameId);
             EigRelatedInfo eigInfo = eigInfoMap.get(frameId);
 
             int width = eigInfo.getW();
@@ -140,20 +142,22 @@ public class traceGeneratorEcho extends BaseRichBolt {
             int totalValidedCount = 0;
             int[] totalValidCntList = new int[this.traceAggBoltTasks.size()];
             if (frameId > 0) {
-
-                opencv_core.IplImage eig = orgMat.asIplImage();
+                //opencv_core.IplImage eig = orgMat.asIplImage();
                 double threshold = eigInfo.getTh();
                 int offset = eigInfo.getOff();
 
                 for (int i = 0; i < height; i++) {
-                    for (int j = 0; j < width; j++) {
-                        int ywx = i * width + j;
-                        if (ywx % taskCntOfThisComponent == thisTaskIndex) {
+                    if (i % taskCnt == thisTaskIndex) {
+                        for (int j = 0; j < width; j++) {
+                            int ywx = i * width + j;
                             if (counters[ywx] == false) {
                                 int x = opencv_core.cvFloor(j * min_distance + offset);
                                 int y = opencv_core.cvFloor(i * min_distance + offset);
-                                FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
-                                float ve = floatBuffer.get(x);
+                                //FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
+                                //float ve = floatBuffer.get(x);
+                                int rowIndex = i / this.taskCnt;
+                                float[] fData = floatArray.get(rowIndex);
+                                float ve = fData[x];
 
                                 if (ve > threshold) {
                                     String traceID = generateTraceID(frameId);
@@ -175,12 +179,12 @@ public class traceGeneratorEcho extends BaseRichBolt {
             } else {
                 //System.out.println("No new dense point generated for frame: " + frameId);
             }
+
             //System.out.println("Frame: " + frameId + " emitted: " //+ registerTraceIDList.size()
             //       + ",validCnt: " + totalValidedCount + ",fd: " + feedbackIndicators.size());
             //collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, registerTraceIDList, new TwoIntegers(width, height)));
             //collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, totalValidedCount, new TwoIntegers(width, height)));
-            for (int i = 0; i < totalValidCntList.length; i++)
-            {
+            for (int i = 0; i < totalValidCntList.length; i++) {
                 int tID = this.traceAggBoltTasks.get(i);
                 collector.emitDirect(tID, STREAM_REGISTER_TRACE, new Values(frameId, totalValidCntList[i], new TwoIntegers(width, height)));
             }
@@ -194,6 +198,7 @@ public class traceGeneratorEcho extends BaseRichBolt {
         }
 
         collector.ack(tuple);
+
     }
 
     @Override
