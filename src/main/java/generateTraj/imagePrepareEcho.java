@@ -138,11 +138,12 @@ public class imagePrepareEcho extends BaseRichBolt {
                 group.add(subGroup);
             }
 
+            int floatArraySize = opencv_core.cvFloor(width * min_distance + offset);
             for (int i = 0; i < height; i++) {
                 int y = opencv_core.cvFloor(i * min_distance + offset);
 
                 FloatBuffer floatBuffer =  eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
-                float[] floatArray = new float[width];
+                float[] floatArray = new float[floatArraySize];
                 floatBuffer.get(floatArray);
 
                 int index = y % traceGeneratorTasks.size();
