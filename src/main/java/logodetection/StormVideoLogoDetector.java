@@ -184,6 +184,65 @@ public class StormVideoLogoDetector {
     }
 
     /**
+     * This methods looks for logos on the part of the frame defined by roi, but the sub-frame is already extracted as input
+     * @param subFrame The image Mat containing the whole logo
+     * @param roi The rectangle corresponding the this patch
+     */
+    public void detectLogosInMatRoi(Mat subFrame, Rect roi) {
+        // Make the results of previous detection null
+        foundRect = null;
+        extractedTemplate = null;
+        parent = null;
+
+        // Obtain the keypoints, descriptors of the patch
+        //Mat r = new Mat(frame, roi);
+        KeyPoint keyPoints = new KeyPoint();
+        Mat testDescriptors = new Mat();
+        Mat rr = subFrame.clone();
+        //r.release();
+        sift.detectAndCompute(rr, Mat.EMPTY, keyPoints, testDescriptors);
+
+        // Sort list by decreasing order of priority
+        Collections.sort(originalTemplates);
+        for (LogoTemplate lt : originalTemplates) {
+            if (keyPoints.capacity() >= params.getMatchingParameters().getMinimalNumberOfMatches() &&
+                    robustMatcher.matchImages(lt.imageMat, lt.descriptor, lt.keyPoints,
+                            rr, testDescriptors, keyPoints, roi))
+            {
+                // If logo is found update the results and break.
+                parent = lt;
+                foundRect = robustMatcher.getFoundRect();
+                extractedTemplate = robustMatcher.getExtractedTemplate();
+                break;
+            }
+        }
+
+        if (foundRect == null) {
+            // If logo hasn't been yet found, sort list of dynamic templates.
+            Collections.sort(addedTemplates);
+            if (addedTemplates.size() > 5)
+                addedTemplates.remove(addedTemplates.size() - 1);
+
+            for (LogoTemplate lt : addedTemplates) {
+                if (keyPoints.capacity() >= params.getMatchingParameters().getMinimalNumberOfMatches() &&
+                        robustMatcher.matchImages(lt.imageMat, lt.descriptor, lt.keyPoints,
+                                rr, testDescriptors, keyPoints, roi))
+                {
+                    // If logo is found update the results and break.
+                    parent = lt;
+                    foundRect = robustMatcher.getFoundRect();
+                    extractedTemplate = robustMatcher.getExtractedTemplate();
+                    break;
+                }
+            }
+        }
+        // Manually force JVM to release this.
+        rr.release();
+        keyPoints.deallocate();
+        testDescriptors.release();
+    }
+
+    /**
      * If logo was detected, you may get its global coordinates (relative to the whole frame)
      * @return the rectangle enclosing detected logo
      */
@@ -263,6 +322,24 @@ public class StormVideoLogoDetector {
         sift.detectAndCompute(image, Mat.EMPTY, keyPoints, descriptor);
         addedTemplates.add(new LogoTemplate(image, keyPoints, descriptor, identifier));
 
+    }
+
+    /**
+     * Adds template to the dynamic list of logo templates.
+     * @param identifier The identifier of the patch, from which this template was extracted.
+     * @param extractedTemplate Image of the logo template
+     * @param maxTemplateSize largest number of allowed template image to add
+     */
+    public void addTemplateBySubMat(Serializable.PatchIdentifier identifier, Serializable.Mat extractedTemplate, int maxTemplateSize) {
+        if (addedTemplates.size() >= maxTemplateSize){
+            return;
+        }
+
+        Mat image = extractedTemplate.toJavaCVMat().clone();
+        Mat descriptor = new Mat();
+        KeyPoint keyPoints = new KeyPoint();
+        sift.detectAndCompute(image, Mat.EMPTY, keyPoints, descriptor);
+        addedTemplates.add(new LogoTemplate(image, keyPoints, descriptor, identifier));
     }
 
     /**

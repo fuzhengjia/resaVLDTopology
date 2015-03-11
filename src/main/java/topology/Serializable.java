@@ -430,4 +430,49 @@ public class Serializable {
             this.y = input.readFloat();
         }
     }
+
+    /**
+     * This is a serializable class used for patch identification. Each patch needs to be distinguished form others.
+     * Each patch is uniquely identified by the id of its frame and by the rectangle it corresponds to.
+     */
+    public static class PatchIdentifierMat implements java.io.Serializable {
+
+        public PatchIdentifier identifier;
+        public Mat sMat;
+
+
+        /**
+         * Creates PatchIdentifier with given frame id and rectangle.
+         * @param frameId
+         * @param roi
+         * @param sMat
+         */
+        public PatchIdentifierMat(int frameId, Rect roi, Mat sMat) {
+            this.identifier = new PatchIdentifier(frameId, roi);
+            this.sMat = sMat;
+        }
+
+        /**
+         * String representation of this patch identifier.
+         *
+         * @return the string in the format N%04d@%04d@%04d@%04d@%04d if roi is not null, and N%04d@null otherwise.
+         */
+        public String toString() {
+            return this.identifier.toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            PatchIdentifierMat that = (PatchIdentifierMat) o;
+            return this.identifier.equals(that.identifier);
+        }
+
+        @Override
+        public int hashCode() {
+            return this.identifier.hashCode();
+        }
+    }
 }

@@ -54,7 +54,6 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
                 patchCount++;
 
         int pCnt = 0;
-        int xCnt = 0;
         for (int x = 0; x + w <= W; x += dx) {
             for (int y = 0; y + h <= H; y += dy) {
                 if (pCnt % this.taskCnt == this.taskIndex) {
@@ -64,10 +63,7 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
                 }
                 pCnt ++;
             }
-            xCnt ++;
         }
-
-        System.out.println("FrameID: " + frameId + ", pCnt: " + pCnt + ", xCnt: " + xCnt);
         /*
         if (localComponentTasks.size() > 0) {
             for (int i = 0; i < localComponentTasks.size(); i++) {

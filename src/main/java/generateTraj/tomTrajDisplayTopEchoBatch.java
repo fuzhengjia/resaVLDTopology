@@ -9,6 +9,7 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
 import tool.FrameImplImageSourceGamma;
+import topology.Serializable;
 
 import java.io.FileNotFoundException;
 
@@ -24,7 +25,10 @@ import static topology.StormConfigManager.*;
  * 此版本暂时通过测试
  * 尝试将optFlowGen and optFlowAgg 分布式化->done
  * 在echo 版本中， optFlowTracker也作了细分，大大降低了传输的network cost
- * test Echo version!
+ * 在echo 版本中，ImgPrep在把eig frame传给traceGen的时候，也做了划分，减少了network cost
+ * 在echo 版本的基础上，使用batch传输策略，即，将所有的trace的点，收集之后再传给下一个bolt，
+ * 这样的batch似乎有效的提高了传输和处理的效率
+ * Test 通过，现在18-3能到25fps，具体performance可以查询笔记
  */
 public class tomTrajDisplayTopEchoBatch {
 
@@ -102,7 +106,7 @@ public class tomTrajDisplayTopEchoBatch {
         conf.setMaxSpoutPending(getInt(conf, "TrajMaxPending"));
 
         int min_dis = getInt(conf, "min_distance");
-        //conf.registerSerialization(Serializable.Mat.class);
+        conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
         StormSubmitter.submitTopology("tomTrajDisplayTopEchoBatch-2-" + min_dis, conf, topology);
     }

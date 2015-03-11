@@ -25,6 +25,7 @@ import static topology.StormConfigManager.*;
  * 此版本暂时通过测试
  * 尝试将optFlowGen and optFlowAgg 分布式化->done
  * 在echo 版本中， optFlowTracker也作了细分，大大降低了传输的network cost
+ * 在echo 版本中，ImgPrep在把eig frame传给traceGen的时候，也做了划分，减少了network cost
  * test Echo version!
  */
 public class tomTrajDisplayTopEcho {
