@@ -10,6 +10,7 @@ import backtype.storm.tuple.Values;
 import logodetection.Debug;
 import logodetection.Parameters;
 import logodetection.StormVideoLogoDetector;
+import org.bytedeco.javacpp.opencv_core;
 
 import java.util.*;
 
@@ -41,6 +42,8 @@ public class tPatchProcessorBeta extends BaseRichBolt {
 
         List<String> templateFiles = getListOfStrings(map, "originalTemplateFileNames");
         detector = new StormVideoLogoDetector(parameters, templateFiles);
+
+        opencv_core.IplImage fk = new opencv_core.IplImage();
     }
 
     @Override

@@ -32,6 +32,9 @@ public class tFrameSpoutBeta extends BaseRichSpout {
     int firstFrameId;
     int lastFrameId;
 
+    opencv_core.IplImage image;
+    opencv_core.Mat mat;
+
     @Override
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
 
@@ -63,10 +66,9 @@ public class tFrameSpoutBeta extends BaseRichSpout {
         if (Debug.timer)
             System.out.println("TIME=" + System.currentTimeMillis());
 
-    }
+        image = new opencv_core.IplImage();
 
-    opencv_core.IplImage image;
-    opencv_core.Mat mat;
+    }
 
     @Override
     public void nextTuple() {
@@ -84,7 +86,7 @@ public class tFrameSpoutBeta extends BaseRichSpout {
                 mat = new opencv_core.Mat(image);
                 Serializable.Mat sMat = new Serializable.Mat(mat);
 
-                collector.emit(RAW_FRAME_STREAM, new Values(frameId, sMat, 0), frameId);
+                collector.emit(RAW_FRAME_STREAM, new Values(frameId, sMat), frameId);
                 frameId++;
                 long nowTime = System.currentTimeMillis();
                 System.out.printf("Sendout: " + nowTime + "," + frameId + ",used: " + (nowTime -start));
@@ -96,7 +98,7 @@ public class tFrameSpoutBeta extends BaseRichSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_PATCH_COUNT));
+        outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
     }
 
 

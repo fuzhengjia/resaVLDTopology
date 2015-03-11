@@ -8,6 +8,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import logodetection.Debug;
+import org.bytedeco.javacpp.opencv_core;
 
 import java.util.*;
 
@@ -30,6 +31,8 @@ public class tPatchAggregatorBeta extends BaseRichBolt {
         this.collector = outputCollector;
         frameAccount = new HashMap<>();
         foundRectAccount = new HashMap<>();
+
+        opencv_core.IplImage fk = new opencv_core.IplImage();
     }
 
     //Fields("frameId", "framePatchIdentifier", "foundRect", "patchCount"));

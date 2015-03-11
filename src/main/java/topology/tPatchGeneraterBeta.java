@@ -36,6 +36,8 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
         this.taskIndex = topologyContext.getThisTaskIndex();
         this.taskCnt = topologyContext.getComponentTasks(topologyContext.getThisComponentId()).size();
         targetComponentTasks = topologyContext.getComponentTasks(targetComponentName);
+
+        opencv_core.IplImage fk = new opencv_core.IplImage();
     }
 
     @Override

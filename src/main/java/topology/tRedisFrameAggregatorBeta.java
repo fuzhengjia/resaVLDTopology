@@ -55,6 +55,8 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
         accumulateFrameSize = Math.max(getInt(map, "accumulateFrameSize"), 1);
         listHistory = null;
 
+        opencv_core.IplImage fk = new opencv_core.IplImage();
+
         producer = new RedisStreamProducer(host, port, queueName, accumulateFrameSize);
         new Thread(producer).start();
 
