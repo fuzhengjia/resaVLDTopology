@@ -43,7 +43,7 @@ public class tPatchAggregatorBeta extends BaseRichBolt {
         Serializable.Rect foundRect = (Serializable.Rect)tuple.getValueByField(FIELD_DETECTED_RECT);
 
         int frameId = patchIdentifier.frameId;
-
+        System.out.println("Received detected path of frame; " + frameId + ", at time: " + System.currentTimeMillis());
         /* Updating the list of detected logos on the frame */
         if (foundRect != null) {
             foundRectAccount.computeIfAbsent(frameId, k->new ArrayList<>()).add(foundRect);

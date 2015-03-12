@@ -8,7 +8,7 @@ public class Constants {
     public final static String RAW_FRAME_STREAM = "rf-stream";
     public final static String PATCH_FRAME_STREAM = "p-f-stream";
     public final static String LOGO_TEMPLATE_UPDATE_STREAM = "ltu-stream";
-    public final static String DETECTED_LOGO_STREAM = "dl-stream";
+    public final static String DETECTED_LOGO_STREAM = "dectlogo-stream";
     public final static String CACHE_CLEAR_STREAM = "cc-stream";
     public final static String PROCESSED_FRAME_STREAM = "pf-stream";
 
