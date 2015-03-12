@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 
 import static topology.Constants.*;
 import static topology.StormConfigManager.getInt;
+import static topology.StormConfigManager.getString;
 import static topology.StormConfigManager.readConfig;
 
 /**
@@ -30,6 +31,10 @@ public class tVLDTopBeta {
         }
         Config conf = readConfig(args[0]);
 
+        String host = getString(conf, "redis.host");
+        int port = getInt(conf, "redis.port");
+        String queueName = getString(conf, "tVLDQueueName");
+
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";
         String patchGenBolt = "tVLDPatchGen";
@@ -37,7 +42,7 @@ public class tVLDTopBeta {
         String patchAggBolt = "tVLDPatchAgg";
         String redisFrameOut = "tVLDRedisFrameOut";
 
-        builder.setSpout(spoutName, new tFrameSpoutBeta(), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new tFrameSourceBeta(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new tPatchGeneraterBeta(patchProcBolt), getInt(conf, patchGenBolt + ".parallelism"))
