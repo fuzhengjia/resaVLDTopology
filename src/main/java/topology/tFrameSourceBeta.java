@@ -35,7 +35,7 @@ public class tFrameSourceBeta extends RedisQueueSpout {
     protected void emitData(Object data) {
         //String id = idPrefix + frameId++;
         String id = String.valueOf(frameId);
-        collector.emit(STREAM_FRAME_OUTPUT, new Values(frameId, data), id);
+        collector.emit(RAW_FRAME_STREAM, new Values(frameId, data), id);
 
         long nowTime = System.currentTimeMillis();
         System.out.printf("Sendout: " + nowTime + "," + frameId);
@@ -44,6 +44,6 @@ public class tFrameSourceBeta extends RedisQueueSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
+        declarer.declareStream(RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
     }
 }
