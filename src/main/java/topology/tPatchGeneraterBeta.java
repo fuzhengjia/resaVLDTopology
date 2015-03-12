@@ -86,8 +86,12 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
 
         for (int i = 0; i < targetComponentTasks.size(); i++) {
             int tID = targetComponentTasks.get(i);
-            collector.emitDirect(tID, PATCH_FRAME_STREAM, tuple, new Values(frameId, newPatches.get(i), pIndex));
-            System.out.println("sendTo tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
+            if (newPatches.get(i).size() > 0) {
+                collector.emitDirect(tID, PATCH_FRAME_STREAM, tuple, new Values(frameId, newPatches.get(i), pIndex));
+                System.out.println("sendTo tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
+            } else {
+                System.out.println("nothing to tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
+            }
         }
 
         collector.ack(tuple);
