@@ -70,7 +70,7 @@ public class tPatchProcessorBeta extends BaseRichBolt {
             Serializable.Rect detectedLogo = detector.getFoundRect();
             Serializable.Mat extractedTemplate = detector.getExtractedTemplate();
             if (detectedLogo != null) {
-                //collector.emit(LOGO_TEMPLATE_UPDATE_STREAM, new Values(identifierMat.identifier, extractedTemplate, detector.getParentIdentifier()));
+                collector.emit(LOGO_TEMPLATE_UPDATE_STREAM, new Values(identifierMat.identifier, extractedTemplate, detector.getParentIdentifier()));
             }
             collector.emit(DETECTED_LOGO_STREAM, tuple,
                     new Values(frameId, identifierMat.identifier, detectedLogo, patchCount));
