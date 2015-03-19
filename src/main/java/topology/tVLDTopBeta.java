@@ -46,12 +46,12 @@ public class tVLDTopBeta {
         builder.setSpout(spoutName, new tFrameSourceBeta(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(transName, new tVLDTransBolt(), getInt(conf, transName + ".parallelism"))
-                .shuffleGrouping(spoutName, RAW_FRAME_STREAM)
-                .setNumTasks(getInt(conf, transName + ".tasks"));
+//        builder.setBolt(transName, new tVLDTransBolt(), getInt(conf, transName + ".parallelism"))
+//                .shuffleGrouping(spoutName, RAW_FRAME_STREAM)
+//                .setNumTasks(getInt(conf, transName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new tPatchGeneraterBeta(patchProcBolt), getInt(conf, patchGenBolt + ".parallelism"))
-                .allGrouping(transName, RAW_FRAME_STREAM)
+                .allGrouping(spoutName, RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
         builder.setBolt(patchProcBolt, new tPatchProcessorBeta(), getInt(conf, patchProcBolt + ".parallelism"))
@@ -66,7 +66,7 @@ public class tVLDTopBeta {
 
         builder.setBolt(redisFrameOut, new tRedisFrameAggregatorBeta(), getInt(conf, redisFrameOut + ".parallelism"))
                 .globalGrouping(patchAggBolt, PROCESSED_FRAME_STREAM)
-                .globalGrouping(transName, RAW_FRAME_STREAM)
+                .globalGrouping(spoutName, RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, redisFrameOut + ".tasks"));
 
         StormTopology topology = builder.createTopology();
