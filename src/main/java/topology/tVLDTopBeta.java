@@ -50,7 +50,7 @@ public class tVLDTopBeta {
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
         builder.setBolt(patchProcBolt, new tPatchProcessorBeta(), getInt(conf, patchProcBolt + ".parallelism"))
-                .allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
+                //.allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
                 .directGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
