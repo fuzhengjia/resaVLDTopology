@@ -43,8 +43,8 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
 
         //TODO get params from config map
         double fx = .25, fy = .25;
-        //double fsx = .5, fsy = .5;
-        double fsx = .4, fsy = .4;
+        double fsx = .5, fsy = .5;
+        //double fsx = .4, fsy = .4;
 
         int W = sMat.getCols(), H = sMat.getRows();
         int w = (int) (W * fx + .5), h = (int) (H * fy + .5);
