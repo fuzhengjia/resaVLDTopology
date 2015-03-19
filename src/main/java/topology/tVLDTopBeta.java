@@ -37,7 +37,7 @@ public class tVLDTopBeta {
 
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";
-        String transName = "tVLDTrans";
+        String transName = "tVLDeTrans";
         String patchGenBolt = "tVLDPatchGen";
         String patchProcBolt = "tVLDPatchProc";
         String patchAggBolt = "tVLDPatchAgg";
