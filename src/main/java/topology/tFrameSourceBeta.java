@@ -33,6 +33,7 @@ public class tFrameSourceBeta extends RedisQueueSpout {
         super.open(conf, context, collector);
         this.collector = collector;
         frameId = 0;
+        opencv_core.IplImage fk = new opencv_core.IplImage();
         //idPrefix = String.format("s-%02d-", context.getThisTaskIndex() + 1);
     }
 
