@@ -76,7 +76,7 @@ public class tVLDTopBeta {
         conf.setMaxSpoutPending(getInt(conf, "tVLDMaxPending"));
 
         conf.setStatsSampleRate(1.0);
-        conf.registerSerialization(Serializable.Mat.class);
+        //conf.registerSerialization(Serializable.Mat.class);
 
         StormSubmitter.submitTopology("tVLDTopBeta-1", conf, topology);
 
