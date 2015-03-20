@@ -36,7 +36,7 @@ public class tVLDTopBeta {
         int port = getInt(conf, "redis.port");
         String queueName = getString(conf, "tVLDQueueName");
 
-        double fsxy = getDouble(conf, "tVLDfxxy", 0.5);
+        double fsxy = getDouble(conf, "tVLDfsxy", 0.5);
 
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";

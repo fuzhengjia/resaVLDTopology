@@ -38,7 +38,7 @@ public class tVLDTopBetaLocalInput {
         String patchAggBolt = "tVLDPatchAgg";
         String redisFrameOut = "tVLDRedisFrameOut";
 
-        builder.setSpout(spoutName, new tomFrameSpout(), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new tFrameSpoutBeta(), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new tPatchGeneraterBeta(patchProcBolt, fsxy), getInt(conf, patchGenBolt + ".parallelism"))
