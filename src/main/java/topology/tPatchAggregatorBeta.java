@@ -59,7 +59,7 @@ public class tPatchAggregatorBeta extends BaseRichBolt {
         if (frameAccount.get(frameId).size() == patchCount) {
             if (Debug.topologyDebugOutput)
                 System.out.println("All parts of frame " + frameId + " received");
-            collector.emit(PROCESSED_FRAME_STREAM, tuple, new Values(frameId, foundRectAccount.get(frameId)));
+            collector.emit(PROCESSED_FRAME_STREAM, new Values(frameId, foundRectAccount.get(frameId)));
             frameAccount.remove(frameId);
             foundRectAccount.remove(frameId);
         }
