@@ -28,7 +28,7 @@ public class tVLDTopBetaLocalInput {
             System.exit(0);
         }
         Config conf = readConfig(args[0]);
-        double fsxy = getDouble(conf, "tVLDfxxy", 0.5);
+        double fsxy = getDouble(conf, "tVLDfsxy", 0.5);
 
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";
