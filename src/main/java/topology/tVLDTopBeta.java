@@ -14,6 +14,7 @@ import static topology.Constants.*;
 import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getString;
 import static topology.StormConfigManager.readConfig;
+import static util.ConfigUtil.getDouble;
 
 /**
  * Created by Intern04 on 4/8/2014.
@@ -35,6 +36,8 @@ public class tVLDTopBeta {
         int port = getInt(conf, "redis.port");
         String queueName = getString(conf, "tVLDQueueName");
 
+        double fsxy = getDouble(conf, "tVLDfxxy", 0.5);
+
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";
         String transName = "tVLDeTrans";
@@ -50,7 +53,7 @@ public class tVLDTopBeta {
 //                .shuffleGrouping(spoutName, RAW_FRAME_STREAM)
 //                .setNumTasks(getInt(conf, transName + ".tasks"));
 
-        builder.setBolt(patchGenBolt, new tPatchGeneraterBeta(patchProcBolt), getInt(conf, patchGenBolt + ".parallelism"))
+        builder.setBolt(patchGenBolt, new tPatchGeneraterBeta(patchProcBolt, fsxy), getInt(conf, patchGenBolt + ".parallelism"))
                 .allGrouping(spoutName, RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 

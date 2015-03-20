@@ -25,8 +25,11 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
     List<Integer> targetComponentTasks;
     String targetComponentName;
 
-    public tPatchGeneraterBeta(String targetComponentName) {
+    double fsxy;
+
+    public tPatchGeneraterBeta(String targetComponentName, double fsxy) {
         this.targetComponentName = targetComponentName;
+        this.fsxy = fsxy;
     }
 
     @Override
@@ -49,7 +52,8 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
         //TODO get params from config map
         double fx = .25, fy = .25;
         //double fsx = .5, fsy = .5;
-        double fsx = .4, fsy = .4;
+        //double fsx = .4, fsy = .4;
+        double fsx = fsxy, fsy = fsxy;
 
         int W = sMat.getCols(), H = sMat.getRows();
         int w = (int) (W * fx + .5), h = (int) (H * fy + .5);

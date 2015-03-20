@@ -18,7 +18,7 @@ import static topology.StormConfigManager.readConfig;
 /**
  * Created by Intern04 on 4/8/2014.
  */
-public class tomVLDTopologyFrameRedisInput {
+public class tomVLDTopologyNoLoop {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -30,23 +30,20 @@ public class tomVLDTopologyFrameRedisInput {
             System.exit(0);
         }
         Config conf = readConfig(args[0]);
-        String host = getString(conf, "redis.host");
-        int port = getInt(conf, "redis.port");
-        String queueName = getString(conf, "tVLDQueueName");
         int numberOfWorkers = getInt(conf, "numberOfWorkers");
 
         TopologyBuilder builder = new TopologyBuilder();
 
-        builder.setSpout("retriever", new tFrameSourceTmp(host, port, queueName), getInt(conf, "TomFrameSpout.parallelism"))
+        builder.setSpout("retriever", new tomFrameSpout(), getInt(conf, "TomFrameSpout.parallelism"))
                 .setNumTasks(getInt(conf, "TomFrameSpout.tasks"));
 
         builder.setBolt("patchGen", new tomPatchGenerateBolt(), getInt(conf, "TomPatchGen.parallelism"))
                 .allGrouping("retriever", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "TomPatchGen.tasks"));
 
-        builder.setBolt("processor", new PatchProcessorBolt(), getInt(conf, "PatchProcessorBolt.parallelism"))
+        builder.setBolt("processor", new PatchProcessorNoLoop(), getInt(conf, "PatchProcessorBolt.parallelism"))
                 .shuffleGrouping("patchGen", PATCH_STREAM)
-                .allGrouping("processor", LOGO_TEMPLATE_UPDATE_STREAM)
+                //.allGrouping("processor", LOGO_TEMPLATE_UPDATE_STREAM)
                 .allGrouping("intermediate", CACHE_CLEAR_STREAM)
                 .directGrouping("patchGen", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "PatchProcessorBolt.tasks"));
@@ -65,7 +62,7 @@ public class tomVLDTopologyFrameRedisInput {
         conf.setNumWorkers(numberOfWorkers);
         conf.setMaxSpoutPending(getInt(conf, "MaxSpoutPending"));
 
-        conf.registerSerialization(Serializable.Mat.class);
+        //conf.registerSerialization(Serializable.Mat.class);
         //conf.registerSerialization(Serializable.Rect.class);
         //conf.registerSerialization(Serializable.PatchIdentifier.class);
 
