@@ -46,7 +46,7 @@ public class tVLDTopGamma {
 
         builder.setBolt(transName, new tVLDTransBolt(patchGenBolt), getInt(conf, transName + ".parallelism"))
                 .shuffleGrouping(spoutName, RAW_FRAME_STREAM)
-                .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
+                .setNumTasks(getInt(conf, transName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new tPatchGeneraterGamma(patchProcBolt), getInt(conf, patchGenBolt + ".parallelism"))
                 .shuffleGrouping(transName, RAW_FRAME_STREAM)
@@ -56,7 +56,7 @@ public class tVLDTopGamma {
                 .directGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
-        builder.setBolt(patchAggBolt, new tPatchAggregatorBeta(), getInt(conf, patchAggBolt + ".parallelism"))
+        builder.setBolt(patchAggBolt, new tPatchAggregatorGamma(), getInt(conf, patchAggBolt + ".parallelism"))
                 .globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
