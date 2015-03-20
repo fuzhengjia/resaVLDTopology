@@ -49,7 +49,7 @@ public class tVLDTopGamma {
                 .setNumTasks(getInt(conf, transName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new tPatchGeneraterGamma(patchProcBolt), getInt(conf, patchGenBolt + ".parallelism"))
-                .shuffleGrouping(transName, RAW_FRAME_STREAM)
+                .shuffleGrouping(transName, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
         builder.setBolt(patchProcBolt, new tPatchProcessorGamma(), getInt(conf, patchProcBolt + ".parallelism"))

@@ -8,6 +8,8 @@ import backtype.storm.tuple.Tuple;
 import logodetection.Debug;
 import logodetection.Util;
 import org.bytedeco.javacpp.opencv_core;
+import tool.RedisStreamProducerBeta;
+import util.ConfigUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +25,7 @@ import static topology.StormConfigManager.getString;
 public class tRedisFrameAggregatorBeta extends BaseRichBolt {
     OutputCollector collector;
 
-    RedisStreamProducer producer;
+    RedisStreamProducerBeta producer;
 
     //int lim = 31685; // SONY
     private HashMap<Integer, List<Serializable.Rect>> processedFrames;
@@ -34,7 +36,10 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
     private int port;
     private String queueName;
     private int persistFrames;
-    private int accumulateFrameSize;
+//    private int accumulateFrameSize;
+    private int sleepTime;
+    private int startFrameID;
+    private int maxWaitCount;
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -52,12 +57,15 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
         this.collector = outputCollector;
 
         persistFrames = Math.max(getInt(map, "persistFrames"), 1);
-        accumulateFrameSize = Math.max(getInt(map, "accumulateFrameSize"), 1);
+//        accumulateFrameSize = Math.max(getInt(map, "accumulateFrameSize"), 1);
+        this.sleepTime = ConfigUtil.getInt(map, "sleepTime", 10);
+        this.startFrameID = ConfigUtil.getInt(map, "startFrameID", 1);
+        this.maxWaitCount = ConfigUtil.getInt(map, "maxWaitCount", 4);
         listHistory = null;
 
         opencv_core.IplImage fk = new opencv_core.IplImage();
 
-        producer = new RedisStreamProducer(host, port, queueName, accumulateFrameSize);
+        producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
         new Thread(producer).start();
 
     }
