@@ -73,7 +73,8 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
             newPatches.add(new ArrayList<>());
         }
 
-        int pIndex = 0;
+        //int pIndex = 0;
+        int pIndex = xCnt * yCnt;
         for (int x = 0; x + w <= W; x += dx) {
             for (int y = 0; y + h <= H; y += dy) {
                 if (pIndex % this.taskCnt == this.taskIndex) {
@@ -82,28 +83,30 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
                     Serializable.Mat pSMat = new Serializable.Mat(pMat);
                     Serializable.PatchIdentifierMat identifierMat = new Serializable.PatchIdentifierMat(frameId, rect, pSMat);
 
-                    int index = pIndex % targetComponentTasks.size();
-                    newPatches.get(index).add(identifierMat);
+                    collector.emit(PATCH_FRAME_STREAM, tuple, new Values(frameId, identifierMat, pIndex));
+                    //int index = pIndex % targetComponentTasks.size();
+                    //newPatches.get(index).add(identifierMat);
                 }
-                pIndex++;
+                //pIndex++;
             }
         }
 
-        for (int i = 0; i < targetComponentTasks.size(); i++) {
-            int tID = targetComponentTasks.get(i);
-            if (newPatches.get(i).size() > 0) {
-                collector.emitDirect(tID, PATCH_FRAME_STREAM, tuple, new Values(frameId, newPatches.get(i), pIndex));
-                System.out.println("sendTo tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
-            } else {
-                System.out.println("nothing to tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
-            }
-        }
+//        for (int i = 0; i < targetComponentTasks.size(); i++) {
+//            int tID = targetComponentTasks.get(i);
+//            if (newPatches.get(i).size() > 0) {
+//                collector.emitDirect(tID, PATCH_FRAME_STREAM, tuple, new Values(frameId, newPatches.get(i), pIndex));
+//                System.out.println("sendTo tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
+//            } else {
+//                System.out.println("nothing to tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
+//            }
+//        }
 
         collector.ack(tuple);
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(PATCH_FRAME_STREAM, true, new Fields(FIELD_FRAME_ID, FIELD_PATCH_FRAME_MAT, FIELD_PATCH_COUNT));
+        //outputFieldsDeclarer.declareStream(PATCH_FRAME_STREAM, true, new Fields(FIELD_FRAME_ID, FIELD_PATCH_FRAME_MAT, FIELD_PATCH_COUNT));
+        outputFieldsDeclarer.declareStream(PATCH_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_PATCH_FRAME_MAT, FIELD_PATCH_COUNT));
     }
 }
