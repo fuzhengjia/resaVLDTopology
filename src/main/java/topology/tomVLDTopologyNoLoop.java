@@ -66,7 +66,7 @@ public class tomVLDTopologyNoLoop {
         //conf.registerSerialization(Serializable.Rect.class);
         //conf.registerSerialization(Serializable.PatchIdentifier.class);
 
-        StormSubmitter.submitTopology("tomVLDTop-redisInput", conf, topology);
+        StormSubmitter.submitTopology("tomVLDTop-no-loop", conf, topology);
 
     }
 }

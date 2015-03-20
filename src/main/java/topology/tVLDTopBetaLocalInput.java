@@ -6,20 +6,17 @@ import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.tuple.Fields;
 
 import java.io.FileNotFoundException;
 
 import static topology.Constants.*;
-import static topology.StormConfigManager.getInt;
-import static topology.StormConfigManager.getString;
-import static topology.StormConfigManager.readConfig;
+import static topology.StormConfigManager.*;
 import static util.ConfigUtil.getDouble;
 
 /**
  * Created by Intern04 on 4/8/2014.
  */
-public class tVLDTopBeta {
+public class tVLDTopBetaLocalInput {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -31,11 +28,6 @@ public class tVLDTopBeta {
             System.exit(0);
         }
         Config conf = readConfig(args[0]);
-
-        String host = getString(conf, "redis.host");
-        int port = getInt(conf, "redis.port");
-        String queueName = getString(conf, "tVLDQueueName");
-
         double fsxy = getDouble(conf, "tVLDfxxy", 0.5);
 
         TopologyBuilder builder = new TopologyBuilder();
@@ -46,7 +38,7 @@ public class tVLDTopBeta {
         String patchAggBolt = "tVLDPatchAgg";
         String redisFrameOut = "tVLDRedisFrameOut";
 
-        builder.setSpout(spoutName, new tFrameSourceBeta(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new tomFrameSpout(), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new tPatchGeneraterBeta(patchProcBolt, fsxy), getInt(conf, patchGenBolt + ".parallelism"))
