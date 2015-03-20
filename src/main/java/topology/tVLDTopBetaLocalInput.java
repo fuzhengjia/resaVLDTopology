@@ -69,7 +69,7 @@ public class tVLDTopBetaLocalInput {
         conf.setStatsSampleRate(1.0);
         //conf.registerSerialization(Serializable.Mat.class);
 
-        StormSubmitter.submitTopology("tVLDTopBeta-1", conf, topology);
+        StormSubmitter.submitTopology("tVLDTopBeta-localInput", conf, topology);
 
     }
 }
