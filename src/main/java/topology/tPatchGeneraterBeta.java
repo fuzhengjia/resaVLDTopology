@@ -56,7 +56,6 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
         int W = sMat.getCols(), H = sMat.getRows();
         int w = (int) (W * fx + .5), h = (int) (H * fy + .5);
         int dx = (int) (w * fsx + .5), dy = (int) (h * fsy + .5);
-        int patchCount = 0;
         int xCnt = 0;
         int yCnt = 0;
         for (int x = 0; x + w <= W; x += dx) {
@@ -71,11 +70,12 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
 //            newPatches.add(new ArrayList<>());
 //        }
 
-        //int pIndex = 0;
+        int patchCount = 0;
         int pIndex = xCnt * yCnt;
         for (int x = 0; x + w <= W; x += dx) {
             for (int y = 0; y + h <= H; y += dy) {
-                if (pIndex % this.thisTaskCnt == this.thisTaskIndex) {
+                patchCount ++;
+                if (patchCount % this.thisTaskCnt == this.thisTaskIndex) {
                     Serializable.Rect rect = new Serializable.Rect(x, y, w, h);
                     opencv_core.Mat pMat = new opencv_core.Mat(sMat.toJavaCVMat(), rect.toJavaCVRect());
                     Serializable.Mat pSMat = new Serializable.Mat(pMat);
