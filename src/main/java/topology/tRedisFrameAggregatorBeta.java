@@ -63,11 +63,11 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
         this.maxWaitCount = ConfigUtil.getInt(map, "maxWaitCount", 4);
         listHistory = null;
 
-        //TODO: is this a bug?
-        //opencv_core.IplImage fk = new opencv_core.IplImage();
-
         producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
         new Thread(producer).start();
+
+        //TODO: is this a bug?
+        opencv_core.IplImage fk = new opencv_core.IplImage();
         System.out.println("End of prepare, the producer thread should start..." + System.currentTimeMillis());
 
     }
@@ -78,7 +78,7 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
     public void execute(Tuple tuple) {
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        opencv_core.IplImage imageFK = new opencv_core.IplImage();
+        //opencv_core.IplImage imageFK = new opencv_core.IplImage();
 
         if (streamId.equals(PROCESSED_FRAME_STREAM)) {
             List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField(FIELD_FOUND_RECT_LIST);

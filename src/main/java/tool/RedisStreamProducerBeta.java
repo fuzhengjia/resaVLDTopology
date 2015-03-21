@@ -112,25 +112,26 @@ public class RedisStreamProducerBeta implements Runnable {
             try {
                 StreamFrame peekFrame = getPeekFrame();
                 if (peekFrame == null) {
-                    Thread.sleep(sleepTime);
                     //System.out.println("peekFrame == null");
+                    Thread.sleep(sleepTime);
                 } else {
                     if (peekFrame.frameId <= currentFrameID) {
+                        //System.out.println("peekFrame.frameId (" + peekFrame.frameId +") <= currentFrameID: " + currentFrameID);
                         pollFrame();
+
                     } else if (peekFrame.frameId == (currentFrameID + 1)) {
+                        //System.out.println("peekFrame.frameId (" + peekFrame.frameId +") == 1 + currentFrameID: " + currentFrameID);
                         StreamFrame nextFrame = pollFrame();
                         opencv_core.IplImage iplImage = nextFrame.image.asIplImage();
-                        System.out.println("finish asIplImage");
                         BufferedImage bufferedImage = iplImage.getBufferedImage();
-                        System.out.println("finish bfferedImage");
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         ImageIO.write(bufferedImage, "JPEG", baos);
-                        System.out.println("finish ImageIO");
                         jedis.rpush(this.queueName, baos.toByteArray());
 
                         System.out.println("finishedAdd: " + System.currentTimeMillis() + ",Fid: " + nextFrame.frameId);
                         currentFrameID++;
                     } else {
+                        //System.out.println("peekFrame.frameId (" + peekFrame.frameId +") >> currentFrameID: " + currentFrameID);
                         Thread.sleep(sleepTime);
                         waitCount++;
                         if (waitCount >= maxWaitCount) {
