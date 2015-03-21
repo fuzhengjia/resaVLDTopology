@@ -67,7 +67,7 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
         new Thread(producer).start();
 
         //TODO: is this a bug? be careful! should be at the end of this prepare function!!!
-        opencv_core.IplImage fk = new opencv_core.IplImage();
+        //opencv_core.IplImage fk = new opencv_core.IplImage();
         System.out.println("End of prepare, the producer thread should start..." + System.currentTimeMillis());
 
     }
@@ -78,7 +78,7 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
     public void execute(Tuple tuple) {
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        //opencv_core.IplImage imageFK = new opencv_core.IplImage();
+        opencv_core.IplImage imageFK = new opencv_core.IplImage();
 
         if (streamId.equals(PROCESSED_FRAME_STREAM)) {
             List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField(FIELD_FOUND_RECT_LIST);
