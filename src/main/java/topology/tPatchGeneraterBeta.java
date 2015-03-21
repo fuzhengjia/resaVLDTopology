@@ -81,23 +81,24 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
                     Serializable.Mat pSMat = new Serializable.Mat(pMat);
                     Serializable.PatchIdentifierMat patchIdentifierMat = new Serializable.PatchIdentifierMat(frameId, rect, pSMat);
 
-                    //collector.emit(PATCH_FRAME_STREAM, tuple, new Values(frameId, patchIdentifierMat, pIndex));
-                    int index = pIndex % targetComponentTasks.size();
-                    newPatches.get(index).add(patchIdentifierMat);
+
+                    collector.emit(PATCH_FRAME_STREAM, tuple, new Values(frameId, patchIdentifierMat, pIndex));
+//                    int index = pIndex % targetComponentTasks.size();
+//                    newPatches.get(index).add(patchIdentifierMat);
                 }
                 //pIndex++;
             }
         }
 
-        for (int i = 0; i < targetComponentTasks.size(); i++) {
-            int tID = targetComponentTasks.get(i);
-            if (newPatches.get(i).size() > 0) {
-                collector.emitDirect(tID, PATCH_FRAME_STREAM, tuple, new Values(frameId, newPatches.get(i), pIndex));
-                System.out.println("sendTo tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
-            } else {
-                System.out.println("nothing to tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
-            }
-        }
+//        for (int i = 0; i < targetComponentTasks.size(); i++) {
+//            int tID = targetComponentTasks.get(i);
+//            if (newPatches.get(i).size() > 0) {
+//                collector.emitDirect(tID, PATCH_FRAME_STREAM, tuple, new Values(frameId, newPatches.get(i), pIndex));
+//                System.out.println("sendTo tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
+//            } else {
+//                System.out.println("nothing to tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
+//            }
+//        }
 
         collector.ack(tuple);
     }

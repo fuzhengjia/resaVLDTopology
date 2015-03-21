@@ -47,7 +47,7 @@ public class tVLDTopBetaLocalInput {
 
         builder.setBolt(patchProcBolt, new tPatchProcessorBeta(), getInt(conf, patchProcBolt + ".parallelism"))
                 //.allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
-                .directGrouping(patchGenBolt, PATCH_FRAME_STREAM)
+                .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
         builder.setBolt(patchAggBolt, new tPatchAggregatorBeta(), getInt(conf, patchAggBolt + ".parallelism"))
