@@ -16,10 +16,9 @@ import org.bytedeco.javacv.OpenCVFrameGrabber;
 
 import java.util.Map;
 
+import static tool.Constants.*;
 import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getString;
-import static tool.Constants.RAW_FRAME_STREAM;
-import static tool.Constants.PATCH_STREAM;
 
 
 /**
@@ -121,8 +120,8 @@ public class FrameRetrieverSpout extends BaseRichSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(PATCH_STREAM, new Fields("patchIdentifier", "patchCount"));
-        outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, new Fields("frameId", "frameMat", "patchCount"));
+        outputFieldsDeclarer.declareStream(PATCH_STREAM, new Fields(FIELD_PATCH_IDENTIFIER, FIELD_PATCH_COUNT));
+        outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_PATCH_COUNT));
     }
 
 

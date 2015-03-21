@@ -48,7 +48,7 @@ public class tomVLDTopology {
                 .setNumTasks(getInt(conf, "PatchProcessorBolt.tasks"));
 
         builder.setBolt("intermediate", new PatchAggregatorBolt(), getInt(conf, "PatchAggregatorBolt.parallelism"))
-                .fieldsGrouping("processor", DETECTED_LOGO_STREAM, new Fields("frameId"))
+                .fieldsGrouping("processor", DETECTED_LOGO_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, "PatchAggregatorBolt.tasks"));
 
         builder.setBolt("aggregator2", new RedisFrameAggregatorBolt2(), getInt(conf, "FrameAggregatorBolt.parallelism"))

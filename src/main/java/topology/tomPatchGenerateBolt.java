@@ -20,8 +20,6 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
     private int taskIndex;
     private int taskCnt;
     List<Integer> targetComponentTasks;
-    //List<Integer> commonWorkerTasks;
-    //List<Integer> localComponentTasks;
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -30,16 +28,13 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
         this.taskIndex = topologyContext.getThisTaskIndex();
         this.taskCnt = topologyContext.getComponentTasks(topologyContext.getThisComponentId()).size();
         targetComponentTasks = topologyContext.getComponentTasks("processor");
-        //commonWorkerTasks = topologyContext.getThisWorkerTasks();
-        //localComponentTasks = new ArrayList<Integer>(targetComponentTasks);
-        //localComponentTasks.retainAll(commonWorkerTasks);
     }
 
     @Override
     public void execute(Tuple tuple) {
 
-        int frameId = tuple.getIntegerByField("frameId");
-        Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField("frameMat");
+        int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
+        Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
 
         //TODO get params from config map
         double fx = .25, fy = .25;
@@ -65,14 +60,6 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
                 pCnt ++;
             }
         }
-        /*
-        if (localComponentTasks.size() > 0) {
-            for (int i = 0; i < localComponentTasks.size(); i++) {
-                int tID = localComponentTasks.get(i);
-                collector.emitDirect(tID, RAW_FRAME_STREAM, tuple, new Values(frameId, sMat, patchCount));
-            }
-        }
-        */
 
         for (int i = 0; i < targetComponentTasks.size(); i ++) {
             int tID = targetComponentTasks.get(i);
@@ -86,8 +73,8 @@ public class tomPatchGenerateBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(PATCH_STREAM, new Fields("patchIdentifier", "patchCount"));
+        outputFieldsDeclarer.declareStream(PATCH_STREAM, new Fields(FIELD_PATCH_IDENTIFIER, FIELD_PATCH_COUNT));
         //EmitDirect
-        outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, true, new Fields("frameId", "frameMat", "patchCount"));
+        outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, true, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_PATCH_COUNT));
     }
 }

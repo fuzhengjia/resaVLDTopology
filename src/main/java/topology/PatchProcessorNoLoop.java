@@ -62,14 +62,14 @@ public class PatchProcessorNoLoop extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(DETECTED_LOGO_STREAM,
-                new Fields("frameId", "framePatchIdentifier", "foundRect", "patchCount"));
+                new Fields(FIELD_FRAME_ID, FIELD_PATCH_IDENTIFIER, FIELD_FOUND_RECT, FIELD_PATCH_COUNT));
     }
 
     //  Fields("frameId", "frameMat", "patchCount"));
     private void processFrame( Tuple tuple ) {
-        int frameId = tuple.getIntegerByField("frameId");
-        Serializable.Mat mat = (Serializable.Mat) tuple.getValueByField("frameMat");
-        int patchCount = tuple.getIntegerByField("patchCount");
+        int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
+        Serializable.Mat mat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
+        int patchCount = tuple.getIntegerByField(FIELD_PATCH_COUNT);
         if (frameMap.containsKey(frameId)) {
             if (Debug.topologyDebugOutput)
                 System.err.println(this.getClass() + "#" + "processFrame(): Received duplicate frame");
@@ -92,8 +92,8 @@ public class PatchProcessorNoLoop extends BaseRichBolt {
 
     // Fields("patchIdentifier", "patchCount"));
     private void processPatch( Tuple tuple ) {
-        Serializable.PatchIdentifier patchIdentifier = (Serializable.PatchIdentifier) tuple.getValueByField("patchIdentifier");
-        int patchCount = tuple.getIntegerByField("patchCount");
+        Serializable.PatchIdentifier patchIdentifier = (Serializable.PatchIdentifier) tuple.getValueByField(FIELD_PATCH_IDENTIFIER);
+        int patchCount = tuple.getIntegerByField(FIELD_PATCH_COUNT);
         int frameId = patchIdentifier.frameId;
         if (frameMap.containsKey(frameId)) {
             detector.detectLogosInRoi(frameMap.get(frameId).toJavaCVMat(), patchIdentifier.roi.toJavaCVRect());
@@ -108,7 +108,7 @@ public class PatchProcessorNoLoop extends BaseRichBolt {
     }
 
     private void processCacheClear(Tuple tuple) {
-        int frameId = tuple.getIntegerByField("frameId");
+        int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
         frameMap.remove(frameId);
         patchQueue.remove(frameId);
     }

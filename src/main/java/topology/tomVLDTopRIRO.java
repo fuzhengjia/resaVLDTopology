@@ -17,7 +17,7 @@ import static topology.StormConfigManager.readConfig;
 /**
  * Created by Intern04 on 4/8/2014.
  */
-public class tomVLDTopologyNoLoop {
+public class tomVLDTopRIRO {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -40,17 +40,18 @@ public class tomVLDTopologyNoLoop {
                 .allGrouping("retriever", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "TomPatchGen.tasks"));
 
-        builder.setBolt("processor", new PatchProcessorNoLoop(), getInt(conf, "PatchProcessorBolt.parallelism"))
+        builder.setBolt("processor", new PatchProcessorBolt(), getInt(conf, "PatchProcessorBolt.parallelism"))
                 .shuffleGrouping("patchGen", PATCH_STREAM)
+                .allGrouping("processor", LOGO_TEMPLATE_UPDATE_STREAM)
                 .allGrouping("intermediate", CACHE_CLEAR_STREAM)
                 .directGrouping("patchGen", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "PatchProcessorBolt.tasks"));
 
         builder.setBolt("intermediate", new PatchAggregatorBolt(), getInt(conf, "PatchAggregatorBolt.parallelism"))
-                .fieldsGrouping("processor", DETECTED_LOGO_STREAM, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping("processor", DETECTED_LOGO_STREAM, new Fields("frameId"))
                 .setNumTasks(getInt(conf, "PatchAggregatorBolt.tasks"));
 
-        builder.setBolt("aggregator2", new RedisFrameAggregatorBolt2(), getInt(conf, "FrameAggregatorBolt.parallelism"))
+        builder.setBolt("aggregator2", new tRedisFrameAggregatorBeta(), getInt(conf, "FrameAggregatorBolt.parallelism"))
                 .globalGrouping("intermediate", PROCESSED_FRAME_STREAM)
                 .globalGrouping("retriever", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "FrameAggregatorBolt.tasks"));
@@ -60,7 +61,7 @@ public class tomVLDTopologyNoLoop {
         conf.setNumWorkers(numberOfWorkers);
         conf.setMaxSpoutPending(getInt(conf, "MaxSpoutPending"));
 
-        StormSubmitter.submitTopology("tomVLDTop-no-loop", conf, topology);
+        StormSubmitter.submitTopology("tomVLDTop-riro", conf, topology);
 
     }
 }

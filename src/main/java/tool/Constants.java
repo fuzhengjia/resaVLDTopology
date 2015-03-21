@@ -51,10 +51,14 @@ public interface Constants {
 
     public final static String FIELD_PATCH_FRAME_MAT = "p-frm-mat";
     public final static String FIELD_PATCH_COUNT = "patch-cnt";
-    public final static String FIELD_HOST_PATCH = "host-patch";
-    public final static String FIELD_DETECTED_RECT = "det-rect";
+    public final static String FIELD_PATCH_IDENTIFIER = "p-ident";
+    public final static String FIELD_HOST_PATCH_IDENTIFIER = "host-p-ident";
+    public final static String FIELD_DETECTED_LOGO_RECT = "detect-logo-rect";
+    public final static String FIELD_FOUND_RECT = "found-rect";
+    public final static String FIELD_FOUND_RECT_LIST = "found-rect-list";
+    public final static String FIELD_PARENT_PATCH_IDENTIFIER = "par-p-ident";
+
     public final static String FIELD_EXTRACTED_TEMPLATE = "ext-temp";
-    public final static String FIELD_PARENT_PATCH = "parent-patch";
 
 ////////////not used
 

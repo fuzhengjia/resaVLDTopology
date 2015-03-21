@@ -14,8 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static tool.Constants.RAW_FRAME_STREAM;
-import static tool.Constants.PROCESSED_FRAME_STREAM;
+import static tool.Constants.*;
 import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getString;
 
@@ -65,16 +64,16 @@ public class FrameAggregatorBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
         String streamId = tuple.getSourceStreamId();
-        int frameId = tuple.getIntegerByField("frameId");
+        int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
         if (streamId.equals(PROCESSED_FRAME_STREAM)) {
-            List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField("foundRectList");
+            List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField(FIELD_FOUND_RECT_LIST);
             if (!processedFrames.containsKey(frameId)) {
                 processedFrames.put(frameId, list);
                 //System.out.println("addtoProcessedFrames: " + System.currentTimeMillis() + ":" + frameId);
             }
         } else if (streamId.equals(RAW_FRAME_STREAM)) {
-            Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField("frameMat");
+            Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
             if (!frameMap.containsKey(frameId)) {
                 frameMap.put(frameId, sMat);
                 //System.out.println("addtoFrameMap: " + System.currentTimeMillis() + ":" + frameId);

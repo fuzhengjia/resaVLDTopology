@@ -11,8 +11,7 @@ import logodetection.Debug;
 
 import java.util.*;
 
-import static tool.Constants.CACHE_CLEAR_STREAM;
-import static tool.Constants.PROCESSED_FRAME_STREAM;
+import static tool.Constants.*;
 
 /**
  * Created by Intern04 on 5/8/2014.
@@ -36,9 +35,9 @@ public class PatchAggregatorBolt extends BaseRichBolt {
     //Fields("frameId", "framePatchIdentifier", "foundRect", "patchCount"));
     @Override
     public void execute(Tuple tuple) {
-        Serializable.PatchIdentifier patchIdentifier = (Serializable.PatchIdentifier)tuple.getValueByField("framePatchIdentifier");
-        int patchCount              = tuple.getIntegerByField("patchCount");
-        Serializable.Rect foundRect = (Serializable.Rect)tuple.getValueByField("foundRect");
+        Serializable.PatchIdentifier patchIdentifier = (Serializable.PatchIdentifier)tuple.getValueByField(FIELD_PATCH_IDENTIFIER);
+        int patchCount              = tuple.getIntegerByField(FIELD_PATCH_COUNT);
+        Serializable.Rect foundRect = (Serializable.Rect)tuple.getValueByField(FIELD_FOUND_RECT);
 
         int frameId = patchIdentifier.frameId;
 
@@ -69,7 +68,7 @@ public class PatchAggregatorBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(PROCESSED_FRAME_STREAM, new Fields("frameId", "foundRectList"));
-        outputFieldsDeclarer.declareStream(CACHE_CLEAR_STREAM, new Fields("frameId"));
+        outputFieldsDeclarer.declareStream(PROCESSED_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FOUND_RECT_LIST));
+        outputFieldsDeclarer.declareStream(CACHE_CLEAR_STREAM, new Fields(FIELD_FRAME_ID));
     }
 }
