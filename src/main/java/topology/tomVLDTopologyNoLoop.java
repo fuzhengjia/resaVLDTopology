@@ -42,7 +42,6 @@ public class tomVLDTopologyNoLoop {
 
         builder.setBolt("processor", new PatchProcessorNoLoop(), getInt(conf, "PatchProcessorBolt.parallelism"))
                 .shuffleGrouping("patchGen", PATCH_STREAM)
-                //.allGrouping("processor", LOGO_TEMPLATE_UPDATE_STREAM)
                 .allGrouping("intermediate", CACHE_CLEAR_STREAM)
                 .directGrouping("patchGen", RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, "PatchProcessorBolt.tasks"));
@@ -60,10 +59,6 @@ public class tomVLDTopologyNoLoop {
 
         conf.setNumWorkers(numberOfWorkers);
         conf.setMaxSpoutPending(getInt(conf, "MaxSpoutPending"));
-
-        //conf.registerSerialization(Serializable.Mat.class);
-        //conf.registerSerialization(Serializable.Rect.class);
-        //conf.registerSerialization(Serializable.PatchIdentifier.class);
 
         StormSubmitter.submitTopology("tomVLDTop-no-loop", conf, topology);
 
