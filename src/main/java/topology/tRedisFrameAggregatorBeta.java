@@ -78,6 +78,7 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
     public void execute(Tuple tuple) {
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
+        opencv_core.IplImage imageFK = new opencv_core.IplImage();
 
         if (streamId.equals(PROCESSED_FRAME_STREAM)) {
             List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField(FIELD_FOUND_RECT_LIST);

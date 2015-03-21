@@ -97,7 +97,7 @@ public class RedisStreamProducer implements Runnable {
                     jedis.rpush(this.queueName, baos.toByteArray());
                     //System.out.println("ST: " + (System.currentTimeMillis() - start)
                     //        + System.currentTimeMillis() + ","  + ++count + ",Fid: " + nextFrame.frameId);
-
+                    System.out.println("finishedAdd: " + System.currentTimeMillis() + ",Fid: " + nextFrame.frameId);
                 } else {
                     // if expected frame is not there yet, wait and try again.
                     Thread.sleep(10);
