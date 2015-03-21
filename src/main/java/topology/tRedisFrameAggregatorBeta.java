@@ -66,7 +66,7 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
         producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
         new Thread(producer).start();
 
-        //TODO: is this a bug? be careful! should be at the end of this prepare function!!!
+        //TODO: is this a bug? be careful! in this bolt, this fk should not be in the prepare function!!!
         //opencv_core.IplImage fk = new opencv_core.IplImage();
         System.out.println("End of prepare, the producer thread should start..." + System.currentTimeMillis());
 

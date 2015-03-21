@@ -25,11 +25,8 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
     List<Integer> targetComponentTasks;
     String targetComponentName;
 
-    double fsxy;
-
-    public tPatchGeneraterBeta(String targetComponentName, double fsxy) {
+    public tPatchGeneraterBeta(String targetComponentName) {
         this.targetComponentName = targetComponentName;
-        this.fsxy = fsxy;
     }
 
     @Override
@@ -51,9 +48,8 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
 
         //TODO get params from config map
         double fx = .25, fy = .25;
-        //double fsx = .5, fsy = .5;
+        double fsx = .5, fsy = .5;
         //double fsx = .4, fsy = .4;
-        double fsx = fsxy, fsy = fsxy;
 
         int W = sMat.getCols(), H = sMat.getRows();
         int w = (int) (W * fx + .5), h = (int) (H * fy + .5);
@@ -81,9 +77,9 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
                     Serializable.Rect rect = new Serializable.Rect(x, y, w, h);
                     opencv_core.Mat pMat = new opencv_core.Mat(sMat.toJavaCVMat(), rect.toJavaCVRect());
                     Serializable.Mat pSMat = new Serializable.Mat(pMat);
-                    Serializable.PatchIdentifierMat identifierMat = new Serializable.PatchIdentifierMat(frameId, rect, pSMat);
+                    Serializable.PatchIdentifierMat patchIdentifierMat = new Serializable.PatchIdentifierMat(frameId, rect, pSMat);
 
-                    collector.emit(PATCH_FRAME_STREAM, tuple, new Values(frameId, identifierMat, pIndex));
+                    collector.emit(PATCH_FRAME_STREAM, tuple, new Values(frameId, patchIdentifierMat, pIndex));
                     //int index = pIndex % targetComponentTasks.size();
                     //newPatches.get(index).add(identifierMat);
                 }

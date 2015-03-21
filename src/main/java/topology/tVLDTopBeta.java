@@ -36,8 +36,6 @@ public class tVLDTopBeta {
         int port = getInt(conf, "redis.port");
         String queueName = getString(conf, "tVLDQueueName");
 
-        double fsxy = getDouble(conf, "tVLDfsxy", 0.5);
-
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";
         String transName = "tVLDeTrans";
@@ -49,7 +47,7 @@ public class tVLDTopBeta {
         builder.setSpout(spoutName, new tFrameSourceBeta(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(patchGenBolt, new tPatchGeneraterBeta(patchProcBolt, fsxy), getInt(conf, patchGenBolt + ".parallelism"))
+        builder.setBolt(patchGenBolt, new tPatchGeneraterBeta(patchProcBolt), getInt(conf, patchGenBolt + ".parallelism"))
                 .allGrouping(spoutName, RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 

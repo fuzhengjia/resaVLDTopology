@@ -38,11 +38,12 @@ public class tPatchAggregatorBeta extends BaseRichBolt {
     //Fields("frameId", "framePatchIdentifier", "foundRect", "patchCount"));
     @Override
     public void execute(Tuple tuple) {
+
+        int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
         Serializable.PatchIdentifier patchIdentifier = (Serializable.PatchIdentifier)tuple.getValueByField(FIELD_PATCH_IDENTIFIER);
         int patchCount              = tuple.getIntegerByField(FIELD_PATCH_COUNT);
         Serializable.Rect foundRect = (Serializable.Rect)tuple.getValueByField(FIELD_FOUND_RECT);
 
-        int frameId = patchIdentifier.frameId;
         //System.out.println("Received detected path of frame; " + frameId + ", at time: " + System.currentTimeMillis());
         /* Updating the list of detected logos on the frame */
         if (foundRect != null) {

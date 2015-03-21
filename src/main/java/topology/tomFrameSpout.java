@@ -32,6 +32,7 @@ public class tomFrameSpout extends BaseRichSpout {
 
     int firstFrameId;
     int lastFrameId;
+    int endFrameID;
 
     @Override
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
@@ -64,6 +65,11 @@ public class tomFrameSpout extends BaseRichSpout {
         if (Debug.timer)
             System.out.println("TIME=" + System.currentTimeMillis());
 
+        //TODO: caustion, for RedisStreamProducerBeta version, we reajust the start and end frameID!!!
+        int diff = lastFrameId - firstFrameId + 1;
+        frameId = 0;
+        endFrameID = frameId + diff;
+
     }
 
     opencv_core.IplImage image;
@@ -78,7 +84,7 @@ public class tomFrameSpout extends BaseRichSpout {
             lastFrameTime = now;
         }
 
-        if (frameId < lastFrameId) {
+        if (frameId < endFrameID) {
             try {
                 long start = System.currentTimeMillis();
                 image = grabber.grab();

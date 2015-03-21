@@ -31,6 +31,7 @@ public class tFrameSpoutBeta extends BaseRichSpout {
 
     int firstFrameId;
     int lastFrameId;
+    int endFrameID;
 
     opencv_core.IplImage image;
     opencv_core.Mat mat;
@@ -66,8 +67,10 @@ public class tFrameSpoutBeta extends BaseRichSpout {
         if (Debug.timer)
             System.out.println("TIME=" + System.currentTimeMillis());
 
-        image = new opencv_core.IplImage();
-
+        //TODO: caustion, for RedisStreamProducerBeta version, we reajust the start and end frameID!!!
+        int diff = lastFrameId - firstFrameId + 1;
+        frameId = 0;
+        endFrameID = frameId + diff;
     }
 
     @Override

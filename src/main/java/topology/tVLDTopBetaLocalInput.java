@@ -6,6 +6,7 @@ import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.tuple.Fields;
 
 import java.io.FileNotFoundException;
 
@@ -28,7 +29,6 @@ public class tVLDTopBetaLocalInput {
             System.exit(0);
         }
         Config conf = readConfig(args[0]);
-        double fsxy = getDouble(conf, "tVLDfsxy", 0.5);
 
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";
@@ -41,7 +41,7 @@ public class tVLDTopBetaLocalInput {
         builder.setSpout(spoutName, new tFrameSpoutBeta(), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(patchGenBolt, new tPatchGeneraterBeta(patchProcBolt, fsxy), getInt(conf, patchGenBolt + ".parallelism"))
+        builder.setBolt(patchGenBolt, new tPatchGeneraterBeta(patchProcBolt), getInt(conf, patchGenBolt + ".parallelism"))
                 .allGrouping(spoutName, RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
