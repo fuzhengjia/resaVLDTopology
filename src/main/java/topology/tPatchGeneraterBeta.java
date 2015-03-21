@@ -66,10 +66,10 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
             yCnt++;
         }
 
-        List<List<Serializable.PatchIdentifierMat>> newPatches = new ArrayList<>();
-        for (int i = 0; i < targetComponentTasks.size(); i++) {
-            newPatches.add(new ArrayList<>());
-        }
+//        List<List<Serializable.PatchIdentifierMat>> newPatches = new ArrayList<>();
+//        for (int i = 0; i < targetComponentTasks.size(); i++) {
+//            newPatches.add(new ArrayList<>());
+//        }
 
         //int pIndex = 0;
         int pIndex = xCnt * yCnt;
