@@ -53,6 +53,10 @@ public class RedisStreamProducer implements Runnable {
         finished = false;
         jedis = new Jedis(host, port);
         this.accumulateFrameSize = qSize;
+
+        System.out.println("Check_init_RedisStreamProducer, " + System.currentTimeMillis() +
+                ", host: " + this.host + ", port: " + this.port + ", qName: " + this.queueName +
+                ", accumulateFrameSize: " + this.accumulateFrameSize);
     }
 
     /** Add frame to the queue if it is fully processed */
