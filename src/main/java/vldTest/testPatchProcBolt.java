@@ -15,7 +15,7 @@ import topology.Serializable;
 
 import java.util.*;
 
-import static topology.Constants.*;
+import static tool.Constants.*;
 import static util.ConfigUtil.*;
 import static topology.StormConfigManager.getListOfStrings;
 

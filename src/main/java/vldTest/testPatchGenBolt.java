@@ -12,7 +12,7 @@ import topology.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import static topology.Constants.*;
+import static tool.Constants.*;
 
 /**
  * Created by Intern04 on 5/8/2014.
