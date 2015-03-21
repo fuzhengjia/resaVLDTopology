@@ -31,13 +31,13 @@ public class tPatchAggregatorBeta extends BaseRichBolt {
         this.collector = outputCollector;
         frameAccount = new HashMap<>();
         foundRectAccount = new HashMap<>();
-
-        opencv_core.IplImage fk = new opencv_core.IplImage();
     }
 
     //Fields("frameId", "framePatchIdentifier", "foundRect", "patchCount"));
     @Override
     public void execute(Tuple tuple) {
+
+        //opencv_core.IplImage fk = new opencv_core.IplImage();
 
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
         Serializable.PatchIdentifier patchIdentifier = (Serializable.PatchIdentifier)tuple.getValueByField(FIELD_PATCH_IDENTIFIER);
