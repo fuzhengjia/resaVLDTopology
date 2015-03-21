@@ -17,7 +17,7 @@ import static topology.StormConfigManager.readConfig;
 /**
  * Created by Intern04 on 4/8/2014.
  */
-public class tomVLDTopRIRO {
+public class tomVLDTopologyRIRO {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -48,7 +48,7 @@ public class tomVLDTopRIRO {
                 .setNumTasks(getInt(conf, "PatchProcessorBolt.tasks"));
 
         builder.setBolt("intermediate", new PatchAggregatorBolt(), getInt(conf, "PatchAggregatorBolt.parallelism"))
-                .fieldsGrouping("processor", DETECTED_LOGO_STREAM, new Fields("frameId"))
+                .fieldsGrouping("processor", DETECTED_LOGO_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, "PatchAggregatorBolt.tasks"));
 
         builder.setBolt("aggregator2", new tRedisFrameAggregatorBeta(), getInt(conf, "FrameAggregatorBolt.parallelism"))
