@@ -10,13 +10,12 @@ import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.opencv_core;
 import topology.Serializable;
 
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static tool.Constant.*;
+import static tool.Constants.*;
 
 /**
  * Created by Tom Fu

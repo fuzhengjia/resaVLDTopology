@@ -9,12 +9,11 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import topology.Serializable;
 
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.*;
 
 import static org.bytedeco.javacpp.opencv_core.*;
-import static tool.Constant.*;
+import static tool.Constants.*;
 
 /**
  * Created by Tom Fu, Mar 3, 2015

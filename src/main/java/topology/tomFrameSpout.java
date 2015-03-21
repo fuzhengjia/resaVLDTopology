@@ -14,8 +14,8 @@ import org.bytedeco.javacv.FrameGrabber;
 
 import java.util.Map;
 
-import static topology.Constants.PATCH_STREAM;
-import static topology.Constants.RAW_FRAME_STREAM;
+import static tool.Constants.PATCH_STREAM;
+import static tool.Constants.RAW_FRAME_STREAM;
 import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getString;
 

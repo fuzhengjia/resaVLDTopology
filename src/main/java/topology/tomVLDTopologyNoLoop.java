@@ -10,9 +10,8 @@ import backtype.storm.tuple.Fields;
 
 import java.io.FileNotFoundException;
 
-import static topology.Constants.*;
+import static tool.Constants.*;
 import static topology.StormConfigManager.getInt;
-import static topology.StormConfigManager.getString;
 import static topology.StormConfigManager.readConfig;
 
 /**

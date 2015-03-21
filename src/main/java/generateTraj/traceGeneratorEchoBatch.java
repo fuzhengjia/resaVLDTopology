@@ -11,7 +11,6 @@ import org.bytedeco.javacpp.opencv_core;
 import topology.Serializable;
 import util.ConfigUtil;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.cvPoint2D32f;
 import static org.bytedeco.javacpp.opencv_core.cvRound;
-import static tool.Constant.*;
+import static tool.Constants.*;
 
 /**
  * Created by Tom Fu

@@ -10,13 +10,11 @@ import backtype.storm.tuple.Values;
 import generateTraj.TwoIntegers;
 import org.bytedeco.javacpp.opencv_core;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static tool.Constant.FIELD_WIDTH_HEIGHT;
-import static topology.Constants.*;
+import static tool.Constants.*;
 
 /**
  * Created by Intern04 on 5/8/2014.
@@ -78,7 +76,7 @@ public class tPatchGeneraterGamma extends BaseRichBolt {
                 Serializable.PatchIdentifierMat patchMat = new Serializable.PatchIdentifierMat(frameId, adjRect, pSMat);
 
                 int tID = targetComponentTasks.get(this.sendingIndex % targetTaskCount);
-                collector.emitDirect(tID, PATCH_FRAME_STREAM, tuple, new Values(frameId, patchMat, wh));
+                collector.emitDirect(tID, PATCH_FRAME_STREAM, tuple, new Values(frameId, patchMat));
                 if (++this.sendingIndex > 10000){
                     this.sendingIndex = 0;
                 }

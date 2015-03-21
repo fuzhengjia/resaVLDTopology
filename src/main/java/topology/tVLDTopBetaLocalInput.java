@@ -9,7 +9,7 @@ import backtype.storm.topology.TopologyBuilder;
 
 import java.io.FileNotFoundException;
 
-import static topology.Constants.*;
+import static tool.Constants.*;
 import static topology.StormConfigManager.*;
 import static util.ConfigUtil.getDouble;
 

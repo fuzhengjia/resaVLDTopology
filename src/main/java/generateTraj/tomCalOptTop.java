@@ -6,17 +6,13 @@ import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.tuple.Fields;
-import showTraj.RedisFrameOutput;
 import showTraj.RedisFrameOutputByteArr;
-import tool.FrameImplImageSourceGamma;
 import tool.FrameMatSourceOptFlow;
-import tool.FrameSource;
 import topology.Serializable;
 
 import java.io.FileNotFoundException;
 
-import static tool.Constant.*;
+import static tool.Constants.*;
 import static topology.StormConfigManager.*;
 
 /**

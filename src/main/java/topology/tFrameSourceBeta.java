@@ -14,7 +14,7 @@ import tool.RedisQueueSpout;
 import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.cvMat;
-import static topology.Constants.*;
+import static tool.Constants.*;
 
 /**
  * Created by ding on 14-7-3.

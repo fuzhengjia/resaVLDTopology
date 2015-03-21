@@ -11,8 +11,8 @@ import logodetection.Debug;
 
 import java.util.*;
 
-import static topology.Constants.CACHE_CLEAR_STREAM;
-import static topology.Constants.PROCESSED_FRAME_STREAM;
+import static tool.Constants.CACHE_CLEAR_STREAM;
+import static tool.Constants.PROCESSED_FRAME_STREAM;
 
 /**
  * Created by Intern04 on 5/8/2014.

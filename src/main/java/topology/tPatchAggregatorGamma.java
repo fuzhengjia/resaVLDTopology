@@ -7,14 +7,11 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import generateTraj.TwoIntegers;
-import logodetection.Debug;
 import org.bytedeco.javacpp.opencv_core;
 
 import java.util.*;
 
-import static tool.Constant.FIELD_WIDTH_HEIGHT;
-import static topology.Constants.*;
+import static tool.Constants.*;
 import static util.ConfigUtil.getInt;
 
 /**

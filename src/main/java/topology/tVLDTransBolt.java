@@ -8,21 +8,14 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import generateTraj.TwoIntegers;
-import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.opencv_core;
 
-import java.io.BufferedReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
 import static org.bytedeco.javacpp.opencv_core.cvMat;
 import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
-import static tool.Constant.*;
-import static topology.Constants.*;
-import static topology.Constants.FIELD_FRAME_MAT;
-import static topology.Constants.FIELD_FRAME_ID;
+import static tool.Constants.*;
 
 /**
  * Created by Intern04 on 5/8/2014.

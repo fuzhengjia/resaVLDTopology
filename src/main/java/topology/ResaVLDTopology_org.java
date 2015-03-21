@@ -9,7 +9,7 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 
-import static topology.Constants.*;
+import static tool.Constants.*;
 import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.readConfig;
 

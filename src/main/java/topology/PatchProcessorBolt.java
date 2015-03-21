@@ -14,7 +14,7 @@ import logodetection.StormVideoLogoDetector;
 import java.util.*;
 import java.util.function.BooleanSupplier;
 
-import static topology.Constants.*;
+import static tool.Constants.*;
 import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getListOfStrings;
 

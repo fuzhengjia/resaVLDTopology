@@ -5,18 +5,13 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import org.bytedeco.javacpp.opencv_core;
 import tool.RedisStreamObjectProducerByteArr;
-import tool.RedisStreamProducerBeta;
-import tool.RedisStreamProducerByteArr;
 import tool.StreamObject;
-import topology.Serializable;
-import topology.StreamFrame;
 
 import java.util.Map;
 
-import static tool.Constant.FIELD_FRAME_ID;
-import static tool.Constant.FIELD_FRAME_MAT;
+import static tool.Constants.FIELD_FRAME_ID;
+import static tool.Constants.FIELD_FRAME_MAT;
 import static util.ConfigUtil.getInt;
 
 /**

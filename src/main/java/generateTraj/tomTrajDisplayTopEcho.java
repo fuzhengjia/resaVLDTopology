@@ -9,11 +9,10 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
 import tool.FrameImplImageSourceGamma;
-import topology.Serializable;
 
 import java.io.FileNotFoundException;
 
-import static tool.Constant.*;
+import static tool.Constants.*;
 import static topology.StormConfigManager.*;
 
 /**

@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static topology.Constants.PROCESSED_FRAME_STREAM;
-import static topology.Constants.RAW_FRAME_STREAM;
+import static tool.Constants.PROCESSED_FRAME_STREAM;
+import static tool.Constants.RAW_FRAME_STREAM;
 import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getString;
 

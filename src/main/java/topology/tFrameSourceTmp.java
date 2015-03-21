@@ -12,7 +12,7 @@ import tool.RedisQueueSpout;
 
 import java.util.Map;
 
-import static topology.Constants.*;
+import static tool.Constants.*;
 
 /**
  * Created by ding on 14-7-3.

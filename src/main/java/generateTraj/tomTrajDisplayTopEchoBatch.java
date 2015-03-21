@@ -13,7 +13,7 @@ import topology.Serializable;
 
 import java.io.FileNotFoundException;
 
-import static tool.Constant.*;
+import static tool.Constants.*;
 import static topology.StormConfigManager.*;
 
 /**

@@ -7,7 +7,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import java.util.Map;
 
-import static tool.Constant.*;
+import static tool.Constants.*;
 
 /**
  * Created by Tom Fu on Jan 28, 2015
