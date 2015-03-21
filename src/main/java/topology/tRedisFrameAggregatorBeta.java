@@ -63,13 +63,11 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
         this.maxWaitCount = ConfigUtil.getInt(map, "maxWaitCount", 4);
         listHistory = null;
 
-        //TODO: is this a bug? be careful!
-        opencv_core.IplImage fk = new opencv_core.IplImage();
-
         producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
         new Thread(producer).start();
 
-
+        //TODO: is this a bug? be careful! should be at the end of this prepare function!!!
+        opencv_core.IplImage fk = new opencv_core.IplImage();
         System.out.println("End of prepare, the producer thread should start..." + System.currentTimeMillis());
 
     }
