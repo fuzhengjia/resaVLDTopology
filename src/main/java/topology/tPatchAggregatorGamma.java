@@ -42,7 +42,7 @@ public class tPatchAggregatorGamma extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        Serializable.Rect foundRect = (Serializable.Rect)tuple.getValueByField(FIELD_DETECTED_RECT);
+        Serializable.Rect foundRect = (Serializable.Rect)tuple.getValueByField(FIELD_FOUND_RECT);
 
         if (foundRect != null) {
             foundRectAccount.computeIfAbsent(frameId, k->new ArrayList<>()).add(foundRect);
@@ -62,6 +62,6 @@ public class tPatchAggregatorGamma extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(PROCESSED_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_DETECTED_RECT));
+        outputFieldsDeclarer.declareStream(PROCESSED_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FOUND_RECT_LIST));
     }
 }

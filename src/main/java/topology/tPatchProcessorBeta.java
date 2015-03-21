@@ -91,7 +91,7 @@ public class tPatchProcessorBeta extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(DETECTED_LOGO_STREAM,
-                new Fields(FIELD_FRAME_ID, FIELD_HOST_PATCH, FIELD_DETECTED_RECT, FIELD_PATCH_COUNT));
+                new Fields(FIELD_FRAME_ID, FIELD_PATCH_IDENTIFIER, FIELD_FOUND_RECT, FIELD_PATCH_COUNT));
 
         //outputFieldsDeclarer.declareStream(LOGO_TEMPLATE_UPDATE_STREAM,
         //        new Fields(FIELD_HOST_PATCH, FIELD_EXTRACTED_TEMPLATE, FIELD_PARENT_PATCH));

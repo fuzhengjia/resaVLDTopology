@@ -78,7 +78,7 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
         if (streamId.equals(PROCESSED_FRAME_STREAM)) {
-            List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField(FIELD_DETECTED_RECT);
+            List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField(FIELD_FOUND_RECT_LIST);
             if (!processedFrames.containsKey(frameId)) {
                 processedFrames.put(frameId, list);
                 //System.out.println("addtoProcessedFrames: " + System.currentTimeMillis() + ":" + frameId);

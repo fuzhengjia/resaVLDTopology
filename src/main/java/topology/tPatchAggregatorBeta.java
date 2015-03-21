@@ -38,9 +38,9 @@ public class tPatchAggregatorBeta extends BaseRichBolt {
     //Fields("frameId", "framePatchIdentifier", "foundRect", "patchCount"));
     @Override
     public void execute(Tuple tuple) {
-        Serializable.PatchIdentifier patchIdentifier = (Serializable.PatchIdentifier)tuple.getValueByField(FIELD_HOST_PATCH);
+        Serializable.PatchIdentifier patchIdentifier = (Serializable.PatchIdentifier)tuple.getValueByField(FIELD_PATCH_IDENTIFIER);
         int patchCount              = tuple.getIntegerByField(FIELD_PATCH_COUNT);
-        Serializable.Rect foundRect = (Serializable.Rect)tuple.getValueByField(FIELD_DETECTED_RECT);
+        Serializable.Rect foundRect = (Serializable.Rect)tuple.getValueByField(FIELD_FOUND_RECT);
 
         int frameId = patchIdentifier.frameId;
         //System.out.println("Received detected path of frame; " + frameId + ", at time: " + System.currentTimeMillis());
@@ -68,6 +68,6 @@ public class tPatchAggregatorBeta extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(PROCESSED_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_DETECTED_RECT));
+        outputFieldsDeclarer.declareStream(PROCESSED_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FOUND_RECT_LIST));
     }
 }
