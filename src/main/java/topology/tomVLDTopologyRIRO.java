@@ -22,7 +22,7 @@ public class tomVLDTopologyRIRO {
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
     // Be careful when use redisframeproducer Beta version!! need to adjust startFrameID
-
+    //
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
             System.out.println("Enter path to config file!");
