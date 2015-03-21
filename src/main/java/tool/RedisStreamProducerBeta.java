@@ -67,7 +67,7 @@ public class RedisStreamProducerBeta implements Runnable {
         this.maxWaitCount = maxWaitCount;
         this.sleepTime = sleepTime;
 
-        System.out.println("Check_init_RedisStreamProducerBeta" +
+        System.out.println("Check_init_RedisStreamProducerBeta, " + System.currentTimeMillis() +
                 ", host: " + this.host + ", port: " + this.port + ", qName: " + this.queueName +
                 ", stFrameID: " + this.startFrameID + ", sleepTime: " + this.sleepTime + ", mWaitCnt: " + this.maxWaitCount);
     }

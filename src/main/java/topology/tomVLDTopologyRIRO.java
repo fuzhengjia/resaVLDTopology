@@ -60,6 +60,7 @@ public class tomVLDTopologyRIRO {
 
         conf.setNumWorkers(numberOfWorkers);
         conf.setMaxSpoutPending(getInt(conf, "MaxSpoutPending"));
+        conf.setStatsSampleRate(1.0);
 
         StormSubmitter.submitTopology("tomVLDTop-riro", conf, topology);
 
