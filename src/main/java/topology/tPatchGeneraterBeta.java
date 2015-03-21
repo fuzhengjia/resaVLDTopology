@@ -38,12 +38,12 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
         this.thisTaskCnt = topologyContext.getComponentTasks(topologyContext.getThisComponentId()).size();
         targetComponentTasks = topologyContext.getComponentTasks(targetComponentName);
         this.targetTaskCnt = targetComponentTasks.size();
-
-        opencv_core.IplImage fk = new opencv_core.IplImage();
     }
 
     @Override
     public void execute(Tuple tuple) {
+
+        opencv_core.IplImage fk = new opencv_core.IplImage();
 
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
