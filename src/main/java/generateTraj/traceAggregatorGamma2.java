@@ -14,7 +14,7 @@ import java.util.*;
 
 import static org.bytedeco.javacpp.opencv_core.IplImage;
 import static org.bytedeco.javacpp.opencv_core.cvFloor;
-import static tool.Constant.*;
+import static tool.Constants.*;
 
 /**
  * Created by Tom Fu

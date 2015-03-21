@@ -8,7 +8,7 @@ import backtype.storm.tuple.Values;
 
 import java.util.Map;
 
-import static tool.Constant.*;
+import static tool.Constants.*;
 
 /**
  * Created by ding on 14-7-3.

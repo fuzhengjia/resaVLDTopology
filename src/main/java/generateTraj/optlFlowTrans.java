@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.*;
-import static tool.Constant.*;
-import static topology.Constants.RAW_FRAME_STREAM;
+import static tool.Constants.*;
 
 /**
  * Created by Tom Fu

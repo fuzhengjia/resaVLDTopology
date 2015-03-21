@@ -16,7 +16,7 @@ import java.util.Map;
 import static org.bytedeco.javacpp.opencv_core.cvMat;
 import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
 import static util.ConfigUtil.*;
-import static tool.Constant.*;
+import static tool.Constants.*;
 
 import org.bytedeco.javacpp.opencv_core;
 import util.ConfigUtil;

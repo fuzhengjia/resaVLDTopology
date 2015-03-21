@@ -17,7 +17,7 @@ import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.cvFloor;
 import static org.bytedeco.javacpp.opencv_core.cvPoint2D32f;
-import static tool.Constant.*;
+import static tool.Constants.*;
 
 /**
  * Created by Tom Fu

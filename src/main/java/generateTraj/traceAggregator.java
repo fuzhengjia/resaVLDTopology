@@ -11,7 +11,7 @@ import util.ConfigUtil;
 
 import java.util.*;
 
-import static tool.Constant.*;
+import static tool.Constants.*;
 
 /**
  * Created by Tom Fu

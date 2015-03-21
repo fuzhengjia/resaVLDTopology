@@ -14,7 +14,7 @@ import java.nio.FloatBuffer;
 import java.util.*;
 
 import static org.bytedeco.javacpp.opencv_core.*;
-import static tool.Constant.*;
+import static tool.Constants.*;
 
 /**
  * Created by Tom Fu

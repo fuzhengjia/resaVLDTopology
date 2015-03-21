@@ -13,9 +13,9 @@ import topology.Serializable;
 
 import java.io.FileNotFoundException;
 
-import static tool.Constant.STREAM_FRAME_OUTPUT;
-import static tool.Constant.STREAM_OPT_FLOW;
-import static tool.Constant.STREAM_GREY_FLOW;
+import static tool.Constants.STREAM_FRAME_OUTPUT;
+import static tool.Constants.STREAM_OPT_FLOW;
+import static tool.Constants.STREAM_GREY_FLOW;
 import static topology.StormConfigManager.*;
 
 /**

@@ -26,12 +26,8 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import static org.bytedeco.javacpp.opencv_core.*;
-import static org.bytedeco.javacpp.opencv_core.cvCopy;
 import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
-import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
-import static tool.Constant.*;
-import static topology.StormConfigManager.getInt;
-import static topology.StormConfigManager.getString;
+import static tool.Constants.*;
 
 /**
  * Created by Tom Fu

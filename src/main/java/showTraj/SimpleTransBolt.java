@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
 import static org.bytedeco.javacpp.opencv_core.cvMat;
 import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
-import static tool.Constant.*;
+import static tool.Constants.*;
 import static topology.StormConfigManager.getInt;
 import static topology.StormConfigManager.getString;
 
