@@ -59,14 +59,14 @@ public class tPatchProcessorBeta extends BaseRichBolt {
     //  Fields("frameId", "frameMat", "patchCount"));
     private void processFrame(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        //List<Serializable.PatchIdentifierMat> identifierMatList = (List<Serializable.PatchIdentifierMat>) tuple.getValueByField(FIELD_PATCH_FRAME_MAT);
-        Serializable.PatchIdentifierMat identifierMat = (Serializable.PatchIdentifierMat) tuple.getValueByField(FIELD_PATCH_FRAME_MAT);
+        List<Serializable.PatchIdentifierMat> identifierMatList = (List<Serializable.PatchIdentifierMat>) tuple.getValueByField(FIELD_PATCH_FRAME_MAT);
+        //Serializable.PatchIdentifierMat identifierMat = (Serializable.PatchIdentifierMat) tuple.getValueByField(FIELD_PATCH_FRAME_MAT);
         int patchCount = tuple.getIntegerByField(FIELD_PATCH_COUNT);
 
         //List<Serializable.PatchIdentifierMat> updated
 
-//        for (int i = 0; i < identifierMatList.size(); i++) {
-            //Serializable.PatchIdentifierMat identifierMat = identifierMatList.get(i);
+        for (int i = 0; i < identifierMatList.size(); i++) {
+            Serializable.PatchIdentifierMat identifierMat = identifierMatList.get(i);
             detector.detectLogosInMatRoi(identifierMat.sMat.toJavaCVMat(), identifierMat.identifier.roi.toJavaCVRect());
             Serializable.Rect detectedLogo = detector.getFoundRect();
             Serializable.Mat extractedTemplate = detector.getExtractedTemplate();
@@ -75,7 +75,7 @@ public class tPatchProcessorBeta extends BaseRichBolt {
 //            }
             collector.emit(DETECTED_LOGO_STREAM, tuple,
                     new Values(frameId, identifierMat.identifier, detectedLogo, patchCount));
-//        }
+        }
     }
 
     // Fields("hostPatchIdentifier", "extractedTemplate", "parentIdentifier"));

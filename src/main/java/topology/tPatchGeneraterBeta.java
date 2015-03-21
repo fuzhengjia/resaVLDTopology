@@ -20,10 +20,11 @@ import static tool.Constants.*;
  */
 public class tPatchGeneraterBeta extends BaseRichBolt {
     OutputCollector collector;
-    private int taskIndex;
-    private int taskCnt;
+    private int thisTaskIndex;
+    private int thisTaskCnt;
     List<Integer> targetComponentTasks;
     String targetComponentName;
+    int targetTaskCnt;
 
     public tPatchGeneraterBeta(String targetComponentName) {
         this.targetComponentName = targetComponentName;
@@ -33,9 +34,10 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
 
-        this.taskIndex = topologyContext.getThisTaskIndex();
-        this.taskCnt = topologyContext.getComponentTasks(topologyContext.getThisComponentId()).size();
+        this.thisTaskIndex = topologyContext.getThisTaskIndex();
+        this.thisTaskCnt = topologyContext.getComponentTasks(topologyContext.getThisComponentId()).size();
         targetComponentTasks = topologyContext.getComponentTasks(targetComponentName);
+        this.targetTaskCnt = targetComponentTasks.size();
 
         opencv_core.IplImage fk = new opencv_core.IplImage();
     }
@@ -48,8 +50,8 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
 
         //TODO get params from config map
         double fx = .25, fy = .25;
-        double fsx = .5, fsy = .5;
-        //double fsx = .4, fsy = .4;
+        double fsx = .5, fsy = .5;//7*7
+        //double fsx = .4, fsy = .4;//8*8
 
         int W = sMat.getCols(), H = sMat.getRows();
         int w = (int) (W * fx + .5), h = (int) (H * fy + .5);
@@ -73,35 +75,35 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
         int pIndex = xCnt * yCnt;
         for (int x = 0; x + w <= W; x += dx) {
             for (int y = 0; y + h <= H; y += dy) {
-                if (pIndex % this.taskCnt == this.taskIndex) {
+                if (pIndex % this.thisTaskCnt == this.thisTaskIndex) {
                     Serializable.Rect rect = new Serializable.Rect(x, y, w, h);
                     opencv_core.Mat pMat = new opencv_core.Mat(sMat.toJavaCVMat(), rect.toJavaCVRect());
                     Serializable.Mat pSMat = new Serializable.Mat(pMat);
                     Serializable.PatchIdentifierMat patchIdentifierMat = new Serializable.PatchIdentifierMat(frameId, rect, pSMat);
 
-                    collector.emit(PATCH_FRAME_STREAM, tuple, new Values(frameId, patchIdentifierMat, pIndex));
-                    //int index = pIndex % targetComponentTasks.size();
-                    //newPatches.get(index).add(identifierMat);
+                    //collector.emit(PATCH_FRAME_STREAM, tuple, new Values(frameId, patchIdentifierMat, pIndex));
+                    int index = pIndex % targetComponentTasks.size();
+                    newPatches.get(index).add(patchIdentifierMat);
                 }
                 //pIndex++;
             }
         }
 
-//        for (int i = 0; i < targetComponentTasks.size(); i++) {
-//            int tID = targetComponentTasks.get(i);
-//            if (newPatches.get(i).size() > 0) {
-//                collector.emitDirect(tID, PATCH_FRAME_STREAM, tuple, new Values(frameId, newPatches.get(i), pIndex));
-//                System.out.println("sendTo tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
-//            } else {
-//                System.out.println("nothing to tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
-//            }
-//        }
+        for (int i = 0; i < targetComponentTasks.size(); i++) {
+            int tID = targetComponentTasks.get(i);
+            if (newPatches.get(i).size() > 0) {
+                collector.emitDirect(tID, PATCH_FRAME_STREAM, tuple, new Values(frameId, newPatches.get(i), pIndex));
+                System.out.println("sendTo tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
+            } else {
+                System.out.println("nothing to tID: " + tID + ", patchSize: " + newPatches.get(i).size() + ", totalPCnt: " + pIndex);
+            }
+        }
 
         collector.ack(tuple);
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(PATCH_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_PATCH_FRAME_MAT, FIELD_PATCH_COUNT));
+        outputFieldsDeclarer.declareStream(PATCH_FRAME_STREAM, true, new Fields(FIELD_FRAME_ID, FIELD_PATCH_FRAME_MAT, FIELD_PATCH_COUNT));
     }
 }
