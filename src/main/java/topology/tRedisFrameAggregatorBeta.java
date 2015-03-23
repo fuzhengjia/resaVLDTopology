@@ -107,36 +107,36 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
             opencv_core.Mat mat = frameMap.get(frameId).toJavaCVMat();
             List<Serializable.Rect> list = processedFrames.get(frameId);
 
-//            if (frameId % persistFrames == 0) {
-//                listHistory = list;
-//            } else if (listHistory == null) {
-//                listHistory = list;
-//            } else {
-//                list = listHistory;
-//            }
-//
-//            if (list != null) {
-//                for (Serializable.Rect rect : list) {
-//                    Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
-//                }
-//            }
-
-            //TODO: note, the current implementation is friendly for sampling!!!
             if (frameId % persistFrames == 0) {
                 listHistory = list;
-                historyFrameID = frameId;
             } else if (listHistory == null) {
-                if (frameId > historyFrameID && list !=null && list.size() > 0) {
-                    listHistory = list;
-                    historyFrameID = frameId;
-                }
+                listHistory = list;
+            } else {
+                list = listHistory;
             }
 
-            if (listHistory != null) {
-                for (Serializable.Rect rect : listHistory) {
+            if (list != null) {
+                for (Serializable.Rect rect : list) {
                     Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
                 }
             }
+
+//            //TODO: note, the current implementation is friendly for sampling!!!
+//            if (frameId % persistFrames == 0) {
+//                listHistory = list;
+//                historyFrameID = frameId;
+//            } else if (listHistory == null) {
+//                if (frameId > historyFrameID && list !=null && list.size() > 0) {
+//                    listHistory = list;
+//                    historyFrameID = frameId;
+//                }
+//            }
+//
+//            if (listHistory != null) {
+//                for (Serializable.Rect rect : listHistory) {
+//                    Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
+//                }
+//            }
 
             //TODO: try a different implementation of this, e.g., each founded rect will be added, but last for P (=3?) frames
 
