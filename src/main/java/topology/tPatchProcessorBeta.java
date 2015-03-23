@@ -51,8 +51,8 @@ public class tPatchProcessorBeta extends BaseRichBolt {
         String streamId = tuple.getSourceStreamId();
         if (streamId.equals(PATCH_FRAME_STREAM))
             processFrame(tuple);
-//        else if (streamId.equals(LOGO_TEMPLATE_UPDATE_STREAM))
-//            processNewTemplate(tuple);
+        else if (streamId.equals(LOGO_TEMPLATE_UPDATE_STREAM))
+            processNewTemplate(tuple);
         collector.ack(tuple);
     }
 
@@ -70,30 +70,29 @@ public class tPatchProcessorBeta extends BaseRichBolt {
             detector.detectLogosInMatRoi(identifierMat.sMat.toJavaCVMat(), identifierMat.identifier.roi.toJavaCVRect());
             Serializable.Rect detectedLogo = detector.getFoundRect();
             Serializable.Mat extractedTemplate = detector.getExtractedTemplate();
-            //if (detectedLogo != null) {
-//                collector.emit(LOGO_TEMPLATE_UPDATE_STREAM, new Values(identifierMat.identifier, extractedTemplate, detector.getParentIdentifier()));
-//            }
-            collector.emit(DETECTED_LOGO_STREAM, tuple,
-                    new Values(frameId, identifierMat.identifier, detectedLogo, patchCount));
+            if (detectedLogo != null) {
+                collector.emit(LOGO_TEMPLATE_UPDATE_STREAM, new Values(identifierMat.identifier, extractedTemplate, detector.getParentIdentifier()));
+            }
+            collector.emit(DETECTED_LOGO_STREAM, tuple, new Values(frameId, detectedLogo, patchCount));
 //        }
     }
 
     // Fields("hostPatchIdentifier", "extractedTemplate", "parentIdentifier"));
-//    private void processNewTemplate(Tuple tuple) {
-//        Serializable.PatchIdentifier receivedPatchIdentifier = (Serializable.PatchIdentifier) tuple.getValueByField(FIELD_HOST_PATCH);
-//        Serializable.Mat extracted = (Serializable.Mat) tuple.getValueByField(FIELD_EXTRACTED_TEMPLATE);
-//        Serializable.PatchIdentifier parent = (Serializable.PatchIdentifier) tuple.getValueByField(FIELD_PARENT_PATCH);
-//
-//        detector.addTemplateBySubMat(receivedPatchIdentifier, extracted, 5);
-//        detector.incrementPriority(parent, 1);
-//    }
+    private void processNewTemplate(Tuple tuple) {
+        Serializable.PatchIdentifier receivedPatchIdentifier = (Serializable.PatchIdentifier) tuple.getValueByField(FIELD_HOST_PATCH_IDENTIFIER);
+        Serializable.Mat extracted = (Serializable.Mat) tuple.getValueByField(FIELD_EXTRACTED_TEMPLATE);
+        Serializable.PatchIdentifier parent = (Serializable.PatchIdentifier) tuple.getValueByField(FIELD_PARENT_PATCH_IDENTIFIER);
+
+        detector.addTemplateBySubMat(receivedPatchIdentifier, extracted, 5);
+        detector.incrementPriority(parent, 1);
+    }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(DETECTED_LOGO_STREAM,
-                new Fields(FIELD_FRAME_ID, FIELD_PATCH_IDENTIFIER, FIELD_FOUND_RECT, FIELD_PATCH_COUNT));
+                new Fields(FIELD_FRAME_ID, FIELD_FOUND_RECT, FIELD_PATCH_COUNT));
 
-        //outputFieldsDeclarer.declareStream(LOGO_TEMPLATE_UPDATE_STREAM,
-        //        new Fields(FIELD_HOST_PATCH, FIELD_EXTRACTED_TEMPLATE, FIELD_PARENT_PATCH));
+        outputFieldsDeclarer.declareStream(LOGO_TEMPLATE_UPDATE_STREAM,
+                new Fields(FIELD_HOST_PATCH_IDENTIFIER, FIELD_EXTRACTED_TEMPLATE, FIELD_PARENT_PATCH_IDENTIFIER));
     }
 }

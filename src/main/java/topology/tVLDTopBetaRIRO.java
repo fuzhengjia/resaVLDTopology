@@ -19,7 +19,7 @@ import static util.ConfigUtil.getDouble;
 /**
  * Created by Intern04 on 4/8/2014.
  */
-public class tVLDTopBeta {
+public class tVLDTopBetaRIRO {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -38,7 +38,6 @@ public class tVLDTopBeta {
 
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";
-        String transName = "tVLDeTrans";
         String patchGenBolt = "tVLDPatchGen";
         String patchProcBolt = "tVLDPatchProc";
         String patchAggBolt = "tVLDPatchAgg";
@@ -52,12 +51,11 @@ public class tVLDTopBeta {
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
         builder.setBolt(patchProcBolt, new tPatchProcessorBeta(), getInt(conf, patchProcBolt + ".parallelism"))
-                //.allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
+                .allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
                 .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
         builder.setBolt(patchAggBolt, new tPatchAggregatorBeta(), getInt(conf, patchAggBolt + ".parallelism"))
-                //.globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
                 .fieldsGrouping(patchProcBolt, DETECTED_LOGO_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
@@ -73,9 +71,8 @@ public class tVLDTopBeta {
         conf.setMaxSpoutPending(getInt(conf, "tVLDMaxPending"));
 
         conf.setStatsSampleRate(1.0);
-        //conf.registerSerialization(Serializable.Mat.class);
 
-        StormSubmitter.submitTopology("tVLDTopBeta-1", conf, topology);
+        StormSubmitter.submitTopology("tVLDTopBetaRIRO-1", conf, topology);
 
     }
 }

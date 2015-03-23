@@ -69,7 +69,7 @@ public class tVLDTopBetaNoLoop {
 
         conf.setStatsSampleRate(1.0);
 
-        StormSubmitter.submitTopology("tVLDTopBeta-noloop-1", conf, topology);
+        StormSubmitter.submitTopology("tVLDTopBetaRIRO-noloop-1", conf, topology);
 
     }
 }
