@@ -32,6 +32,7 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
     private HashMap<Integer, List<Serializable.Rect>> processedFrames;
     private HashMap<Integer, Serializable.Mat> frameMap;
     private List<Serializable.Rect> listHistory;
+    private int historyFrameID;
 
     private String host;
     private int port;
@@ -62,7 +63,7 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
         this.startFrameID = ConfigUtil.getInt(map, "startFrameID", 1);
         this.maxWaitCount = ConfigUtil.getInt(map, "maxWaitCount", 4);
         listHistory = new ArrayList<>();
-
+        historyFrameID = 0;
 
         producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
         new Thread(producer).start();
@@ -120,16 +121,24 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
 //                }
 //            }
 
+            //TODO: note, the current implementation is friendly for sampling!!!
             if (frameId % persistFrames == 0) {
-                if (list != null && list.size() > 0) {
-                    listHistory.clear();
-                    listHistory.addAll(list);
+                listHistory = list;
+                historyFrameID = frameId;
+            } else if (listHistory == null) {
+                if (frameId > historyFrameID && list !=null && list.size() > 0) {
+                    listHistory = list;
+                    historyFrameID = frameId;
                 }
             }
 
-            for (Serializable.Rect rect : listHistory) {
-                Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
+            if (listHistory != null) {
+                for (Serializable.Rect rect : listHistory) {
+                    Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
+                }
             }
+
+            //TODO: try a different implementation of this, e.g., each founded rect will be added, but last for P (=3?) frames
 
             producer.addFrame(new StreamFrame(frameId, mat));
             System.out.println("producerAdd: " + System.currentTimeMillis() + ":" + frameId);
