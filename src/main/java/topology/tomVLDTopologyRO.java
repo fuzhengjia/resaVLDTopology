@@ -62,7 +62,7 @@ public class tomVLDTopologyRO {
         conf.setMaxSpoutPending(getInt(conf, "MaxSpoutPending"));
         conf.setStatsSampleRate(1.0);
 
-        StormSubmitter.submitTopology("tomVLDTop-riro", conf, topology);
+        StormSubmitter.submitTopology("tomVLDTop-ro", conf, topology);
 
     }
 }
