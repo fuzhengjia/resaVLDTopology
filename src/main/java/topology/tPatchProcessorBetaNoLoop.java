@@ -55,15 +55,13 @@ public class tPatchProcessorBetaNoLoop extends BaseRichBolt {
 
         detector.detectLogosInMatRoi(identifierMat.sMat.toJavaCVMat(), identifierMat.identifier.roi.toJavaCVRect());
         Serializable.Rect detectedLogo = detector.getFoundRect();
-        collector.emit(DETECTED_LOGO_STREAM, tuple,
-                new Values(frameId, identifierMat.identifier, detectedLogo, patchCount));
+        collector.emit(DETECTED_LOGO_STREAM, tuple, new Values(frameId, detectedLogo, patchCount));
 
         collector.ack(tuple);
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(DETECTED_LOGO_STREAM,
-                new Fields(FIELD_FRAME_ID, FIELD_PATCH_IDENTIFIER, FIELD_FOUND_RECT, FIELD_PATCH_COUNT));
+        outputFieldsDeclarer.declareStream(DETECTED_LOGO_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FOUND_RECT, FIELD_PATCH_COUNT));
     }
 }
