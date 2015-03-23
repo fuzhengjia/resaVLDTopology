@@ -6,6 +6,7 @@ import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.tuple.Fields;
 
 import java.io.FileNotFoundException;
 
@@ -15,7 +16,7 @@ import static topology.StormConfigManager.*;
 /**
  * Created by Intern04 on 4/8/2014.
  */
-public class tVLDTopGamma {
+public class tVLDTopGammaNoLoop {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -43,20 +44,20 @@ public class tVLDTopGamma {
         builder.setSpout(spoutName, new tFrameSourceBeta(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(transName, new tVLDTransBolt(patchGenBolt), getInt(conf, transName + ".parallelism"))
+        builder.setBolt(transName, new tVLDTransBolt(), getInt(conf, transName + ".parallelism"))
                 .shuffleGrouping(spoutName, RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, transName + ".tasks"));
 
-        builder.setBolt(patchGenBolt, new tPatchGeneraterGamma(patchProcBolt), getInt(conf, patchGenBolt + ".parallelism"))
+        builder.setBolt(patchGenBolt, new tPatchGeneraterGamma(), getInt(conf, patchGenBolt + ".parallelism"))
                 .shuffleGrouping(transName, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
-        builder.setBolt(patchProcBolt, new tPatchProcessorGamma(), getInt(conf, patchProcBolt + ".parallelism"))
-                .directGrouping(patchGenBolt, PATCH_FRAME_STREAM)
+        builder.setBolt(patchProcBolt, new tPatchProcessorBetaNoLoop(), getInt(conf, patchProcBolt + ".parallelism"))
+                .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
-        builder.setBolt(patchAggBolt, new tPatchAggregatorGamma(), getInt(conf, patchAggBolt + ".parallelism"))
-                .globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
+        builder.setBolt(patchAggBolt, new tPatchAggregatorBeta(), getInt(conf, patchAggBolt + ".parallelism"))
+                .fieldsGrouping(patchProcBolt, DETECTED_LOGO_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
         builder.setBolt(redisFrameOut, new tRedisFrameAggregatorBeta(), getInt(conf, redisFrameOut + ".parallelism"))
@@ -73,7 +74,7 @@ public class tVLDTopGamma {
         conf.setStatsSampleRate(1.0);
         //conf.registerSerialization(Serializable.Mat.class);
 
-        StormSubmitter.submitTopology("tVLDTopGamma", conf, topology);
+        StormSubmitter.submitTopology("tVLDTopGammaNoLoop", conf, topology);
 
     }
 }
