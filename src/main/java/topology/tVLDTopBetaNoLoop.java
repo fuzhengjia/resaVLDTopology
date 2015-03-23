@@ -12,12 +12,11 @@ import java.io.FileNotFoundException;
 
 import static tool.Constants.*;
 import static topology.StormConfigManager.*;
-import static util.ConfigUtil.getDouble;
 
 /**
  * Created by Intern04 on 4/8/2014.
  */
-public class tVLDTopBetaLocalInput {
+public class tVLDTopBetaNoLoop {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -30,6 +29,10 @@ public class tVLDTopBetaLocalInput {
         }
         Config conf = readConfig(args[0]);
 
+        String host = getString(conf, "redis.host");
+        int port = getInt(conf, "redis.port");
+        String queueName = getString(conf, "tVLDQueueName");
+
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";
         String transName = "tVLDeTrans";
@@ -38,20 +41,18 @@ public class tVLDTopBetaLocalInput {
         String patchAggBolt = "tVLDPatchAgg";
         String redisFrameOut = "tVLDRedisFrameOut";
 
-        builder.setSpout(spoutName, new tFrameSpoutBeta(), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new tFrameSourceBeta(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new tPatchGeneraterBeta(patchProcBolt), getInt(conf, patchGenBolt + ".parallelism"))
                 .allGrouping(spoutName, RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
-        builder.setBolt(patchProcBolt, new tPatchProcessorBeta(), getInt(conf, patchProcBolt + ".parallelism"))
-                //.allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
+        builder.setBolt(patchProcBolt, new tPatchProcessorBetaNoLoop(), getInt(conf, patchProcBolt + ".parallelism"))
                 .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
         builder.setBolt(patchAggBolt, new tPatchAggregatorBeta(), getInt(conf, patchAggBolt + ".parallelism"))
-                //.globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
                 .fieldsGrouping(patchProcBolt, DETECTED_LOGO_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
@@ -67,9 +68,8 @@ public class tVLDTopBetaLocalInput {
         conf.setMaxSpoutPending(getInt(conf, "tVLDMaxPending"));
 
         conf.setStatsSampleRate(1.0);
-        //conf.registerSerialization(Serializable.Mat.class);
 
-        StormSubmitter.submitTopology("tVLDTopBeta-localInput", conf, topology);
+        StormSubmitter.submitTopology("tVLDTopBeta-noloop-1", conf, topology);
 
     }
 }
