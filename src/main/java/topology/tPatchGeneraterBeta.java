@@ -105,6 +105,7 @@ public class tPatchGeneraterBeta extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
+        //outputFieldsDeclarer.declareStream(PATCH_FRAME_STREAM, true, new Fields(FIELD_FRAME_ID, FIELD_PATCH_FRAME_MAT, FIELD_PATCH_COUNT));
         outputFieldsDeclarer.declareStream(PATCH_FRAME_STREAM, true, new Fields(FIELD_FRAME_ID, FIELD_PATCH_FRAME_MAT, FIELD_PATCH_COUNT));
     }
 }
