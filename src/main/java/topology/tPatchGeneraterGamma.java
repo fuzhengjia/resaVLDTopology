@@ -57,7 +57,7 @@ public class tPatchGeneraterGamma extends BaseRichBolt {
             Serializable.Rect adjRect = new Serializable.Rect(x, y, w, h);
             Serializable.PatchIdentifierMat subPatchMat = new Serializable.PatchIdentifierMat(frameId, adjRect, pSMat);
 
-            collector.emit(PATCH_FRAME_STREAM, tuple, new Values(frameId, patchIdentifierMat, totalPatchCount));
+            collector.emit(PATCH_FRAME_STREAM, tuple, new Values(frameId, subPatchMat, totalPatchCount));
         }
 
         collector.ack(tuple);
