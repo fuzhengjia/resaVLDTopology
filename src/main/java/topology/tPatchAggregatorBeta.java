@@ -21,7 +21,8 @@ public class tPatchAggregatorBeta extends BaseRichBolt {
     OutputCollector collector;
 
     /* Keeps track on which patches of the certain frame have already been received */
-    Map< Integer, HashSet<Serializable.Rect> > frameAccount;
+    //Map< Integer, HashSet<Serializable.Rect> > frameAccount;
+    Map< Integer, Integer> frameMonitor;
 
     /* Contains the list of logos found found on a given frame */
     Map< Integer, List<Serializable.Rect> > foundRectAccount;
@@ -29,7 +30,8 @@ public class tPatchAggregatorBeta extends BaseRichBolt {
 
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
-        frameAccount = new HashMap<>();
+        //frameAccount = new HashMap<>();
+        frameMonitor = new HashMap<>();
         foundRectAccount = new HashMap<>();
     }
 
@@ -40,28 +42,24 @@ public class tPatchAggregatorBeta extends BaseRichBolt {
         //opencv_core.IplImage fk = new opencv_core.IplImage();
 
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        Serializable.PatchIdentifier patchIdentifier = (Serializable.PatchIdentifier)tuple.getValueByField(FIELD_PATCH_IDENTIFIER);
+        //Serializable.PatchIdentifier patchIdentifier = (Serializable.PatchIdentifier)tuple.getValueByField(FIELD_PATCH_IDENTIFIER);
         int patchCount              = tuple.getIntegerByField(FIELD_PATCH_COUNT);
         Serializable.Rect foundRect = (Serializable.Rect)tuple.getValueByField(FIELD_FOUND_RECT);
 
-        //System.out.println("Received detected path of frame; " + frameId + ", at time: " + System.currentTimeMillis());
         /* Updating the list of detected logos on the frame */
         if (foundRect != null) {
             foundRectAccount.computeIfAbsent(frameId, k->new ArrayList<>()).add(foundRect);
         }
-
-        /* Updating the account on how many patches of a frame are received */
-//        if (!frameAccount.containsKey(frameId))
-//            frameAccount.put(frameId, new HashSet<>());
-//        frameAccount.get(frameId).add(patchIdentifier.roi);
-        frameAccount.computeIfAbsent(frameId, k->new HashSet<>()).add(patchIdentifier.roi);
+        frameMonitor.computeIfAbsent(frameId, k->0);
+        frameMonitor.computeIfPresent(frameId, (k,v)->v+1);;
 
         /* If all patches of this frame are collected proceed to the frame aggregator */
-        if (frameAccount.get(frameId).size() == patchCount) {
+        if (frameMonitor.get(frameId) == patchCount) {
             if (Debug.topologyDebugOutput)
                 System.out.println("All parts of frame " + frameId + " received");
             collector.emit(PROCESSED_FRAME_STREAM, new Values(frameId, foundRectAccount.get(frameId)));
-            frameAccount.remove(frameId);
+            //frameAccount.remove(frameId);
+            frameMonitor.remove(frameId);
             foundRectAccount.remove(frameId);
         }
         collector.ack(tuple);
