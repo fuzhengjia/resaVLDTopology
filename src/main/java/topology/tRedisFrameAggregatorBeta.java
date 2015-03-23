@@ -11,6 +11,7 @@ import org.bytedeco.javacpp.opencv_core;
 import tool.RedisStreamProducerBeta;
 import util.ConfigUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
     private int port;
     private String queueName;
     private int persistFrames;
-//    private int accumulateFrameSize;
+    //    private int accumulateFrameSize;
     private int sleepTime;
     private int startFrameID;
     private int maxWaitCount;
@@ -57,18 +58,22 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
         this.collector = outputCollector;
 
         persistFrames = Math.max(getInt(map, "persistFrames"), 1);
-//        accumulateFrameSize = Math.max(getInt(map, "accumulateFrameSize"), 1);
         this.sleepTime = ConfigUtil.getInt(map, "sleepTime", 10);
         this.startFrameID = ConfigUtil.getInt(map, "startFrameID", 1);
         this.maxWaitCount = ConfigUtil.getInt(map, "maxWaitCount", 4);
-        listHistory = null;
+        listHistory = new ArrayList<>();
+
 
         producer = new RedisStreamProducerBeta(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
         new Thread(producer).start();
 
         //TODO: is this a bug? be careful! in this bolt, this fk should not be in the prepare function!!!
         //opencv_core.IplImage fk = new opencv_core.IplImage();
-        System.out.println("End of prepare, the producer thread should start..." + System.currentTimeMillis());
+        System.out.println("End of prepare, the producer thread should start..." + System.currentTimeMillis()
+                + ", persistFrames: " + persistFrames
+                + ", startFrameID: " + startFrameID
+                + ", sleepTime: " + sleepTime
+                + ", maxWaitCount: " + maxWaitCount);
 
     }
 
@@ -101,19 +106,31 @@ public class tRedisFrameAggregatorBeta extends BaseRichBolt {
             opencv_core.Mat mat = frameMap.get(frameId).toJavaCVMat();
             List<Serializable.Rect> list = processedFrames.get(frameId);
 
-            if (frameId % persistFrames == 0) {
-                listHistory = list;
-            } else if (listHistory == null) {
-                listHistory = list;
-            } else {
-                list = listHistory;
-            }
+//            if (frameId % persistFrames == 0) {
+//                listHistory = list;
+//            } else if (listHistory == null) {
+//                listHistory = list;
+//            } else {
+//                list = listHistory;
+//            }
+//
+//            if (list != null) {
+//                for (Serializable.Rect rect : list) {
+//                    Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
+//                }
+//            }
 
-            if (list != null) {
-                for (Serializable.Rect rect : list) {
-                    Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
+            if (frameId % persistFrames == 0) {
+                if (list != null && list.size() > 0) {
+                    listHistory.clear();
+                    listHistory.addAll(list);
                 }
             }
+
+            for (Serializable.Rect rect : listHistory) {
+                Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
+            }
+
             producer.addFrame(new StreamFrame(frameId, mat));
             System.out.println("producerAdd: " + System.currentTimeMillis() + ":" + frameId);
             processedFrames.remove(frameId);
