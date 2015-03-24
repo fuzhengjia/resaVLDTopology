@@ -79,7 +79,7 @@ public class tVLDTopGammaRIRO {
         conf.setStatsSampleRate(1.0);
         //conf.registerSerialization(Serializable.Mat.class);
 
-        StormSubmitter.submitTopology("tVLDTopGammaNoLoop", conf, topology);
+        StormSubmitter.submitTopology("tVLDTopGamma-riro", conf, topology);
 
     }
 }
