@@ -20,7 +20,7 @@ import static tool.Constants.*;
 /**
  * Created by Tom Fu at Mar 24, 2015
  */
-public class tPatchAggSampleBeta extends BaseRichBolt {
+public class tPatchAggSampleGammer extends BaseRichBolt {
     OutputCollector collector;
 
     /* Keeps track on which patches of the certain frame have already been received */
