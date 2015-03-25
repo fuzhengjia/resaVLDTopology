@@ -53,10 +53,12 @@ public class tDrawPatchBolt extends BaseRichBolt {
 
         if (streamId.equals(PROCESSED_FRAME_STREAM)) {
             List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField(FIELD_FOUND_RECT_LIST);
-            foundRectList.computeIfAbsent(frameId, k->list);
+            foundRectList.put(frameId, list);
+            System.out.println("PROCESSED_FRAME_STREAM: " + System.currentTimeMillis() + ":" + frameId);
         } else if (streamId.equals(RAW_FRAME_STREAM)) {
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-            frameMap.computeIfAbsent(frameId, k->sMat);
+            frameMap.put(frameId, sMat);
+            System.out.println("RAW_FRAME_STREAM: " + System.currentTimeMillis() + ":" + frameId);
         }
 
         if (frameMap.containsKey(frameId) && foundRectList.containsKey(frameId)) {
