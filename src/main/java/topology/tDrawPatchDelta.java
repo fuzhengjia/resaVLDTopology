@@ -7,11 +7,8 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import logodetection.Debug;
 import logodetection.Util;
 import org.bytedeco.javacpp.opencv_core;
-import tool.RedisStreamProducerBeta;
-import util.ConfigUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,20 +16,20 @@ import java.util.List;
 import java.util.Map;
 
 import static tool.Constants.*;
-import static topology.StormConfigManager.getInt;
-import static topology.StormConfigManager.getString;
 
 /**
  * Created by Tom Fu at Mar 24, 2015
  * This bolt is designed to draw found rects on each frame,
  * TODO: leave implementation for multiple target logos (currently one support one logo)
  */
-public class tDrawPatchBolt extends BaseRichBolt {
+public class tDrawPatchDelta extends BaseRichBolt {
     OutputCollector collector;
 
     //int lim = 31685; // SONY
-    private HashMap<Integer, List<Serializable.Rect>> foundRectList;
+    private HashMap<Integer, List<List<Serializable.Rect>>> foundRectList;
     private HashMap<Integer, Serializable.Mat> frameMap;
+
+    List<opencv_core.CvScalar> colorList;
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -41,6 +38,15 @@ public class tDrawPatchBolt extends BaseRichBolt {
 
         frameMap = new HashMap<>();
         foundRectList = new HashMap<>();
+
+        colorList = new ArrayList<>();
+        colorList.add(opencv_core.CvScalar.MAGENTA);
+        colorList.add(opencv_core.CvScalar.YELLOW);
+        colorList.add(opencv_core.CvScalar.CYAN);
+        colorList.add(opencv_core.CvScalar.BLUE);
+        colorList.add(opencv_core.CvScalar.GREEN);
+        colorList.add(opencv_core.CvScalar.RED);
+        colorList.add(opencv_core.CvScalar.BLACK);
     }
 
     @Override
@@ -50,7 +56,7 @@ public class tDrawPatchBolt extends BaseRichBolt {
         opencv_core.IplImage imageFK = new opencv_core.IplImage();
 
         if (streamId.equals(PROCESSED_FRAME_STREAM)) {
-            List<Serializable.Rect> list = (List<Serializable.Rect>) tuple.getValueByField(FIELD_FOUND_RECT_LIST);
+            List<List<Serializable.Rect>> list = (List<List<Serializable.Rect>>) tuple.getValueByField(FIELD_FOUND_RECT_LIST);
             foundRectList.put(frameId, list);
             //System.out.println("PROCESSED_FRAME_STREAM: " + System.currentTimeMillis() + ":" + frameId);
         } else if (streamId.equals(RAW_FRAME_STREAM)) {
@@ -61,11 +67,15 @@ public class tDrawPatchBolt extends BaseRichBolt {
 
         if (frameMap.containsKey(frameId) && foundRectList.containsKey(frameId)) {
             opencv_core.Mat mat = frameMap.get(frameId).toJavaCVMat();
-            List<Serializable.Rect> list = foundRectList.get(frameId);
+            List<List<Serializable.Rect>> list = foundRectList.get(frameId);
 
-            if (list != null) {
-                for (Serializable.Rect rect : list) {
-                    Util.drawRectOnMat(rect.toJavaCVRect(), mat, opencv_core.CvScalar.MAGENTA);
+            for (int logoIndex = 0; logoIndex < list.size(); logoIndex ++) {
+
+                opencv_core.CvScalar color = colorList.get(logoIndex % colorList.size());
+                if (list.get(logoIndex) != null) {
+                    for (Serializable.Rect rect : list.get(logoIndex)) {
+                        Util.drawRectOnMat(rect.toJavaCVRect(), mat, color);
+                    }
                 }
             }
 

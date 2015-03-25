@@ -17,7 +17,7 @@ import static topology.StormConfigManager.*;
 /**
  * Created by Intern04 on 4/8/2014.
  */
-public class tVLDTopGammaNoLoop {
+public class tVLDTopDeltaRIRO {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -43,7 +43,6 @@ public class tVLDTopGammaNoLoop {
         String patchDrawBolt = "tVLDPatchDraw";
         String redisFrameOut = "tVLDRedisFrameOut";
 
-
         builder.setSpout(spoutName, new tFrameSourceBeta(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
@@ -55,15 +54,16 @@ public class tVLDTopGammaNoLoop {
                 .shuffleGrouping(transName, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
-        builder.setBolt(patchProcBolt, new tPatchProcessorBetaNoLoop(), getInt(conf, patchProcBolt + ".parallelism"))
+        builder.setBolt(patchProcBolt, new tPatchProcessorDelta(), getInt(conf, patchProcBolt + ".parallelism"))
+                .allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
                 .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
-        builder.setBolt(patchAggBolt, new tPatchAggSampleGamma(), getInt(conf, patchAggBolt + ".parallelism"))
+        builder.setBolt(patchAggBolt, new tPatchAggSampleDelta(), getInt(conf, patchAggBolt + ".parallelism"))
                 .globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
-        builder.setBolt(patchDrawBolt, new tDrawPatchBolt(), getInt(conf, patchDrawBolt + ".parallelism"))
+        builder.setBolt(patchDrawBolt, new tDrawPatchDelta(), getInt(conf, patchDrawBolt + ".parallelism"))
                 .fieldsGrouping(patchAggBolt, PROCESSED_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
                 .fieldsGrouping(transName, RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, patchDrawBolt + ".tasks"));
@@ -80,10 +80,9 @@ public class tVLDTopGammaNoLoop {
 
         conf.setStatsSampleRate(1.0);
         //conf.registerSerialization(Serializable.Mat.class);
-
         int sampleFrames = getInt(conf, "sampleFrames");
 
-        StormSubmitter.submitTopology("tVLDTopGammaNoLoop-sample-" + sampleFrames, conf, topology);
+        StormSubmitter.submitTopology("tVLDTopDeltaRIRO-sample-" + sampleFrames, conf, topology);
 
     }
 }

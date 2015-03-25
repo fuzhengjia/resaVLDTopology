@@ -22,7 +22,14 @@ import org.bytedeco.javacpp.opencv_core;
 import util.ConfigUtil;
 
 /**
- * Created by Intern04 on 5/8/2014.
+ * Created by Tom Fu
+ * This is usually the last bolt for displaying or outputting finished frames
+ * In the current implementation, it uses RedisStreamProducerBeta instance for outputting as jpg figures to redis output queue
+ * RedisStreamProducerBeta keeps a timer for each frame, if the expected frame is late, it starts the time and wait until timeout,
+ * then it simply drops this frame and come to the next expected frame. (suitable for loss insensitive application)
+ *
+ * The alternation can be RedisStreamProducer, which maintains a fix length sorted queue as a buffer for sorting, and re-ordering
+ * dump out the data at head only when new data arrive at the tail.
  */
 public class RedisFrameOutput extends BaseRichBolt {
     OutputCollector collector;
@@ -73,19 +80,9 @@ public class RedisFrameOutput extends BaseRichBolt {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
         opencv_core.IplImage imageFK = new opencv_core.IplImage();
 
-//        Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-//        rawFrameMap.computeIfAbsent(frameId, k->sMat);
-//
-//        opencv_core.Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
-//        opencv_core.IplImage frame = orgMat.asIplImage();
-//
-//        opencv_core.Mat mat = new opencv_core.Mat(frame);
-//        producer.addFrame(new StreamFrame(frameId, mat));
-
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
         producer.addFrame(new StreamFrame(frameId, sMat.toJavaCVMat()));
 
-//        rawFrameMap.remove(frameId);
         System.out.println("producerAdd: " + System.currentTimeMillis() + ":" + frameId);
         collector.ack(tuple);
     }

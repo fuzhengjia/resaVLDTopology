@@ -59,6 +59,7 @@ public interface Constants {
     public final static String FIELD_PARENT_PATCH_IDENTIFIER = "par-p-ident";
 
     public final static String FIELD_EXTRACTED_TEMPLATE = "ext-temp";
+    public final static String FIELD_LOGO_INDEX = "logo-index";
 
 ////////////not used
 

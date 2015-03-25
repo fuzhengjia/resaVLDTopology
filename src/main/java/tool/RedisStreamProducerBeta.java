@@ -11,8 +11,9 @@ import java.io.ByteArrayOutputStream;
 import java.util.PriorityQueue;
 
 /**
- * This runnable class accepts stream frames, orders them and produces an ordered sequence of frames which is saved
- * to a file. Also displays the results on the canvas as they appear.
+ * Created by Tom Fu
+ * RedisStreamProducerBeta keeps a timer for each frame, if the expected frame is late, it starts the time and wait until timeout,
+ * then it simply drops this frame and come to the next expected frame. (suitable for loss insensitive application)
  */
 public class RedisStreamProducerBeta implements Runnable {
     /**

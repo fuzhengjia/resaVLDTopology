@@ -59,7 +59,7 @@ public class tVLDTopGammaRIRO {
                 .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
-        builder.setBolt(patchAggBolt, new tPatchAggSampleGammer(), getInt(conf, patchAggBolt + ".parallelism"))
+        builder.setBolt(patchAggBolt, new tPatchAggSampleGamma(), getInt(conf, patchAggBolt + ".parallelism"))
                 .globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
