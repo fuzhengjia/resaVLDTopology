@@ -8,6 +8,7 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
+import util.ConfigUtil;
 
 import java.io.FileNotFoundException;
 
@@ -81,7 +82,9 @@ public class tVLDTopGammaNoLoop {
         conf.setStatsSampleRate(1.0);
         //conf.registerSerialization(Serializable.Mat.class);
 
-        StormSubmitter.submitTopology("tVLDTopGammaNoLoop-sample", conf, topology);
+        int sampleFrames = getInt(conf, "sampleFrames");
+
+        StormSubmitter.submitTopology("tVLDTopGammaNoLoop-sample-" + sampleFrames, conf, topology);
 
     }
 }

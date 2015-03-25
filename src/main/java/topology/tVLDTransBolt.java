@@ -9,6 +9,7 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import generateTraj.TwoIntegers;
 import org.bytedeco.javacpp.opencv_core;
+import util.ConfigUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class tVLDTransBolt extends BaseRichBolt {
     //String targetComponentName;
     int w, h, dx, dy, W, H, totalPatchCount;
     double fx, fy, fsx, fsy;
+    private int sampleFrames;
 
 //    public tVLDTransBolt(String targetComponentName){
 //        this.targetComponentName = targetComponentName;
@@ -61,8 +63,9 @@ public class tVLDTransBolt extends BaseRichBolt {
         }
 
         totalPatchCount = xCnt * yCnt;
+        sampleFrames = ConfigUtil.getInt(map, "sampleFrames", 1);
         System.out.println("tVLDTransBolt.prepare, W: " + W + ", H: " + H + ", w: " + w + ", h: " + h
-                + ", dx: " + dx + ", dy: " + dy + ", totalCnt: " + totalPatchCount);
+                + ", dx: " + dx + ", dy: " + dy + ", totalCnt: " + totalPatchCount + ", sampleFrames: " + sampleFrames);
     }
 
     @Override
@@ -74,14 +77,16 @@ public class tVLDTransBolt extends BaseRichBolt {
 
         collector.emit(RAW_FRAME_STREAM, tuple, new Values(frameId, sMat));
 
-        for (int y = 0; y + h <= H; y += dy) {
-            Serializable.Rect rect = new Serializable.Rect(0, y, W, h);
-            opencv_core.Mat pMat = new opencv_core.Mat(sMat.toJavaCVMat(), rect.toJavaCVRect());
-            Serializable.Mat pSMat = new Serializable.Mat(pMat);
-            Serializable.PatchIdentifierMat identifierMat = new Serializable.PatchIdentifierMat(frameId, rect, pSMat);
-            int[] info = new int[]{w, W, dx, h, H, dy, totalPatchCount};
-            collector.emit(PATCH_FRAME_STREAM, tuple, new Values(frameId, identifierMat, info));
-            //System.out.println("send out, y: " + y);
+        if (frameId % sampleFrames == 0) {
+            for (int y = 0; y + h <= H; y += dy) {
+                Serializable.Rect rect = new Serializable.Rect(0, y, W, h);
+                opencv_core.Mat pMat = new opencv_core.Mat(sMat.toJavaCVMat(), rect.toJavaCVRect());
+                Serializable.Mat pSMat = new Serializable.Mat(pMat);
+                Serializable.PatchIdentifierMat identifierMat = new Serializable.PatchIdentifierMat(frameId, rect, pSMat);
+                int[] info = new int[]{w, W, dx, h, H, dy, totalPatchCount};
+                collector.emit(PATCH_FRAME_STREAM, tuple, new Values(frameId, identifierMat, info));
+                //System.out.println("send out, y: " + y);
+            }
         }
 
         collector.ack(tuple);
