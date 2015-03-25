@@ -7,6 +7,7 @@ import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
+import showTraj.RedisFrameOutput;
 
 import java.io.FileNotFoundException;
 
@@ -39,7 +40,9 @@ public class tVLDTopGammaNoLoop {
         String patchGenBolt = "tVLDPatchGen";
         String patchProcBolt = "tVLDPatchProc";
         String patchAggBolt = "tVLDPatchAgg";
+        String patchDrawBolt = "tVLDPatchDraw";
         String redisFrameOut = "tVLDRedisFrameOut";
+
 
         builder.setSpout(spoutName, new tFrameSourceBeta(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
@@ -56,13 +59,17 @@ public class tVLDTopGammaNoLoop {
                 .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
-        builder.setBolt(patchAggBolt, new tPatchAggregatorBeta(), getInt(conf, patchAggBolt + ".parallelism"))
-                .fieldsGrouping(patchProcBolt, DETECTED_LOGO_STREAM, new Fields(FIELD_FRAME_ID))
+        builder.setBolt(patchAggBolt, new tPatchAggSampleBeta(), getInt(conf, patchAggBolt + ".parallelism"))
+                .globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
-        builder.setBolt(redisFrameOut, new tRedisFrameAggregatorBeta(), getInt(conf, redisFrameOut + ".parallelism"))
-                .globalGrouping(patchAggBolt, PROCESSED_FRAME_STREAM)
-                .globalGrouping(transName, RAW_FRAME_STREAM)
+        builder.setBolt(patchDrawBolt, new tDrawPatchBolt(), getInt(conf, patchDrawBolt + ".parallelism"))
+                .fieldsGrouping(patchAggBolt, PROCESSED_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping(transName, RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
+                .setNumTasks(getInt(conf, patchDrawBolt + ".tasks"));
+
+        builder.setBolt(redisFrameOut, new RedisFrameOutput(), getInt(conf, redisFrameOut + ".parallelism"))
+                .globalGrouping(patchDrawBolt, STREAM_FRAME_DISPLAY)
                 .setNumTasks(getInt(conf, redisFrameOut + ".tasks"));
 
         StormTopology topology = builder.createTopology();
@@ -74,7 +81,7 @@ public class tVLDTopGammaNoLoop {
         conf.setStatsSampleRate(1.0);
         //conf.registerSerialization(Serializable.Mat.class);
 
-        StormSubmitter.submitTopology("tVLDTopGammaNoLoop", conf, topology);
+        StormSubmitter.submitTopology("tVLDTopGammaNoLoop-sample", conf, topology);
 
     }
 }
