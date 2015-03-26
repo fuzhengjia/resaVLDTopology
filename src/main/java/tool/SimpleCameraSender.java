@@ -78,7 +78,8 @@ public class SimpleCameraSender {
                     last = System.currentTimeMillis();
                     qLen = jedis.llen(this.queueName);
                     System.out.println("Current: " + last + ", elapsed: " + (last - start)
-                            + ",totalSend: " + generatedFrames+ ", remain: " + remain + ", sendQLen: " + qLen);
+                            + ",totalSend: " + generatedFrames+ ", remain: " + remain + ", sendQLen: " + qLen
+                            + ", W: " + mat.cols() + ", H: " + mat.rows());
                 } else {
                     Thread.sleep(toWait);
                 }

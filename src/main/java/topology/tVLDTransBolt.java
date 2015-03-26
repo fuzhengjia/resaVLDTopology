@@ -46,8 +46,8 @@ public class tVLDTransBolt extends BaseRichBolt {
         fsx = .5;
         fsy = .5;
         //double fsx = .4, fsy = .4;
-        W = 728;
-        H = 408;
+        W = ConfigUtil.getInt(map, "width", 728);
+        H = ConfigUtil.getInt(map, "height", 408);
         w = (int) (W * fx + .5);
         h = (int) (H * fy + .5);
         dx = (int) (w * fsx + .5);
