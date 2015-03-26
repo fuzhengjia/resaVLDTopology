@@ -109,15 +109,16 @@ public class SimpleCameraSender {
         if (args.length == 4) {
             sender = new SimpleCameraSender(args[0]);
             System.out.println("Default queueName: " + sender.queueName.toString());
-            fps = Integer.parseInt(args[1]);
-            startFrameID = Integer.parseInt(args[2]);
-            targetCount = Integer.parseInt(args[3]);
+            startFrameID = Integer.parseInt(args[1]);
+            targetCount = Integer.parseInt(args[2]);
+            fps = Integer.parseInt(args[3]);
+
         } else {
             sender = new SimpleCameraSender(args[0], args[1]);
             System.out.println("User-defined queueName: " + args[1]);
-            fps = Integer.parseInt(args[2]);
-            startFrameID = Integer.parseInt(args[3]);
-            targetCount = Integer.parseInt(args[4]);
+            startFrameID = Integer.parseInt(args[2]);
+            targetCount = Integer.parseInt(args[3]);
+            fps = Integer.parseInt(args[4]);
         }
         System.out.println("start sender, queueName: "
                 + sender.queueName.toString() + ", fps: " + fps + ", start: " + startFrameID + ", target: " + targetCount);
