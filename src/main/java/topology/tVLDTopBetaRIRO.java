@@ -17,7 +17,10 @@ import static topology.StormConfigManager.readConfig;
 import static util.ConfigUtil.getDouble;
 
 /**
- * Created by Intern04 on 4/8/2014.
+ * Created by Tom Fu, this version is through basic testing.
+ * In the beta version, we re-org the topology, which is different to the original tomVLDtopology
+ * where we no longer broadcast the whole frame to all the patchProc tasks (which is large overhead)
+ * In stead, we only broadcast frames to the PatchGeneratorBolt, and then generate small patchWithFrame to each patchProc task
  */
 public class tVLDTopBetaRIRO {
 

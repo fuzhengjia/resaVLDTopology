@@ -15,7 +15,10 @@ import static tool.Constants.*;
 import static topology.StormConfigManager.*;
 
 /**
- * Created by Intern04 on 4/8/2014.
+ * Created by Tom Fu, this version is through basic testing.
+ * In the gamma version, we re-org the topology, using the transBolt (no broadcast of a whole frame, instead, a
+ * long line block), and patchDraw bolt.
+ * We also enables sampleFrame, to make the through higher than 40 fps even when there is loop
  */
 public class tVLDTopGammaRIRO {
 
