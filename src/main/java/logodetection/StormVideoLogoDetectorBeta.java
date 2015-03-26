@@ -168,10 +168,10 @@ public class StormVideoLogoDetectorBeta {
 //                addedTempList.remove(0);
 //            }
 
+            Collections.sort(addedTempList);
             if (addedTempList.size() > maxTemplateSize) {
                 addedTempList.remove(addedTempList.size() - 1);
             }
-            Collections.sort(addedTempList);
 
             for (LogoTemplate lt : addedTempList) {
                 if (keyPoints.capacity() >= params.getMatchingParameters().getMinimalNumberOfMatches() &&
@@ -228,10 +228,10 @@ public class StormVideoLogoDetectorBeta {
 //                addedTempList.remove(0);
 //            }
 
+            Collections.sort(addedTempList);
             if (addedTempList.size() > maxTemplateSize) {
                 addedTempList.remove(addedTempList.size() - 1);
             }
-            Collections.sort(addedTempList);
 
             for (LogoTemplate lt : addedTempList) {
                 if (keyPoints.capacity() >= params.getMatchingParameters().getMinimalNumberOfMatches() &&
