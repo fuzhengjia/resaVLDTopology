@@ -48,6 +48,12 @@ public class SimpleCameraSender {
         try {
             camera = new opencv_highgui.VideoCapture(0);
             Thread.sleep(1000);
+            if (!camera.isOpened()) {
+                System.out.println("Camera Error");
+            } else {
+                System.out.println("Camera OK?");
+            }
+
             long start = System.currentTimeMillis();
             long last = start;
             long qLen = 0;
