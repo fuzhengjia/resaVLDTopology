@@ -78,14 +78,14 @@ public class SimpleCameraSender {
                     System.out.println("Current: " + last + ", elapsed: " + (last - start)
                             + ",totalSend: " + generatedFrames+ ", remain: " + remain + ", sendQLen: " + qLen);
                 } else {
-//                    long current = System.currentTimeMillis();
-//                    long elapse = current - last;
-//                    long remain = 1000 - elapse;
-//                    int remainCnt = generatedFrames % fps;
-//                    long wait = remain / remainCnt;
-//                    if (wait > 0) {
-//                        Thread.sleep(wait);
-//                    }
+                    long current = System.currentTimeMillis();
+                    long elapse = current - last;
+                    long remain = 1000 - elapse;
+                    int remainCnt = generatedFrames % fps;
+                    long wait = remain / remainCnt;
+                    if (wait > 0) {
+                        Thread.sleep(wait);
+                    }
                 }
             }
         } catch (InterruptedException e){
