@@ -8,6 +8,7 @@ import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.opencv_core;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 
 /**
  * This class provides kryo serialization for the JavaCV's Mat and Rect objects, so that Storm can wrap them in tuples.
@@ -75,14 +76,14 @@ public class Serializable {
             this.cols = mat.cols();
             this.type = mat.type();
             int size = mat.arraySize();
-            this.data = new byte[size];
+            //this.data = new byte[size];
+            //mat.getByteBuffer().get(this.data);
 
-            mat.getByteBuffer().get(this.data);
-//            ByteBuffer bb = mat.getByteBuffer();
-//            bb.rewind();
-//            this.data = new byte[size];
-//            while (bb.hasRemaining())  // should happen only once
-//                bb.get(this.data);
+            ByteBuffer bb = mat.getByteBuffer();
+            bb.rewind();
+            this.data = new byte[size];
+            while (bb.hasRemaining())  // should happen only once
+                bb.get(this.data);
         }
 
         /**
