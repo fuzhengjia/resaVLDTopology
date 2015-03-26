@@ -164,7 +164,7 @@ public class StormVideoLogoDetectorBeta {
 
         if (foundRect == null) {
             // If logo hasn't been yet found, sort list of dynamic templates.
-            if (addedTempList.size() >= maxTemplateSize) {
+            if (addedTempList.size() > maxTemplateSize) {
                 addedTempList.remove(0);
             }
 
@@ -225,7 +225,7 @@ public class StormVideoLogoDetectorBeta {
         if (foundRect == null) {
             // If logo hasn't been yet found, sort list of dynamic templates.
 
-            if (addedTempList.size() >= maxTemplateSize) {
+            if (addedTempList.size() > maxTemplateSize) {
                 addedTempList.remove(0);
             }
 

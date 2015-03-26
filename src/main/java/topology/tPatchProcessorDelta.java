@@ -46,7 +46,7 @@ public class tPatchProcessorDelta extends BaseRichBolt {
         List<String> templateFiles = getListOfStrings(map, "originalTemplateFileNames");
         detectors = new ArrayList<>();
         for (int logoIndex = 0; logoIndex < templateFiles.size(); logoIndex ++) {
-            detectors.add(new StormVideoLogoDetectorBeta(parameters, templateFiles.get(logoIndex), logoIndex, 3));
+            detectors.add(new StormVideoLogoDetectorBeta(parameters, templateFiles.get(logoIndex), logoIndex, 4));
         }
         System.out.println("tPatchProcessorDelta.prepare, with logos: " + detectors.size());
         opencv_core.IplImage fk = new opencv_core.IplImage();
