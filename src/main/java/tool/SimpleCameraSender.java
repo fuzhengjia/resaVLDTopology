@@ -48,6 +48,7 @@ public class SimpleCameraSender {
         opencv_core.IplImage fk = new opencv_core.IplImage();
 
         try {
+            Thread.sleep(1000);
             long start = System.currentTimeMillis();
             long last = start;
             long qLen = 0;
