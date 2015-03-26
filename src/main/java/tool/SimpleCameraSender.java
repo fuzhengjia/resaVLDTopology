@@ -40,7 +40,7 @@ public class SimpleCameraSender {
         this.queueName = qName.getBytes();
     }
 
-    public void send2Queue(int fps, int startID, int targetCount) throws IOException {
+    public void send2Queue(int fps, int adjustTime, int targetCount) throws IOException {
         Jedis jedis = new Jedis(host, port);
         int generatedFrames = 0;
         opencv_core.IplImage fk = new opencv_core.IplImage();
@@ -57,6 +57,7 @@ public class SimpleCameraSender {
             long start = System.currentTimeMillis();
             long last = start;
             long qLen = 0;
+            long toWait = adjustTime / fps;
 
             while (generatedFrames < targetCount) {
                 opencv_core.Mat mat = new opencv_core.Mat();
@@ -65,8 +66,9 @@ public class SimpleCameraSender {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(bufferedImage, "JPEG", baos);
                 jedis.rpush(this.queueName, baos.toByteArray());
-                generatedFrames ++;
-                if (generatedFrames % fps == 0) {
+                //generatedFrames ++;
+                int remainCnt = (++generatedFrames) % fps;
+                if (remainCnt == 0) {
                     long current = System.currentTimeMillis();
                     long elapse = current - last;
                     long remain = 1000 - elapse;
@@ -78,14 +80,7 @@ public class SimpleCameraSender {
                     System.out.println("Current: " + last + ", elapsed: " + (last - start)
                             + ",totalSend: " + generatedFrames+ ", remain: " + remain + ", sendQLen: " + qLen);
                 } else {
-                    long current = System.currentTimeMillis();
-                    long elapse = current - last;
-                    long remain = 1000 - elapse;
-                    int remainCnt = generatedFrames % fps;
-                    long wait = remain / remainCnt;
-                    if (wait > 0) {
-                        Thread.sleep(wait);
-                    }
+                    Thread.sleep(toWait);
                 }
             }
         } catch (InterruptedException e){
