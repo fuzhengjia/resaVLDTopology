@@ -23,7 +23,7 @@ public class SimpleCameraSender {
     private String host;
     private int port;
     private byte[] queueName;
-    private String sourceVideoFile;
+    //private String sourceVideoFile;
 
     //private FFmpegFrameGrabber grabber;
     private opencv_highgui.VideoCapture camera;
@@ -33,8 +33,6 @@ public class SimpleCameraSender {
         this.host = getString(conf, "redis.host");
         this.port = getInt(conf, "redis.port");
         this.queueName = getString(conf, "redis.sourceQueueName").getBytes();
-        this.sourceVideoFile = getString(conf, "sourceVideoFile");
-        camera = new opencv_highgui.VideoCapture(0);
     }
 
     public SimpleCameraSender(String confile, String qName) throws FileNotFoundException {
@@ -48,6 +46,7 @@ public class SimpleCameraSender {
         opencv_core.IplImage fk = new opencv_core.IplImage();
 
         try {
+            camera = new opencv_highgui.VideoCapture(0);
             Thread.sleep(1000);
             long start = System.currentTimeMillis();
             long last = start;
