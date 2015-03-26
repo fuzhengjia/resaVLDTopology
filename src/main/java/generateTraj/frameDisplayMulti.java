@@ -119,7 +119,7 @@ public class frameDisplayMulti extends BaseRichBolt {
                     point1.y(point1_y);
 
                     cvLine(frame, cvPointFrom32f(point0), cvPointFrom32f(point1),
-                            CV_RGB(0, cvFloor(255.0 * (jIndex + 1.0) / length), 0), 1, 8, 0);
+                            CV_RGB(cvFloor(255.0 * (jIndex + 1.0) / length), 0, 0), 1, 8, 0);
                     point0 = point1;
                 }
             }
