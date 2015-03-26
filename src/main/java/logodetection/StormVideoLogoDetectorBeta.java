@@ -164,9 +164,12 @@ public class StormVideoLogoDetectorBeta {
 
         if (foundRect == null) {
             // If logo hasn't been yet found, sort list of dynamic templates.
-            if (addedTempList.size() > maxTemplateSize)
-                addedTempList.remove(addedTempList.size() - 1);
-            Collections.sort(addedTempList);
+            if (addedTempList.size() > maxTemplateSize) {
+                //addedTempList.remove(addedTempList.size() - 1);
+                addedTempList.remove(0);
+            }
+
+            //Collections.sort(addedTempList);
 
             for (LogoTemplate lt : addedTempList) {
                 if (keyPoints.capacity() >= params.getMatchingParameters().getMinimalNumberOfMatches() &&
@@ -218,10 +221,12 @@ public class StormVideoLogoDetectorBeta {
 
         if (foundRect == null) {
             // If logo hasn't been yet found, sort list of dynamic templates.
-            if (addedTempList.size() > maxTemplateSize)
-                addedTempList.remove(addedTempList.size() - 1);
+            if (addedTempList.size() > maxTemplateSize) {
+                //addedTempList.remove(addedTempList.size() - 1);
+                addedTempList.remove(0);
+            }
 
-            Collections.sort(addedTempList);
+            //Collections.sort(addedTempList);
             for (LogoTemplate lt : addedTempList) {
                 if (keyPoints.capacity() >= params.getMatchingParameters().getMinimalNumberOfMatches() &&
                         robustMatcher.matchImages(lt.imageMat, lt.descriptor, lt.keyPoints,

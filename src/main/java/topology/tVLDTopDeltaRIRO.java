@@ -15,7 +15,12 @@ import static tool.Constants.*;
 import static topology.StormConfigManager.*;
 
 /**
- * Created by Intern04 on 4/8/2014.
+ * Created by Tom Fu, this version is through basic testing.
+ * In the delta version, we enables the feature of supporting the multiple logo input,
+ * This version is still preliminary and need more improvement
+ *
+ * Note: we in this version's patchProc bolt (tPatchProcessorDelta), uses the StormVideoLogoDetectorBeta class, not the normal one StormVideoLogoDetector!!!
+ *
  */
 public class tVLDTopDeltaRIRO {
 
