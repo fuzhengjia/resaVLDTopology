@@ -17,10 +17,14 @@ import static topology.StormConfigManager.*;
 /**
  * Created by Tom Fu, this version is through basic testing.
  * In the delta version, we enables the feature of supporting the multiple logo input,
+ * When the setting in the configuration file includes multiple logo image files,
+ * it automatically creates corresponding detector instance
+ *
+ * When the number of logo image file = 1, it turn back to the gamma version.
  * This version is still preliminary and need more improvement
  *
  * Note: we in this version's patchProc bolt (tPatchProcessorDelta), uses the StormVideoLogoDetectorBeta class, not the normal one StormVideoLogoDetector!!!
- *
+ * Through testing, when sampleFrame = 4, it supports up to 25 fps.
  */
 public class tVLDTopDeltaRIRO {
 

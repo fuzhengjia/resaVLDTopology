@@ -13,9 +13,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 /**
+ * This is a beta version, which enables the feature of multiple logo template input.
+ * One detector actually maps to one log template, the multiple detector instance should be created at higher level.
+ * TODO: some of the process and algorithm can be further improved to be more efficient, e.g, can we involve all the logo template in one detector?
  * This is a detector, which stores logo templates ({@link LogoTemplate}),
  * and, given a patch of the frame, attempts to find a logo on it by matching it against each logo template.
  * Logo templates are checked in order of their decreasing priority. They are stored in two separate lists:
