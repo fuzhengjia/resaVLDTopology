@@ -96,7 +96,7 @@ public class tPatchProcessorDelta extends BaseRichBolt {
         //detector.incrementPriority(parent, 1);
 
         detectors.get(logoIndex).addTemplateBySubMat(receivedPatchIdentifier, extracted);
-        detectors.get(logoIndex).incrementPriority(parent, 1);
+        //detectors.get(logoIndex).incrementPriority(parent, 1);
     }
 
     @Override

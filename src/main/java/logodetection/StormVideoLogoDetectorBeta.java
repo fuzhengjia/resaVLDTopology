@@ -164,12 +164,15 @@ public class StormVideoLogoDetectorBeta {
 
         if (foundRect == null) {
             // If logo hasn't been yet found, sort list of dynamic templates.
-            if (addedTempList.size() > maxTemplateSize) {
-                addedTempList.remove(addedTempList.size() - 1);
-                //addedTempList.remove(0);
+            if (addedTempList.size() >= maxTemplateSize) {
+                addedTempList.remove(0);
             }
 
-            Collections.sort(addedTempList);
+//            if (addedTempList.size() > maxTemplateSize) {
+//                addedTempList.remove(addedTempList.size() - 1);
+//                //addedTempList.remove(0);
+//            }
+//            Collections.sort(addedTempList);
 
             for (LogoTemplate lt : addedTempList) {
                 if (keyPoints.capacity() >= params.getMatchingParameters().getMinimalNumberOfMatches() &&
@@ -221,12 +224,17 @@ public class StormVideoLogoDetectorBeta {
 
         if (foundRect == null) {
             // If logo hasn't been yet found, sort list of dynamic templates.
-            if (addedTempList.size() > maxTemplateSize) {
-                addedTempList.remove(addedTempList.size() - 1);
-                //addedTempList.remove(0);
+
+            if (addedTempList.size() >= maxTemplateSize) {
+                addedTempList.remove(0);
             }
 
-            Collections.sort(addedTempList);
+//            if (addedTempList.size() > maxTemplateSize) {
+//                addedTempList.remove(addedTempList.size() - 1);
+//                //addedTempList.remove(0);
+//            }
+//            Collections.sort(addedTempList);
+
             for (LogoTemplate lt : addedTempList) {
                 if (keyPoints.capacity() >= params.getMatchingParameters().getMinimalNumberOfMatches() &&
                         robustMatcher.matchImages(lt.imageMat, lt.descriptor, lt.keyPoints,
@@ -299,7 +307,7 @@ public class StormVideoLogoDetectorBeta {
      * @param mat        Image of the logo template
      */
     public void addTemplate(Serializable.PatchIdentifier identifier, Serializable.Mat mat) {
-        if (addedTempList.size() >= maxTemplateSize)
+        if (addedTempList.size() > maxTemplateSize)
             return;
         Mat image = mat.toJavaCVMat();
         Mat descriptor = new Mat();
@@ -317,7 +325,7 @@ public class StormVideoLogoDetectorBeta {
      * @param roi        Region where this logo template was detected
      */
     public void addTemplateByRect(Serializable.PatchIdentifier identifier, Serializable.Mat wholeFrame, Serializable.Rect roi) {
-        if (addedTempList.size() >= maxTemplateSize)
+        if (addedTempList.size() > maxTemplateSize)
             return;
         Mat image = new Mat(wholeFrame.toJavaCVMat(), roi.toJavaCVRect());
         Mat descriptor = new Mat();
@@ -334,7 +342,7 @@ public class StormVideoLogoDetectorBeta {
      * @param extractedTemplate Image of the logo template
      */
     public void addTemplateBySubMat(Serializable.PatchIdentifier identifier, Serializable.Mat extractedTemplate) {
-        if (addedTempList.size() >= maxTemplateSize) {
+        if (addedTempList.size() > maxTemplateSize) {
             return;
         }
 
