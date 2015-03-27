@@ -23,6 +23,7 @@ import static tool.Constants.*;
  * Created by Tom FU.
  *
  * Be careful about the different W*H of the video and camera input.
+ *
  */
 public class tVLDTransBolt extends BaseRichBolt {
     OutputCollector collector;
