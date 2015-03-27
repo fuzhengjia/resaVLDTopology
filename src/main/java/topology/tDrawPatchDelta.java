@@ -77,13 +77,14 @@ public class tDrawPatchDelta extends BaseRichBolt {
                             + "logo: " + logoIndex + ", of size: " + list.get(logoIndex).size() + ", " + System.currentTimeMillis());
 
                     for (Serializable.Rect rect : list.get(logoIndex)) {
-                        if (logoIndex > 0) {
-                            opencv_core.Rect orgRect = rect.toJavaCVRect();
-                            opencv_core.Rect adjRect = new opencv_core.Rect(orgRect.x() + 5, orgRect.y() + 5, orgRect.width() - 10, orgRect.height() - 10);
-                            Util.drawRectOnMat(adjRect, mat, color);
-                        } else {
-                            Util.drawRectOnMat(rect.toJavaCVRect(), mat, color);
-                        }
+//                        if (logoIndex > 0) {
+//                            opencv_core.Rect orgRect = rect.toJavaCVRect();
+//                            opencv_core.Rect adjRect = new opencv_core.Rect(orgRect.x() + 5, orgRect.y() + 5, orgRect.width() - 10, orgRect.height() - 10);
+//                            Util.drawRectOnMat(adjRect, mat, color);
+//                        } else {
+//                            Util.drawRectOnMat(rect.toJavaCVRect(), mat, color);
+//                        }
+                        Util.drawRectOnMat(rect.toJavaCVRect(), mat, color);
                     }
                 }
             }
