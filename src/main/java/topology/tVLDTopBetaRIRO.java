@@ -7,6 +7,7 @@ import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
+import util.ConfigUtil;
 
 import java.io.FileNotFoundException;
 
@@ -75,7 +76,10 @@ public class tVLDTopBetaRIRO {
 
         conf.setStatsSampleRate(1.0);
 
-        StormSubmitter.submitTopology("tVLDTopBetaRIRO-1", conf, topology);
+        int W = ConfigUtil.getInt(conf, "width", 728);
+        int H = ConfigUtil.getInt(conf, "height", 408);
+
+        StormSubmitter.submitTopology("tVLDTopBetaRIRO-1" + "-(" + W + "*" + H + ")", conf, topology);
 
     }
 }

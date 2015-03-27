@@ -8,6 +8,7 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
+import util.ConfigUtil;
 
 import java.io.FileNotFoundException;
 
@@ -90,8 +91,10 @@ public class tVLDTopDeltaRIRO {
         conf.setStatsSampleRate(1.0);
         //conf.registerSerialization(Serializable.Mat.class);
         int sampleFrames = getInt(conf, "sampleFrames");
+        int W = ConfigUtil.getInt(conf, "width", 728);
+        int H = ConfigUtil.getInt(conf, "height", 408);
 
-        StormSubmitter.submitTopology("tVLDTopDeltaRIRO-sample-" + sampleFrames, conf, topology);
+        StormSubmitter.submitTopology("tVLDTopDeltaRIRO-sample-" + sampleFrames + "-(" + W + "*" + H + ")", conf, topology);
 
     }
 }
