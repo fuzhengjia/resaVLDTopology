@@ -79,7 +79,7 @@ public class tVLDTopBetaRIRO {
         int W = ConfigUtil.getInt(conf, "width", 728);
         int H = ConfigUtil.getInt(conf, "height", 408);
 
-        StormSubmitter.submitTopology("tVLDTopBetaRIRO-1" + "-(" + W + "*" + H + ")", conf, topology);
+        StormSubmitter.submitTopology("tVLDTopBeta-1" + "-" + W + "-" + H, conf, topology);
 
     }
 }

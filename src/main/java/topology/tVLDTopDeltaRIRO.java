@@ -95,7 +95,7 @@ public class tVLDTopDeltaRIRO {
         int W = ConfigUtil.getInt(conf, "width", 728);
         int H = ConfigUtil.getInt(conf, "height", 408);
 
-        StormSubmitter.submitTopology("tVLDTopDeltaRIRO-sample-" + sampleFrames + "-(" + W + "*" + H + ")", conf, topology);
+        StormSubmitter.submitTopology("tVLDDelta-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
 
     }
 }
