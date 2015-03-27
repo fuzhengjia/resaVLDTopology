@@ -26,6 +26,7 @@ import static topology.StormConfigManager.*;
  *
  * Note: we in this version's patchProc bolt (tPatchProcessorDelta), uses the StormVideoLogoDetectorBeta class, not the normal one StormVideoLogoDetector!!!
  * Through testing, when sampleFrame = 4, it supports up to 25 fps.
+ *
  */
 public class tVLDTopDeltaRIRO {
 

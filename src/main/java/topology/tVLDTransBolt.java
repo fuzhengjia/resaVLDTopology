@@ -20,7 +20,9 @@ import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
 import static tool.Constants.*;
 
 /**
- * Created by Intern04 on 5/8/2014.
+ * Created by Tom FU.
+ *
+ * Be careful about the different W*H of the video and camera input.
  */
 public class tVLDTransBolt extends BaseRichBolt {
     OutputCollector collector;
