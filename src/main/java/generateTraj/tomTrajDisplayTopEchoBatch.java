@@ -106,8 +106,9 @@ public class tomTrajDisplayTopEchoBatch {
         conf.setMaxSpoutPending(getInt(conf, "TrajMaxPending"));
 
         int min_dis = getInt(conf, "min_distance");
+        int init_counter = getInt(conf, "init_counter");
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tomTrajDisplayTopEchoBatch-2-" + min_dis, conf, topology);
+        StormSubmitter.submitTopology("tTrajTopEchoBatch-" + init_counter + "-" + min_dis, conf, topology);
     }
 }
