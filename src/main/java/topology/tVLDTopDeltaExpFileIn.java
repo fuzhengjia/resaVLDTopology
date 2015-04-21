@@ -28,7 +28,7 @@ import static topology.StormConfigManager.*;
  * Through testing, when sampleFrame = 4, it supports up to 25 fps.
  *
  */
-public class tVLDTopDeltaRIRO {
+public class tVLDTopDeltaExpFileIn {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -54,7 +54,7 @@ public class tVLDTopDeltaRIRO {
         String patchDrawBolt = "tVLDPatchDraw";
         String redisFrameOut = "tVLDRedisFrameOut";
 
-        builder.setSpout(spoutName, new tFrameSourceBeta(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new tomFrameSpoutResize(), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(transName, new tVLDTransBolt(), getInt(conf, transName + ".parallelism"))
@@ -95,7 +95,7 @@ public class tVLDTopDeltaRIRO {
         int W = ConfigUtil.getInt(conf, "width", 640);
         int H = ConfigUtil.getInt(conf, "height", 480);
 
-        StormSubmitter.submitTopology("tVLDDelta-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
+        StormSubmitter.submitTopology("tVLDDelta-exp-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
 
     }
 }

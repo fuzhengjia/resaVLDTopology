@@ -25,6 +25,7 @@ public class TomVideoStreamReceiverForWin {
         this.outputString = outputString;
     }
 
+    ///at the vlc player:, it should input: udp://@192.168.0.239:port to playback!!!
     public void VideoStreamReceiver() throws IOException, FrameGrabber.Exception, InterruptedException {
 
         // ffmpeg -f image2pipe -codec mjpeg -i pipe:0 -f mpegts "udp://localhost:7777"

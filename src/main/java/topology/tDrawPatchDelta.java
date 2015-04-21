@@ -73,8 +73,8 @@ public class tDrawPatchDelta extends BaseRichBolt {
 
                 opencv_core.CvScalar color = colorList.get(logoIndex % colorList.size());
                 if (list.get(logoIndex) != null) {
-                    System.out.println("FrameDisplay-finishedAdd: " + frameId
-                            + "logo: " + logoIndex + ", of size: " + list.get(logoIndex).size() + ", " + System.currentTimeMillis());
+//                    System.out.println("FrameDisplay-finishedAdd: " + frameId
+//                            + "logo: " + logoIndex + ", of size: " + list.get(logoIndex).size() + ", " + System.currentTimeMillis());
 
                     for (Serializable.Rect rect : list.get(logoIndex)) {
 //                        if (logoIndex > 0) {
