@@ -23,6 +23,7 @@ import util.ConfigUtil;
 
 /**
  * Created by Tom Fu
+ *
  * This is usually the last bolt for displaying or outputting finished frames
  * In the current implementation, it uses RedisStreamProducerBeta instance for outputting as jpg figures to redis output queue
  * RedisStreamProducerBeta keeps a timer for each frame, if the expected frame is late, it starts the time and wait until timeout,
