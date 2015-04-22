@@ -96,7 +96,7 @@ public class tVLDTopDeltaExpFileInO2 {
         int W = ConfigUtil.getInt(conf, "width", 640);
         int H = ConfigUtil.getInt(conf, "height", 480);
 
-        StormSubmitter.submitTopology("tVLDDelta-exp-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
+        StormSubmitter.submitTopology("tVLDDelta-O2-exp-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
 
     }
 }
