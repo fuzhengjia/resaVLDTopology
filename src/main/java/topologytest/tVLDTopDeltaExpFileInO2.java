@@ -1,4 +1,4 @@
-package topology;
+package topologytest;
 
 import backtype.storm.Config;
 import backtype.storm.StormSubmitter;
@@ -7,7 +7,9 @@ import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
-import showTraj.RedisFrameOutput;
+import showTraj.RedisFrameOutputAlpha;
+import topology.*;
+import util.ConfigUtil;
 
 import java.io.FileNotFoundException;
 
@@ -16,13 +18,18 @@ import static topology.StormConfigManager.*;
 
 /**
  * Created by Tom Fu, this version is through basic testing.
- * In the gamma version, we re-org the topology, using the transBolt (no broadcast of a whole frame, instead, a
- * long line block), and patchDraw bolt.
- * We also enables sampleFrame, to make the through higher than 40 fps even when there is loop
+ * In the delta version, we enables the feature of supporting the multiple logo input,
+ * When the setting in the configuration file includes multiple logo image files,
+ * it automatically creates corresponding detector instance
  *
+ * When the number of logo image file = 1, it turn back to the gamma version.
+ * This version is still preliminary and need more improvement
+ *
+ * Note: we in this version's patchProc bolt (tPatchProcessorDelta), uses the StormVideoLogoDetectorBeta class, not the normal one StormVideoLogoDetector!!!
  * Through testing, when sampleFrame = 4, it supports up to 25 fps.
+ *
  */
-public class tVLDTopGammaRIRO {
+public class tVLDTopDeltaExpFileInO2 {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -48,7 +55,7 @@ public class tVLDTopGammaRIRO {
         String patchDrawBolt = "tVLDPatchDraw";
         String redisFrameOut = "tVLDRedisFrameOut";
 
-        builder.setSpout(spoutName, new tFrameSourceBeta(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new tomFrameSpoutResize(), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(transName, new tVLDTransBolt(), getInt(conf, transName + ".parallelism"))
@@ -59,21 +66,21 @@ public class tVLDTopGammaRIRO {
                 .shuffleGrouping(transName, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
-        builder.setBolt(patchProcBolt, new tPatchProcessorBeta(), getInt(conf, patchProcBolt + ".parallelism"))
+        builder.setBolt(patchProcBolt, new tPatchProcessorDelta(), getInt(conf, patchProcBolt + ".parallelism"))
                 .allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
                 .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
-        builder.setBolt(patchAggBolt, new tPatchAggSampleGamma(), getInt(conf, patchAggBolt + ".parallelism"))
+        builder.setBolt(patchAggBolt, new tPatchAggSampleDelta(), getInt(conf, patchAggBolt + ".parallelism"))
                 .globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
-        builder.setBolt(patchDrawBolt, new tDrawPatchBolt(), getInt(conf, patchDrawBolt + ".parallelism"))
+        builder.setBolt(patchDrawBolt, new tDrawPatchDelta(), getInt(conf, patchDrawBolt + ".parallelism"))
                 .fieldsGrouping(patchAggBolt, PROCESSED_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
                 .fieldsGrouping(transName, RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, patchDrawBolt + ".tasks"));
 
-        builder.setBolt(redisFrameOut, new RedisFrameOutput(), getInt(conf, redisFrameOut + ".parallelism"))
+        builder.setBolt(redisFrameOut, new RedisFrameOutputAlpha(), getInt(conf, redisFrameOut + ".parallelism"))
                 .globalGrouping(patchDrawBolt, STREAM_FRAME_DISPLAY)
                 .setNumTasks(getInt(conf, redisFrameOut + ".tasks"));
 
@@ -86,8 +93,10 @@ public class tVLDTopGammaRIRO {
         conf.setStatsSampleRate(1.0);
         //conf.registerSerialization(Serializable.Mat.class);
         int sampleFrames = getInt(conf, "sampleFrames");
+        int W = ConfigUtil.getInt(conf, "width", 640);
+        int H = ConfigUtil.getInt(conf, "height", 480);
 
-        StormSubmitter.submitTopology("tVLDTopGamma-riro-sample-" + sampleFrames, conf, topology);
+        StormSubmitter.submitTopology("tVLDDelta-O2-exp-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
 
     }
 }

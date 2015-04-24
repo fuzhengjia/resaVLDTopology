@@ -1,4 +1,4 @@
-package topology;
+package topologytest;
 
 import backtype.storm.Config;
 import backtype.storm.StormSubmitter;
@@ -8,6 +8,8 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
+import topology.*;
+import util.ConfigUtil;
 
 import java.io.FileNotFoundException;
 
@@ -16,9 +18,6 @@ import static topology.StormConfigManager.*;
 
 /**
  * Created by Tom Fu, this version is through basic testing.
- *
- * This is the delta version with no additional template loop back. it must be quick the with loop, but might be worse in accuracy
- *
  * In the delta version, we enables the feature of supporting the multiple logo input,
  * When the setting in the configuration file includes multiple logo image files,
  * it automatically creates corresponding detector instance
@@ -27,9 +26,10 @@ import static topology.StormConfigManager.*;
  * This version is still preliminary and need more improvement
  *
  * Note: we in this version's patchProc bolt (tPatchProcessorDelta), uses the StormVideoLogoDetectorBeta class, not the normal one StormVideoLogoDetector!!!
- * Through testing, when sampleFrame = 4, it supports up to 35 fps.
+ * Through testing, when sampleFrame = 4, it supports up to 25 fps.
+ *
  */
-public class tVLDTopDeltaNoLoop {
+public class tVLDTopDeltaExpFileIn {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -55,7 +55,7 @@ public class tVLDTopDeltaNoLoop {
         String patchDrawBolt = "tVLDPatchDraw";
         String redisFrameOut = "tVLDRedisFrameOut";
 
-        builder.setSpout(spoutName, new tFrameSourceBeta(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new tomFrameSpoutResize(), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(transName, new tVLDTransBolt(), getInt(conf, transName + ".parallelism"))
@@ -66,7 +66,8 @@ public class tVLDTopDeltaNoLoop {
                 .shuffleGrouping(transName, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
-        builder.setBolt(patchProcBolt, new tPatchProcessorDeltaNoLoop(), getInt(conf, patchProcBolt + ".parallelism"))
+        builder.setBolt(patchProcBolt, new tPatchProcessorDelta(), getInt(conf, patchProcBolt + ".parallelism"))
+                .allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
                 .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
@@ -92,8 +93,10 @@ public class tVLDTopDeltaNoLoop {
         conf.setStatsSampleRate(1.0);
         //conf.registerSerialization(Serializable.Mat.class);
         int sampleFrames = getInt(conf, "sampleFrames");
+        int W = ConfigUtil.getInt(conf, "width", 640);
+        int H = ConfigUtil.getInt(conf, "height", 480);
 
-        StormSubmitter.submitTopology("tVLDTopDeltaNoLoop-sample-" + sampleFrames, conf, topology);
+        StormSubmitter.submitTopology("tVLDDelta-exp-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
 
     }
 }

@@ -1,4 +1,4 @@
-package topology;
+package topologytest;
 
 import backtype.storm.Config;
 import backtype.storm.StormSubmitter;
@@ -7,23 +7,17 @@ import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
-import util.ConfigUtil;
+import topology.*;
 
 import java.io.FileNotFoundException;
 
 import static tool.Constants.*;
-import static topology.StormConfigManager.getInt;
-import static topology.StormConfigManager.getString;
-import static topology.StormConfigManager.readConfig;
-import static util.ConfigUtil.getDouble;
+import static topology.StormConfigManager.*;
 
 /**
- * Created by Tom Fu, this version is through basic testing.
- * In the beta version, we re-org the topology, which is different to the original tomVLDtopology
- * where we no longer broadcast the whole frame to all the patchProc tasks (which is large overhead)
- * In stead, we only broadcast frames to the PatchGeneratorBolt, and then generate small patchWithFrame to each patchProc task
+ * Created by Intern04 on 4/8/2014.
  */
-public class tVLDTopBetaRIRO {
+public class tVLDTopBetaNoLoop {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -42,6 +36,7 @@ public class tVLDTopBetaRIRO {
 
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";
+        String transName = "tVLDeTrans";
         String patchGenBolt = "tVLDPatchGen";
         String patchProcBolt = "tVLDPatchProc";
         String patchAggBolt = "tVLDPatchAgg";
@@ -54,8 +49,7 @@ public class tVLDTopBetaRIRO {
                 .allGrouping(spoutName, RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
-        builder.setBolt(patchProcBolt, new tPatchProcessorBeta(), getInt(conf, patchProcBolt + ".parallelism"))
-                .allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
+        builder.setBolt(patchProcBolt, new tPatchProcessorBetaNoLoop(), getInt(conf, patchProcBolt + ".parallelism"))
                 .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
@@ -76,10 +70,7 @@ public class tVLDTopBetaRIRO {
 
         conf.setStatsSampleRate(1.0);
 
-        int W = ConfigUtil.getInt(conf, "width", 728);
-        int H = ConfigUtil.getInt(conf, "height", 408);
-
-        StormSubmitter.submitTopology("tVLDTopBeta-1" + "-" + W + "-" + H, conf, topology);
+        StormSubmitter.submitTopology("tVLDTopBetaRIRO-noloop-1", conf, topology);
 
     }
 }

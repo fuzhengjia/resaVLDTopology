@@ -1,4 +1,4 @@
-package topology;
+package topologyexp;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -10,9 +10,12 @@ import backtype.storm.tuple.Values;
 import logodetection.Debug;
 import logodetection.Parameters;
 import logodetection.StormVideoLogoDetector;
+import logodetection.StormVideoLogoDetectorBeta;
+import topology.LogoTemplateUpdate;
+import topology.Serializable;
+import util.ConfigUtil;
 
 import java.util.*;
-import java.util.function.BooleanSupplier;
 
 import static tool.Constants.*;
 import static topology.StormConfigManager.getInt;
@@ -21,11 +24,14 @@ import static topology.StormConfigManager.getListOfStrings;
 /**
  * Created by Intern04 on 5/8/2014.
  */
-public class PatchProcessorBolt extends BaseRichBolt {
+public class PatchProcessorBoltMultiple extends BaseRichBolt {
     OutputCollector collector;
 
     /** Instance of detector */
-    private StormVideoLogoDetector detector;
+    //private StormVideoLogoDetector detector;
+
+    private List<StormVideoLogoDetectorBeta> detectors;
+
     /** This counts from which patches the update has been already received */
     //private HashSet<Serializable.PatchIdentifier> receivedUpdatesFrom;
     //Modified by Tom on Sep 8, 2014
@@ -36,7 +42,7 @@ public class PatchProcessorBolt extends BaseRichBolt {
 
     private HashMap< Integer, Queue<Serializable.PatchIdentifier> > patchQueue;
 
-    private HashMap< Integer, Queue<LogoTemplateUpdate> > templateQueue;
+    private HashMap< Integer, Queue<LogoTemplateUpdateBeta> > templateQueue;
 
 
     @Override
@@ -51,7 +57,12 @@ public class PatchProcessorBolt extends BaseRichBolt {
                 );
 
         List<String> templateFiles = getListOfStrings(map, "originalTemplateFileNames");
-        detector = new StormVideoLogoDetector(parameters, templateFiles);
+        int maxAdditionTemp = ConfigUtil.getInt(map, "maxAdditionTemp", 4);
+        detectors = new ArrayList<>();
+        for (int logoIndex = 0; logoIndex < templateFiles.size(); logoIndex ++) {
+            detectors.add(new StormVideoLogoDetectorBeta(parameters, templateFiles.get(logoIndex), logoIndex, maxAdditionTemp));
+        }
+        //detector = new StormVideoLogoDetector(parameters, templateFiles);
         //receivedUpdatesFrom = new HashSet<>();
         //Modified by Tom on Sep 8, 2014
         receivedUpdatesFrom = new LinkedHashMap<Serializable.PatchIdentifier, Boolean>(){
@@ -80,15 +91,6 @@ public class PatchProcessorBolt extends BaseRichBolt {
         collector.ack(tuple);
     }
 
-    @Override
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(DETECTED_LOGO_STREAM,
-                new Fields(FIELD_FRAME_ID, FIELD_PATCH_IDENTIFIER, FIELD_FOUND_RECT, FIELD_PATCH_COUNT));
-
-        outputFieldsDeclarer.declareStream(LOGO_TEMPLATE_UPDATE_STREAM,
-                new Fields(FIELD_HOST_PATCH_IDENTIFIER, FIELD_DETECTED_LOGO_RECT, FIELD_PARENT_PATCH_IDENTIFIER));
-    }
-
     //  Fields("frameId", "frameMat", "patchCount"));
     private void processFrame( Tuple tuple ) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
@@ -104,26 +106,35 @@ public class PatchProcessorBolt extends BaseRichBolt {
             Queue<Serializable.PatchIdentifier> queue = patchQueue.get(frameId);
             while (!queue.isEmpty()) {
                 Serializable.PatchIdentifier hostPatch = queue.poll();
-                detector.detectLogosInRoi(mat.toJavaCVMat(), hostPatch.roi.toJavaCVRect());
-                Serializable.Rect detectedLogo = detector.getFoundRect();
-                if (detectedLogo != null) {// TODO: is anchoring really necessary?
-                    collector.emit(LOGO_TEMPLATE_UPDATE_STREAM, tuple, new Values(hostPatch, detectedLogo, detector.getParentIdentifier()));
+
+                List<Serializable.Rect> detectedLogoList = new ArrayList<>();
+                for (int logoIndex = 0; logoIndex < detectors.size(); logoIndex ++) {
+                    StormVideoLogoDetectorBeta detector = detectors.get(logoIndex);
+
+                    detector.detectLogosInRoi(mat.toJavaCVMat(), hostPatch.roi.toJavaCVRect());
+                    Serializable.Rect detectedLogo = detector.getFoundRect();
+                    if (detectedLogo != null) {
+                        collector.emit(LOGO_TEMPLATE_UPDATE_STREAM, new Values(hostPatch, detectedLogo, detector.getParentIdentifier(), logoIndex));
+                    }
+                    detectedLogoList.add(detectedLogo);
                 }
-                collector.emit(DETECTED_LOGO_STREAM, tuple,
-                        new Values(frameId, hostPatch, detectedLogo, patchCount ));
+                collector.emit(DETECTED_LOGO_STREAM, tuple, new Values(frameId, hostPatch, detectedLogoList, patchCount ));
             }
         } else {
             //patchQueue.put(frameId, new LinkedList<>());
         }
         if (templateQueue.containsKey(frameId)) {
-            Queue<LogoTemplateUpdate> queue = templateQueue.get(frameId);
+            Queue<LogoTemplateUpdateBeta> queue = templateQueue.get(frameId);
             while (!queue.isEmpty()) {
-                LogoTemplateUpdate update = queue.poll();
+                LogoTemplateUpdateBeta update = queue.poll();
                 Serializable.Rect roi = update.detectedLogoRect;
                 Serializable.PatchIdentifier hostPatchIdentifier = update.hostPatchIdentifier;
                 Serializable.PatchIdentifier parent = update.parentIdentifier;
-                detector.addTemplateByRect(hostPatchIdentifier, mat, roi);
-                detector.incrementPriority(parent, 1);
+                int logoIndex = update.logoIndex;
+                ///detector.addTemplateByRect(hostPatchIdentifier, mat, roi);
+                ///detector.incrementPriority(parent, 1);
+                detectors.get(logoIndex).addTemplateByRect(hostPatchIdentifier, mat, roi);
+                detectors.get(logoIndex).incrementPriority(parent, 1);
             }
         } else {
             //templateQueue.put(frameId, new LinkedList<>());
@@ -137,13 +148,18 @@ public class PatchProcessorBolt extends BaseRichBolt {
         int patchCount = tuple.getIntegerByField(FIELD_PATCH_COUNT);
         int frameId = patchIdentifier.frameId;
         if (frameMap.containsKey(frameId)) {
-            detector.detectLogosInRoi(frameMap.get(frameId).toJavaCVMat(), patchIdentifier.roi.toJavaCVRect());
-            Serializable.Rect detectedLogo = detector.getFoundRect();
-            if (detectedLogo != null) {
-                collector.emit(LOGO_TEMPLATE_UPDATE_STREAM, new Values(patchIdentifier, detectedLogo, detector.getParentIdentifier()));
+            List<Serializable.Rect> detectedLogoList = new ArrayList<>();
+            for (int logoIndex = 0; logoIndex < detectors.size(); logoIndex ++) {
+                StormVideoLogoDetectorBeta detector = detectors.get(logoIndex);
+                detector.detectLogosInRoi(frameMap.get(frameId).toJavaCVMat(), patchIdentifier.roi.toJavaCVRect());
+                Serializable.Rect detectedLogo = detector.getFoundRect();
+                if (detectedLogo != null) {
+                    collector.emit(LOGO_TEMPLATE_UPDATE_STREAM, new Values(patchIdentifier, detectedLogo, detector.getParentIdentifier()));
+                }
+                detectedLogoList.add(detectedLogo);
             }
             collector.emit(DETECTED_LOGO_STREAM, tuple,
-                    new Values(frameId, patchIdentifier, detectedLogo, patchCount));
+                    new Values(frameId, patchIdentifier, detectedLogoList, patchCount));
         } else {
             if (!patchQueue.containsKey(frameId))
                 patchQueue.put(frameId, new LinkedList<>());
@@ -161,17 +177,18 @@ public class PatchProcessorBolt extends BaseRichBolt {
             receivedUpdatesFrom.put(receivedPatchIdentifier, Boolean.TRUE);
             Serializable.Rect roi = (Serializable.Rect) tuple.getValueByField(FIELD_DETECTED_LOGO_RECT);
             Serializable.PatchIdentifier parent = (Serializable.PatchIdentifier) tuple.getValueByField(FIELD_PARENT_PATCH_IDENTIFIER);
+            int logoIndex = tuple.getIntegerByField(FIELD_LOGO_INDEX);
+
             int frameId = receivedPatchIdentifier.frameId;
             if (frameMap.containsKey(frameId)) {
                 Serializable.Mat mat = frameMap.get(frameId);
 
-                detector.addTemplateByRect(receivedPatchIdentifier, mat, roi);
-
-                detector.incrementPriority(parent, 1);
+                detectors.get(logoIndex).addTemplateByRect(receivedPatchIdentifier, mat, roi);
+                detectors.get(logoIndex).incrementPriority(parent, 1);
             } else {
                 if (!templateQueue.containsKey(frameId))
                     templateQueue.put(frameId, new LinkedList<>());
-                templateQueue.get(frameId).add(new LogoTemplateUpdate(receivedPatchIdentifier, roi, parent));
+                templateQueue.get(frameId).add(new LogoTemplateUpdateBeta(receivedPatchIdentifier, roi, parent, logoIndex));
             }
 
         } else {
@@ -186,5 +203,14 @@ public class PatchProcessorBolt extends BaseRichBolt {
         frameMap.remove(frameId);
         patchQueue.remove(frameId);
         templateQueue.remove(frameId);
+    }
+
+    @Override
+    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
+        outputFieldsDeclarer.declareStream(DETECTED_LOGO_STREAM,
+                new Fields(FIELD_FRAME_ID, FIELD_PATCH_IDENTIFIER, FIELD_FOUND_RECT, FIELD_PATCH_COUNT));
+
+        outputFieldsDeclarer.declareStream(LOGO_TEMPLATE_UPDATE_STREAM,
+                new Fields(FIELD_HOST_PATCH_IDENTIFIER, FIELD_DETECTED_LOGO_RECT, FIELD_PARENT_PATCH_IDENTIFIER, FIELD_LOGO_INDEX));
     }
 }

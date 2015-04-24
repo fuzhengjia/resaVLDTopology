@@ -1,4 +1,4 @@
-package topology;
+package topologyexp;
 
 import backtype.storm.Config;
 import backtype.storm.StormSubmitter;
@@ -8,6 +8,7 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
+import topology.*;
 import util.ConfigUtil;
 
 import java.io.FileNotFoundException;
@@ -20,7 +21,7 @@ import static topology.StormConfigManager.*;
  *
  * This is for experiment purpose  (results for paper)
  */
-public class tVLDTopExpFileInBroad {
+public class tomVLDTopExpFInMC {
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
@@ -29,13 +30,8 @@ public class tVLDTopExpFileInBroad {
         }
         Config conf = readConfig(args[0]);
 
-        String host = getString(conf, "redis.host");
-        int port = getInt(conf, "redis.port");
-        String queueName = getString(conf, "tVLDQueueName");
-
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";
-        String transName = "tVLDeTrans";
         String patchGenBolt = "tVLDPatchGen";
         String patchProcBolt = "tVLDPatchProc";
         String patchAggBolt = "tVLDPatchAgg";
@@ -45,26 +41,24 @@ public class tVLDTopExpFileInBroad {
         builder.setSpout(spoutName, new tomFrameSpoutResize(), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(transName, new tVLDTransBolt(), getInt(conf, transName + ".parallelism"))
-                .shuffleGrouping(spoutName, RAW_FRAME_STREAM)
-                .setNumTasks(getInt(conf, transName + ".tasks"));
-
-        builder.setBolt(patchGenBolt, new tPatchGeneraterGamma(), getInt(conf, patchGenBolt + ".parallelism"))
-                .shuffleGrouping(transName, PATCH_FRAME_STREAM)
+        builder.setBolt(patchGenBolt, new tomPatchGenWSampleMC(patchProcBolt), getInt(conf, patchGenBolt + ".parallelism"))
+                .allGrouping(spoutName, RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
-        builder.setBolt(patchProcBolt, new tPatchProcessorDelta(), getInt(conf, patchProcBolt + ".parallelism"))
+        builder.setBolt(patchProcBolt, new PatchProcessorBoltMultiple(), getInt(conf, patchProcBolt + ".parallelism"))
                 .allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
-                .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
+                .allGrouping(patchAggBolt, CACHE_CLEAR_STREAM)
+                .shuffleGrouping(patchGenBolt, PATCH_STREAM)
+                .directGrouping(patchGenBolt, RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
-        builder.setBolt(patchAggBolt, new tPatchAggSampleDelta(), getInt(conf, patchAggBolt + ".parallelism"))
+        builder.setBolt(patchAggBolt, new PatchAggBoltMultipleBeta(), getInt(conf, patchAggBolt + ".parallelism"))
                 .globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
         builder.setBolt(patchDrawBolt, new tDrawPatchDelta(), getInt(conf, patchDrawBolt + ".parallelism"))
                 .fieldsGrouping(patchAggBolt, PROCESSED_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
-                .fieldsGrouping(transName, RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping(patchGenBolt, RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, patchDrawBolt + ".tasks"));
 
         builder.setBolt(redisFrameOut, new RedisFrameOutput(), getInt(conf, redisFrameOut + ".parallelism"))
@@ -83,7 +77,7 @@ public class tVLDTopExpFileInBroad {
         int W = ConfigUtil.getInt(conf, "width", 640);
         int H = ConfigUtil.getInt(conf, "height", 480);
 
-        StormSubmitter.submitTopology("tVLDDelta-exp-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
+        StormSubmitter.submitTopology("tomVLDTopExpFInMC-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
 
     }
 }

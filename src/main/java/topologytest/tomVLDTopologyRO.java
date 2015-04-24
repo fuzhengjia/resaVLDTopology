@@ -1,4 +1,4 @@
-package topology;
+package topologytest;
 
 import backtype.storm.Config;
 import backtype.storm.StormSubmitter;
@@ -7,18 +7,18 @@ import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
+import topology.*;
 
 import java.io.FileNotFoundException;
 
 import static tool.Constants.*;
 import static topology.StormConfigManager.getInt;
-import static topology.StormConfigManager.getString;
 import static topology.StormConfigManager.readConfig;
 
 /**
  * Created by Intern04 on 4/8/2014.
  */
-public class tomVLDTopologyRIRO {
+public class tomVLDTopologyRO {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -31,13 +31,10 @@ public class tomVLDTopologyRIRO {
         }
         Config conf = readConfig(args[0]);
         int numberOfWorkers = getInt(conf, "numberOfWorkers");
-        String host = getString(conf, "redis.host");
-        int port = getInt(conf, "redis.port");
-        String queueName = getString(conf, "tVLDQueueName");
 
         TopologyBuilder builder = new TopologyBuilder();
 
-        builder.setSpout("retriever", new tFrameSourceBeta(host, port, queueName), getInt(conf, "TomFrameSpout.parallelism"))
+        builder.setSpout("retriever", new tomFrameSpout(), getInt(conf, "TomFrameSpout.parallelism"))
                 .setNumTasks(getInt(conf, "TomFrameSpout.tasks"));
 
         builder.setBolt("patchGen", new tomPatchGenerateBolt(), getInt(conf, "TomPatchGen.parallelism"))
@@ -66,7 +63,7 @@ public class tomVLDTopologyRIRO {
         conf.setMaxSpoutPending(getInt(conf, "MaxSpoutPending"));
         conf.setStatsSampleRate(1.0);
 
-        StormSubmitter.submitTopology("tomVLDTop-riro", conf, topology);
+        StormSubmitter.submitTopology("tomVLDTop-ro", conf, topology);
 
     }
 }

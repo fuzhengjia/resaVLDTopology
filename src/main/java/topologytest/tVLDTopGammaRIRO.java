@@ -1,4 +1,4 @@
-package topology;
+package topologytest;
 
 import backtype.storm.Config;
 import backtype.storm.StormSubmitter;
@@ -8,6 +8,7 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
+import topology.*;
 
 import java.io.FileNotFoundException;
 
@@ -15,9 +16,14 @@ import static tool.Constants.*;
 import static topology.StormConfigManager.*;
 
 /**
- * Created by Intern04 on 4/8/2014.
+ * Created by Tom Fu, this version is through basic testing.
+ * In the gamma version, we re-org the topology, using the transBolt (no broadcast of a whole frame, instead, a
+ * long line block), and patchDraw bolt.
+ * We also enables sampleFrame, to make the through higher than 40 fps even when there is loop
+ *
+ * Through testing, when sampleFrame = 4, it supports up to 25 fps.
  */
-public class tVLDTopGammaNoLoop {
+public class tVLDTopGammaRIRO {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -43,7 +49,6 @@ public class tVLDTopGammaNoLoop {
         String patchDrawBolt = "tVLDPatchDraw";
         String redisFrameOut = "tVLDRedisFrameOut";
 
-
         builder.setSpout(spoutName, new tFrameSourceBeta(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
@@ -55,7 +60,8 @@ public class tVLDTopGammaNoLoop {
                 .shuffleGrouping(transName, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
-        builder.setBolt(patchProcBolt, new tPatchProcessorBetaNoLoop(), getInt(conf, patchProcBolt + ".parallelism"))
+        builder.setBolt(patchProcBolt, new tPatchProcessorBeta(), getInt(conf, patchProcBolt + ".parallelism"))
+                .allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
                 .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
@@ -80,10 +86,9 @@ public class tVLDTopGammaNoLoop {
 
         conf.setStatsSampleRate(1.0);
         //conf.registerSerialization(Serializable.Mat.class);
-
         int sampleFrames = getInt(conf, "sampleFrames");
 
-        StormSubmitter.submitTopology("tVLDTopGammaNoLoop-sample-" + sampleFrames, conf, topology);
+        StormSubmitter.submitTopology("tVLDTopGamma-riro-sample-" + sampleFrames, conf, topology);
 
     }
 }

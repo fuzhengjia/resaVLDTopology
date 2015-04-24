@@ -57,7 +57,7 @@ public class RedisFrameAggregatorBolt2 extends BaseRichBolt {
 
         producer = new RedisStreamProducer(host, port, queueName, accumulateFrameSize);
         new Thread(producer).start();
-        System.out.println("End of prepare, the producer thread should start..." + System.currentTimeMillis());
+        System.out.println("End of prepare, the thread should start..." + System.currentTimeMillis());
 
     }
 
