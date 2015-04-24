@@ -61,7 +61,8 @@ public class tomVLDTopology {
         conf.setNumWorkers(numberOfWorkers);
         conf.setMaxSpoutPending(getInt(conf, "MaxSpoutPending"));
 
-        conf.registerSerialization(Serializable.Mat.class);
+        //conf.registerSerialization(Serializable.Mat.class);
+        //conf.registerSerialization(Serializable.Mat.class);
         //conf.registerSerialization(Serializable.Rect.class);
         //conf.registerSerialization(Serializable.PatchIdentifier.class);
 
