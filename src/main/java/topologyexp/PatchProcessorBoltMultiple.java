@@ -154,7 +154,7 @@ public class PatchProcessorBoltMultiple extends BaseRichBolt {
                 detector.detectLogosInRoi(frameMap.get(frameId).toJavaCVMat(), patchIdentifier.roi.toJavaCVRect());
                 Serializable.Rect detectedLogo = detector.getFoundRect();
                 if (detectedLogo != null) {
-                    collector.emit(LOGO_TEMPLATE_UPDATE_STREAM, new Values(patchIdentifier, detectedLogo, detector.getParentIdentifier()));
+                    collector.emit(LOGO_TEMPLATE_UPDATE_STREAM, new Values(patchIdentifier, detectedLogo, detector.getParentIdentifier(), logoIndex));
                 }
                 detectedLogoList.add(detectedLogo);
             }
