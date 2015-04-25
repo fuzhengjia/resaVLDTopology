@@ -65,16 +65,17 @@ public class tomPatchGenWSampleMC extends BaseRichBolt {
             for (int y = 0; y + h <= H; y += dy)
                 totalPatchCount++;
 
-        //send raw frames
-        for (int i = 0; i < targetComponentTasks.size(); i++) {
-            int tID = targetComponentTasks.get(i);
-            if (tID % this.taskCnt == this.taskIndex) {
-                collector.emitDirect(tID, RAW_FRAME_STREAM, tuple, new Values(frameId, sMat, totalPatchCount));
-            }
-        }
-
         //send patch
+        ///notice the bug, the raw frame stream is also not necessary to send to patchProcess bolt
         if (frameId % sampleFrames == 0) {
+            //send raw frames
+            for (int i = 0; i < targetComponentTasks.size(); i++) {
+                int tID = targetComponentTasks.get(i);
+                if (tID % this.taskCnt == this.taskIndex) {
+                    collector.emitDirect(tID, RAW_FRAME_STREAM, tuple, new Values(frameId, sMat, totalPatchCount));
+                }
+            }
+
             int pCnt = 0;
             for (int x = 0; x + w <= W; x += dx) {
                 for (int y = 0; y + h <= H; y += dy) {
