@@ -76,6 +76,7 @@ public class PatchAggBoltMultipleBeta extends BaseRichBolt {
                 //collector.emit(PROCESSED_FRAME_STREAM, new Values(frameId, foundRectAccount.get(frameId)));
                 for (int f = frameId; f < frameId + sampleFrames; f ++){
                     collector.emit(PROCESSED_FRAME_STREAM, new Values(f, foundRectAccount.get(frameId)));
+                    System.out.println("processed frame stream, frameID: " + f);
                 }
             }
             frameMonitor.remove(frameId);
