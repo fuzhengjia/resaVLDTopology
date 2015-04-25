@@ -58,7 +58,7 @@ public class tomVLDTopExpFInMC {
 
         builder.setBolt(patchDrawBolt, new tDrawPatchDelta(), getInt(conf, patchDrawBolt + ".parallelism"))
                 .fieldsGrouping(patchAggBolt, PROCESSED_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
-                .fieldsGrouping(patchGenBolt, RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping(spoutName, RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, patchDrawBolt + ".tasks"));
 
         builder.setBolt(redisFrameOut, new RedisFrameOutput(), getInt(conf, redisFrameOut + ".parallelism"))

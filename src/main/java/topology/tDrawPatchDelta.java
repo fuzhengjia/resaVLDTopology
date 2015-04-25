@@ -58,11 +58,11 @@ public class tDrawPatchDelta extends BaseRichBolt {
         if (streamId.equals(PROCESSED_FRAME_STREAM)) {
             List<List<Serializable.Rect>> list = (List<List<Serializable.Rect>>) tuple.getValueByField(FIELD_FOUND_RECT_LIST);
             foundRectList.put(frameId, list);
-            System.out.println("PROCESSED_FRAME_STREAM: " + System.currentTimeMillis() + ":" + frameId);
+            //System.out.println("PROCESSED_FRAME_STREAM: " + System.currentTimeMillis() + ":" + frameId);
         } else if (streamId.equals(RAW_FRAME_STREAM)) {
             Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
             frameMap.put(frameId, sMat);
-            System.out.println("RAW_FRAME_STREAM: " + System.currentTimeMillis() + ":" + frameId);
+            //System.out.println("RAW_FRAME_STREAM: " + System.currentTimeMillis() + ":" + frameId);
         }
 
         if (frameMap.containsKey(frameId) && foundRectList.containsKey(frameId)) {
