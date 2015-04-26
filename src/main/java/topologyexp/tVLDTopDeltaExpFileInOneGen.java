@@ -59,7 +59,7 @@ public class tVLDTopDeltaExpFileInOneGen {
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new PatchGeneraterWSampleOneStep(), getInt(conf, patchGenBolt + ".parallelism"))
-                .shuffleGrouping(spoutName, PATCH_FRAME_STREAM)
+                .shuffleGrouping(spoutName, PATCH_FRAME_STREAM) //TODO: notice, there is a bug not fixed, when sample rate is > 1
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
         builder.setBolt(patchProcBolt, new tPatchProcessorDelta(), getInt(conf, patchProcBolt + ".parallelism"))

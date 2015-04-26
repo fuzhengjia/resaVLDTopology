@@ -48,7 +48,7 @@ public class tomVLDTopExpFInBC {
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new tomPatchGenWSampleBC(), getInt(conf, patchGenBolt + ".parallelism"))
-                .shuffleGrouping(spoutName, RAW_FRAME_STREAM)//notice, not to use allgrouping here, not like multi-cast
+                .shuffleGrouping(spoutName, RAW_FRAME_STREAM) //TODO: notice, there is a bug not fixed, when sample rate is > 1
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
         builder.setBolt(patchProcBolt, new PatchProcessorBoltMultiple(), getInt(conf, patchProcBolt + ".parallelism"))
