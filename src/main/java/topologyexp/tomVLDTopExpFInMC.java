@@ -12,6 +12,7 @@ import topology.*;
 import util.ConfigUtil;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import static tool.Constants.*;
 import static topology.StormConfigManager.*;
@@ -78,7 +79,9 @@ public class tomVLDTopExpFInMC {
         int W = ConfigUtil.getInt(conf, "width", 640);
         int H = ConfigUtil.getInt(conf, "height", 480);
 
-        StormSubmitter.submitTopology("tomVLDTopExpFInMC-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
+        List<String> templateFiles = getListOfStrings(conf, "originalTemplateFileNames");
+
+        StormSubmitter.submitTopology("tomVLDTopExpFInMC-s" + sampleFrames + "-" + W + "-" + H + "-L" + templateFiles.size(), conf, topology);
 
     }
 }

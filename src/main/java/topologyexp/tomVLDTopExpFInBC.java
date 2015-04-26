@@ -13,9 +13,11 @@ import topology.tomFrameSpoutResize;
 import util.ConfigUtil;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import static tool.Constants.*;
 import static topology.StormConfigManager.getInt;
+import static topology.StormConfigManager.getListOfStrings;
 import static topology.StormConfigManager.readConfig;
 
 /**
@@ -81,7 +83,9 @@ public class tomVLDTopExpFInBC {
         int W = ConfigUtil.getInt(conf, "width", 640);
         int H = ConfigUtil.getInt(conf, "height", 480);
 
-        StormSubmitter.submitTopology("tomVLDTopExpFInBC-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
+        List<String> templateFiles = getListOfStrings(conf, "originalTemplateFileNames");
+
+        StormSubmitter.submitTopology("tomVLDTopExpFInBC-s" + sampleFrames + "-" + W + "-" + H + "-L" + templateFiles.size(), conf, topology);
 
     }
 }

@@ -12,6 +12,7 @@ import topology.*;
 import util.ConfigUtil;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import static tool.Constants.*;
 import static topology.StormConfigManager.*;
@@ -96,7 +97,9 @@ public class tVLDTopDeltaExpFileIn {
         int W = ConfigUtil.getInt(conf, "width", 640);
         int H = ConfigUtil.getInt(conf, "height", 480);
 
-        StormSubmitter.submitTopology("tVLDDelta-exp-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
+        List<String> templateFiles = getListOfStrings(conf, "originalTemplateFileNames");
+
+        StormSubmitter.submitTopology("tVLDDeltaFIn-exp-s" + sampleFrames + "-" + W + "-" + H + "-L" + templateFiles.size(), conf, topology);
 
     }
 }
