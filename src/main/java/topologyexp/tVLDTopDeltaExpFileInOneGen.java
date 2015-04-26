@@ -1,4 +1,4 @@
-package topologytest;
+package topologyexp;
 
 import backtype.storm.Config;
 import backtype.storm.StormSubmitter;
@@ -29,7 +29,7 @@ import static topology.StormConfigManager.*;
  * Through testing, when sampleFrame = 4, it supports up to 25 fps.
  *
  */
-public class tVLDTopDeltaExpFileIn {
+public class tVLDTopDeltaExpFileInOneGen {
 
     //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
@@ -48,7 +48,6 @@ public class tVLDTopDeltaExpFileIn {
 
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";
-        String transName = "tVLDeTrans";
         String patchGenBolt = "tVLDPatchGen";
         String patchProcBolt = "tVLDPatchProc";
         String patchAggBolt = "tVLDPatchAgg";
@@ -58,12 +57,8 @@ public class tVLDTopDeltaExpFileIn {
         builder.setSpout(spoutName, new tomFrameSpoutResize(), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(transName, new tVLDTransBolt(), getInt(conf, transName + ".parallelism"))
-                .shuffleGrouping(spoutName, RAW_FRAME_STREAM)
-                .setNumTasks(getInt(conf, transName + ".tasks"));
-
-        builder.setBolt(patchGenBolt, new tPatchGeneraterGamma(), getInt(conf, patchGenBolt + ".parallelism"))
-                .shuffleGrouping(transName, PATCH_FRAME_STREAM)
+        builder.setBolt(patchGenBolt, new PatchGeneraterWSampleOneStep(), getInt(conf, patchGenBolt + ".parallelism"))
+                .shuffleGrouping(spoutName, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
         builder.setBolt(patchProcBolt, new tPatchProcessorDelta(), getInt(conf, patchProcBolt + ".parallelism"))
@@ -77,7 +72,7 @@ public class tVLDTopDeltaExpFileIn {
 
         builder.setBolt(patchDrawBolt, new tDrawPatchDelta(), getInt(conf, patchDrawBolt + ".parallelism"))
                 .fieldsGrouping(patchAggBolt, PROCESSED_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
-                .fieldsGrouping(transName, RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping(spoutName, RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, patchDrawBolt + ".tasks"));
 
         builder.setBolt(redisFrameOut, new RedisFrameOutput(), getInt(conf, redisFrameOut + ".parallelism"))
