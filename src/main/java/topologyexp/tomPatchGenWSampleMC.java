@@ -19,7 +19,7 @@ import static tool.Constants.*;
 /**
  * Created by Tom FU.
  * This is the patch Generator of the original tomVLDtopology, with intelligent multicast of raw frames, need
- * complicated partition and grouping approach (direct grouping).
+ * complicated partition and grouping approach (direct grouping). *
  */
 public class tomPatchGenWSampleMC extends BaseRichBolt {
     OutputCollector collector;

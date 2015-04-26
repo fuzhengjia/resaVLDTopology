@@ -22,6 +22,8 @@ import static topology.StormConfigManager.readConfig;
  * Created by Tom Fu, this version is through basic testing.
  *
  * This is for experiment purpose  (results for paper)
+ * This is use the very original version by Nurlan,
+ * the spout (or patchGen) broadcasts the raw frames to all the patchProcessingBolt, and shuffles those patch identifiers.
  */
 public class tomVLDTopExpFInBC {
 
@@ -44,7 +46,7 @@ public class tomVLDTopExpFInBC {
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new tomPatchGenWSampleBC(), getInt(conf, patchGenBolt + ".parallelism"))
-                .allGrouping(spoutName, RAW_FRAME_STREAM)
+                .shuffleGrouping(spoutName, RAW_FRAME_STREAM)//notice, not to use allgrouping here, not like multi-cast
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
         builder.setBolt(patchProcBolt, new PatchProcessorBoltMultiple(), getInt(conf, patchProcBolt + ".parallelism"))

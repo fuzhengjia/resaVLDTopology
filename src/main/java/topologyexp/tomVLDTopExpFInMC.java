@@ -20,6 +20,7 @@ import static topology.StormConfigManager.*;
  * Created by Tom Fu, this version is through basic testing.
  *
  * This is for experiment purpose  (results for paper)
+ * the shuffles those patch identifiers to patchProcessBolt while, use a smarter multi-cast way to spread raw frame
  */
 public class tomVLDTopExpFInMC {
 

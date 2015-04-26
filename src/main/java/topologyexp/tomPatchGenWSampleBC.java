@@ -50,11 +50,12 @@ public class tomPatchGenWSampleBC extends BaseRichBolt {
             for (int y = 0; y + h <= H; y += dy)
                 totalPatchCount++;
 
-        //send raw frames
-        collector.emit(RAW_FRAME_STREAM, tuple, new Values(frameId, sMat, totalPatchCount));
-
+        //notice the bug when we have sampling!, only when frameID == sampleFrames, the raw frame should be sent.
         //send patch
         if (frameId % sampleFrames == 0) {
+            //send raw frames
+            collector.emit(RAW_FRAME_STREAM, tuple, new Values(frameId, sMat, totalPatchCount));
+
             for (int x = 0; x + w <= W; x += dx) {
                 for (int y = 0; y + h <= H; y += dy) {
                     Serializable.PatchIdentifier identifier = new
