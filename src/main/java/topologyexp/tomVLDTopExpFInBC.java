@@ -81,7 +81,7 @@ public class tomVLDTopExpFInBC {
         int W = ConfigUtil.getInt(conf, "width", 640);
         int H = ConfigUtil.getInt(conf, "height", 480);
 
-        StormSubmitter.submitTopology("tomVLDTopExpFInMC-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
+        StormSubmitter.submitTopology("tomVLDTopExpFInBC-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
 
     }
 }
