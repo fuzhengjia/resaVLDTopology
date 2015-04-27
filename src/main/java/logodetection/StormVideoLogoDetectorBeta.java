@@ -1,18 +1,24 @@
 package logodetection;
 
 
+import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Rect;
 import org.bytedeco.javacpp.opencv_features2d.KeyPoint;
+import org.bytedeco.javacpp.opencv_highgui;
 import org.bytedeco.javacpp.opencv_nonfree.SIFT;
 import topology.Serializable;
 
 import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import static org.bytedeco.javacpp.opencv_highgui.cvLoadImage;
 
 /**
  * This is a beta version, which enables the feature of multiple logo template input.
@@ -119,13 +125,17 @@ public class StormVideoLogoDetectorBeta {
 
         // This is the index of the original logo templates
         try {
-            Mat tmp = new Mat(IplImage.createFrom(ImageIO.read(new FileInputStream(fileName))));
+            //Mat tmp = new Mat(IplImage.createFrom(ImageIO.read(new FileInputStream(fileName))));
+            Mat tmp = new Mat(cvLoadImage(fileName));
+            //opencv_core.Mat matOrg = opencv_highgui.imread(fileName, opencv_highgui.CV_LOAD_IMAGE_COLOR);
             Mat descriptor = new Mat();
             KeyPoint keyPoints = new KeyPoint();
             sift.detectAndCompute(tmp, Mat.EMPTY, keyPoints, descriptor);
             // Original templates have negative ids and null roi.
             originalTemp = new LogoTemplate(tmp, keyPoints, descriptor, new Serializable.PatchIdentifier(-logoIndex - 1, null));
-        } catch (IOException e) {
+        }catch (Exception e)
+        //catch (IOException e)
+        {
             e.printStackTrace();
             System.err.println("StormLogoDetector(): Could not open file " + fileName);
         }
