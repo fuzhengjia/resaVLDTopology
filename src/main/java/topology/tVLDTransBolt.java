@@ -77,7 +77,7 @@ public class tVLDTransBolt extends BaseRichBolt {
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
         opencv_core.IplImage fk = new opencv_core.IplImage();
 
-        collector.emit(RAW_FRAME_STREAM, tuple, new Values(frameId, sMat));
+        //collector.emit(RAW_FRAME_STREAM, tuple, new Values(frameId, sMat));
 
         if (frameId % sampleFrames == 0) {
             for (int y = 0; y + h <= H; y += dy) {
@@ -97,6 +97,6 @@ public class tVLDTransBolt extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(PATCH_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_PATCH_FRAME_MAT, FIELD_PATCH_COUNT));
-        outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
+        //outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
     }
 }
