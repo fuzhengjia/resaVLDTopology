@@ -26,6 +26,9 @@ import static topology.StormConfigManager.readConfig;
  * This is for experiment purpose  (results for paper)
  * This is use the very original version by Nurlan,
  * the spout (or patchGen) broadcasts the raw frames to all the patchProcessingBolt, and shuffles those patch identifiers.
+ *
+ * Updated on April 29, the way to handle frame sampling issue is changed, this is pre-processed by the spout not to
+ * send out unsampled frames to the patch generation bolt.
  */
 public class tomVLDTopExpFInBC {
 
@@ -48,7 +51,7 @@ public class tomVLDTopExpFInBC {
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new tomPatchGenWSampleBC(), getInt(conf, patchGenBolt + ".parallelism"))
-                .shuffleGrouping(spoutName, RAW_FRAME_STREAM) //TODO: notice, there is a bug not fixed, when sample rate is > 1
+                .shuffleGrouping(spoutName, SAMPLE_FRAME_STREAM) //TODO: double check the new sampling handling approach.
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
         builder.setBolt(patchProcBolt, new PatchProcessorBoltMultiple(), getInt(conf, patchProcBolt + ".parallelism"))
@@ -59,7 +62,8 @@ public class tomVLDTopExpFInBC {
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
         builder.setBolt(patchAggBolt, new PatchAggBoltMultipleBeta(), getInt(conf, patchAggBolt + ".parallelism"))
-                .globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
+                //.globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)//todo: double check, make sure the output of last bolt has FrameID field!!
+                .fieldsGrouping(patchProcBolt, DETECTED_LOGO_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
         builder.setBolt(patchDrawBolt, new tDrawPatchDelta(), getInt(conf, patchDrawBolt + ".parallelism"))

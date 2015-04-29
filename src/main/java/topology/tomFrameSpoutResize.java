@@ -21,7 +21,8 @@ import static topology.StormConfigManager.getString;
 
 
 /**
- * Created by Intern04 on 4/8/2014.
+ * Updated on April 29, the way to handle frame sampling issue is changed, this is pre-processed by the spout not to
+ * send out unsampled frames to the patch generation bolt.
  */
 public class tomFrameSpoutResize extends BaseRichSpout {
     SpoutOutputCollector collector;
@@ -30,6 +31,8 @@ public class tomFrameSpoutResize extends BaseRichSpout {
     private int frameId;
     private long lastFrameTime;
     private int delayInMS;
+
+    private int sampleFrames;
 
     int firstFrameId;
     int lastFrameId;
@@ -51,6 +54,8 @@ public class tomFrameSpoutResize extends BaseRichSpout {
         H = ConfigUtil.getInt(map, "height", 480);
 
         delayInMS = getInt(map, "inputFrameDelay");
+
+        sampleFrames = ConfigUtil.getInt(map, "sampleFrames", 1);
 
         this.collector = spoutOutputCollector;
         try {
@@ -101,9 +106,12 @@ public class tomFrameSpoutResize extends BaseRichSpout {
                 Serializable.Mat sMat = new Serializable.Mat(matNew);
 
                 collector.emit(RAW_FRAME_STREAM, new Values(frameId, sMat), frameId);
+                if (frameId % sampleFrames == 0) {
+                    collector.emit(SAMPLE_FRAME_STREAM, new Values(frameId, sMat), frameId);
+                }
                 frameId++;
                 long nowTime = System.currentTimeMillis();
-                System.out.printf("Sendout: " + nowTime + "," + frameId + ",used: " + (nowTime -start));
+                System.out.printf("Sendout: " + nowTime + "," + frameId + ",used: " + (nowTime - start));
             } catch (FrameGrabber.Exception e) {
                 e.printStackTrace();
             }
@@ -113,6 +121,7 @@ public class tomFrameSpoutResize extends BaseRichSpout {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
+        outputFieldsDeclarer.declareStream(SAMPLE_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
     }
 
 

@@ -29,10 +29,13 @@ import static topology.StormConfigManager.*;
  * Note: we in this version's patchProc bolt (tPatchProcessorDelta), uses the StormVideoLogoDetectorBeta class, not the normal one StormVideoLogoDetector!!!
  * Through testing, when sampleFrame = 4, it supports up to 25 fps.
  *
+ * Updated on April 29, the way to handle frame sampling issue is changed, this is pre-processed by the spout not to
+ * send out unsampled frames to the patch generation bolt.
  */
 public class tVLDTopDeltaExpFileIn {
 
-    //TODO: further improvement: a) re-design PatchProcessorBolt, this is too heavy loaded!
+    //TODO: double check the new sampling handling approach.
+    // emit two stream for the raw frame, one for drawBolt, another one depends on sample to the patchGen bolt
     // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
     //
 
@@ -60,7 +63,7 @@ public class tVLDTopDeltaExpFileIn {
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(transName, new tVLDTransBolt(), getInt(conf, transName + ".parallelism"))
-                .shuffleGrouping(spoutName, RAW_FRAME_STREAM)
+                .shuffleGrouping(spoutName, SAMPLE_FRAME_STREAM)
                 .setNumTasks(getInt(conf, transName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new tPatchGeneraterGamma(), getInt(conf, patchGenBolt + ".parallelism"))
@@ -73,7 +76,8 @@ public class tVLDTopDeltaExpFileIn {
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
         builder.setBolt(patchAggBolt, new tPatchAggSampleDelta(), getInt(conf, patchAggBolt + ".parallelism"))
-                .globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
+                //.globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)//todo: double check, make sure the output of last bolt has FrameID field!!
+                .fieldsGrouping(patchProcBolt, DETECTED_LOGO_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
         builder.setBolt(patchDrawBolt, new tDrawPatchDelta(), getInt(conf, patchDrawBolt + ".parallelism"))

@@ -43,6 +43,7 @@ public interface Constants {
 
     public final static String PATCH_STREAM = "patch-stm";
     public final static String RAW_FRAME_STREAM = "raw-frm-stm";
+    public final static String SAMPLE_FRAME_STREAM = "samp-frm-stm";
     public final static String PATCH_FRAME_STREAM = "pat-frm-stm";
     public final static String LOGO_TEMPLATE_UPDATE_STREAM = "ltu-stream";
     public final static String DETECTED_LOGO_STREAM = "dectlogo-stream";
