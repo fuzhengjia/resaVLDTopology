@@ -14,11 +14,15 @@ public class SIFTfeatures implements java.io.Serializable{
     opencv_core.Mat rr;// = subFrame.clone();
     opencv_core.Rect roi;
 
-    public SIFTfeatures(opencv_nonfree.SIFT sift, opencv_core.Mat frame, opencv_core.Rect roi, boolean isWholeFrame){
+    public SIFTfeatures(opencv_nonfree.SIFT sift, opencv_core.Mat frame, opencv_core.Rect rec, boolean isWholeFrame){
 
         keyPoints = new opencv_features2d.KeyPoint();
         testDescriptors = new opencv_core.Mat();
-        roi = new opencv_core.Rect(roi);
+        roi = new opencv_core.Rect();
+        roi.x(rec.x());
+        roi.y(rec.y());
+        roi.width(rec.width());
+        roi.height(rec.height());
 
         if (isWholeFrame) {
             opencv_core.Mat r = new opencv_core.Mat(frame, roi);
