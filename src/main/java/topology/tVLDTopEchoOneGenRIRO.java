@@ -96,7 +96,7 @@ public class tVLDTopEchoOneGenRIRO {
 
         List<String> templateFiles = getListOfStrings(conf, "originalTemplateFileNames");
 
-        StormSubmitter.submitTopology("tVLDEchoExpFInOG-s" + sampleFrames + "-" + W + "-" + H + "-L" + templateFiles.size(), conf, topology);
+        StormSubmitter.submitTopology("tVLDEchoRIRO-s" + sampleFrames + "-" + W + "-" + H + "-L" + templateFiles.size(), conf, topology);
 
     }
 }

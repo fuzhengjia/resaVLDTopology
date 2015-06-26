@@ -8,6 +8,7 @@ import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_highgui;
+import org.bytedeco.javacpp.opencv_imgproc;
 import tool.RedisQueueSpout;
 import util.ConfigUtil;
 
@@ -52,6 +53,7 @@ public class tFrameSourceDelta extends RedisQueueSpout {
         opencv_core.Mat mat = new opencv_core.Mat(image);
         opencv_core.Mat matNew = new opencv_core.Mat();
         opencv_core.Size size = new opencv_core.Size(W, H);
+        opencv_imgproc.resize(mat, matNew, size);
 
         //Serializable.Mat sMat = new Serializable.Mat(mat);
         Serializable.Mat sMat = new Serializable.Mat(matNew);
