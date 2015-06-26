@@ -24,6 +24,8 @@ public class tFrameSourceDelta extends RedisQueueSpout {
     private int frameId;
     private int sampleFrames;
 
+    int W,H;
+
     public tFrameSourceDelta(String host, int port, String queue) {
         super(host, port, queue, true);
     }
@@ -35,6 +37,9 @@ public class tFrameSourceDelta extends RedisQueueSpout {
         frameId = 0;
         sampleFrames = ConfigUtil.getInt(conf, "sampleFrames", 1);
         //opencv_core.IplImage fk = new opencv_core.IplImage();
+
+        W = ConfigUtil.getInt(conf, "width", 640);
+        H = ConfigUtil.getInt(conf, "height", 480);
     }
 
     @Override
@@ -45,12 +50,16 @@ public class tFrameSourceDelta extends RedisQueueSpout {
         opencv_core.IplImage image = opencv_highgui.cvDecodeImage(opencv_core.cvMat(1, imgBytes.length, opencv_core.CV_8UC1, new BytePointer(imgBytes)));
 
         opencv_core.Mat mat = new opencv_core.Mat(image);
-        Serializable.Mat sMat = new Serializable.Mat(mat);
+        opencv_core.Mat matNew = new opencv_core.Mat();
+        opencv_core.Size size = new opencv_core.Size(W, H);
+
+        //Serializable.Mat sMat = new Serializable.Mat(mat);
+        Serializable.Mat sMat = new Serializable.Mat(matNew);
 
         collector.emit(RAW_FRAME_STREAM, new Values(frameId, sMat), id);
-        if (frameId % sampleFrames == 0) {
-            collector.emit(SAMPLE_FRAME_STREAM, new Values(frameId, sMat), frameId);
-        }
+        //if (frameId % sampleFrames == 0) {
+        //    collector.emit(SAMPLE_FRAME_STREAM, new Values(frameId, sMat), frameId);
+        //}
         long nowTime = System.currentTimeMillis();
         System.out.printf("Sendout: " + nowTime + "," + frameId);
         frameId ++;
@@ -59,6 +68,6 @@ public class tFrameSourceDelta extends RedisQueueSpout {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         declarer.declareStream(RAW_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
-        declarer.declareStream(SAMPLE_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
+        //declarer.declareStream(SAMPLE_FRAME_STREAM, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
     }
 }

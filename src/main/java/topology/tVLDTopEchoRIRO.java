@@ -68,7 +68,7 @@ public class tVLDTopEchoRIRO {
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(transName, new tVLDTransBolt(), getInt(conf, transName + ".parallelism"))
-                .shuffleGrouping(spoutName, SAMPLE_FRAME_STREAM)
+                .shuffleGrouping(spoutName, RAW_FRAME_STREAM)
                 .setNumTasks(getInt(conf, transName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new tPatchGeneraterGamma(), getInt(conf, patchGenBolt + ".parallelism"))

@@ -59,7 +59,7 @@ public class tVLDTopEchoOneGenRIRO {
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new PatchGeneraterWSampleOneStep(), getInt(conf, patchGenBolt + ".parallelism"))
-                .shuffleGrouping(spoutName, SAMPLE_FRAME_STREAM) //TODO: double check the new mechanism
+                .shuffleGrouping(spoutName, RAW_FRAME_STREAM) //TODO: double check the new mechanism
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
         builder.setBolt(patchProcBolt, new tPatchProcessorEcho(), getInt(conf, patchProcBolt + ".parallelism"))

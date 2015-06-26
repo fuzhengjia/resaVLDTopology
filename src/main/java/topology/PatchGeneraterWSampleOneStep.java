@@ -34,7 +34,7 @@ public class PatchGeneraterWSampleOneStep extends BaseRichBolt {
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
         opencv_core.IplImage fk = new opencv_core.IplImage();
 
-        collector.emit(RAW_FRAME_STREAM, tuple, new Values(frameId, sMat));
+        //collector.emit(RAW_FRAME_STREAM, tuple, new Values(frameId, sMat));
 
         double fx = .25, fy = .25;
         double fsx = .5, fsy = .5;
