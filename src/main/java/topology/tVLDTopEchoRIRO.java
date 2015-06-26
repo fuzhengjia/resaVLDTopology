@@ -31,8 +31,11 @@ import static topology.StormConfigManager.*;
  *
  * Updated on April 29, the way to handle frame sampling issue is changed, this is pre-processed by the spout not to
  * send out unsampled frames to the patch generation bolt.
+ *
+ * This Echo version improves: 1) the multiple logo detection problem. -> use StormVideoLogoDetectionGamma detector.
+ *                             2) completely solve the sample problem.
  */
-public class tVLDTopDeltaRIRO {
+public class tVLDTopEchoRIRO {
 
     //TODO: double check the new sampling handling approach.
     //TODO: improve the multiple logo template input!!! -> extract feature only once, then matching for multiple logo template
@@ -72,7 +75,7 @@ public class tVLDTopDeltaRIRO {
                 .shuffleGrouping(transName, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
-        builder.setBolt(patchProcBolt, new tPatchProcessorDelta(), getInt(conf, patchProcBolt + ".parallelism"))
+        builder.setBolt(patchProcBolt, new tPatchProcessorEcho(), getInt(conf, patchProcBolt + ".parallelism"))
                 .allGrouping(patchProcBolt, LOGO_TEMPLATE_UPDATE_STREAM)
                 .shuffleGrouping(patchGenBolt, PATCH_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
@@ -104,7 +107,7 @@ public class tVLDTopDeltaRIRO {
         int W = ConfigUtil.getInt(conf, "width", 640);
         int H = ConfigUtil.getInt(conf, "height", 480);
 
-        StormSubmitter.submitTopology("tVLDDelta-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
+        StormSubmitter.submitTopology("tVLDEcho-s" + sampleFrames + "-" + W + "-" + H, conf, topology);
 
     }
 }

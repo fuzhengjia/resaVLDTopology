@@ -69,8 +69,9 @@ public class tVLDTopDeltaExpFileInOneGen {
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
         builder.setBolt(patchAggBolt, new tPatchAggSampleDelta(), getInt(conf, patchAggBolt + ".parallelism"))
-                //.globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
-                .fieldsGrouping(patchProcBolt, DETECTED_LOGO_STREAM, new Fields(FIELD_FRAME_ID))
+                .globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
+                //todo: still have problem when sample rate is even number!!!
+                //.fieldsGrouping(patchProcBolt, DETECTED_LOGO_STREAM, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
         builder.setBolt(patchDrawBolt, new tDrawPatchDelta(), getInt(conf, patchDrawBolt + ".parallelism"))
