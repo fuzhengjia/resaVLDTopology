@@ -31,6 +31,7 @@ public class SimpleImageSender {
     private byte[] queueName;
     private String path;
     private String imageFolder;
+    private String filePrefix;
     //private BlockingQueue<File> dataQueue = new ArrayBlockingQueue<>(10000);
 
     public SimpleImageSender(String confile) throws FileNotFoundException {
@@ -39,6 +40,8 @@ public class SimpleImageSender {
         this.port = getInt(conf, "redis.port");
         this.queueName = getString(conf, "redis.sourceQueueName").getBytes();
         this.path = getString(conf, "sourceFilePath");
+        this.imageFolder = getString(conf, "imageFolder");
+        this.filePrefix = getString(conf, "filePrefix");
     }
 
     public SimpleImageSender(String confile, String qName) throws FileNotFoundException {
@@ -48,6 +51,7 @@ public class SimpleImageSender {
         this.queueName = qName.getBytes();
         this.path = getString(conf, "sourceFilePath");
         this.imageFolder = getString(conf, "imageFolder");
+        this.filePrefix = getString(conf, "filePrefix", "frame");
     }
 
     public void send2Queue(int st, int end, int fps) throws IOException {
@@ -63,7 +67,7 @@ public class SimpleImageSender {
             while (generatedFrames < targetCount) {
 
                 String fileName = path + imageFolder + System.getProperty("file.separator")
-                        + String.format("frame%06d.jpg", (generatedFrames + 1));
+                        + String.format("%s%06d.jpg", filePrefix, (generatedFrames + 1));
                 File f = new File(fileName);
                 if (f.exists() == false) {
                     System.out.println("File not exist: " + fileName);
