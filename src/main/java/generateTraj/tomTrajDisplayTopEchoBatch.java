@@ -71,7 +71,6 @@ public class tomTrajDisplayTopEchoBatch {
                 .setNumTasks(getInt(conf, optFlowTrans + ".tasks"));
 
         builder.setBolt(traceGenBolt, new traceGeneratorEchoBatch(traceAggregator, optFlowTracker), getInt(conf, traceGenBolt + ".parallelism"))
-                //.allGrouping(imgPrepareBolt, STREAM_EIG_FLOW)
                 .directGrouping(imgPrepareBolt, STREAM_EIG_FLOW)
                 .allGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
@@ -85,8 +84,6 @@ public class tomTrajDisplayTopEchoBatch {
 
         builder.setBolt(traceAggregator, new traceAggregatorEchoBatch(traceGenBolt, optFlowTracker), getInt(conf, traceAggregator + ".parallelism"))
                 .directGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
-                //.directGrouping(optFlowTracker, STREAM_EXIST_TRACE)
-                //.directGrouping(optFlowTracker, STREAM_REMOVE_TRACE)
                 .directGrouping(optFlowTracker, STREAM_EXIST_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
