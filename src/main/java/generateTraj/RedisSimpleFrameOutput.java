@@ -7,6 +7,8 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import tool.GeneralizedStreamFrame;
 import tool.RedisSimpleStreamProducer;
+
+import java.util.List;
 import java.util.Map;
 
 import static tool.Constants.FIELD_FEA_VEC;
@@ -66,7 +68,7 @@ public class RedisSimpleFrameOutput extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        Object data = tuple.getValueByField(FIELD_FEA_VEC);
+        List<float[]> data = (List<float[]>)tuple.getValueByField(FIELD_FEA_VEC);
 
         producer.addFrame(new GeneralizedStreamFrame(frameId, data));
 

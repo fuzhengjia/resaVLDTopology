@@ -630,7 +630,7 @@ public class helperFunctions {
         oStream.newLine();
     }
 
-    public static byte[] toBytes(List<double[]> data) {
+    public static byte[] toBytes(List<float[]> data) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         DataOutputStream dout = new DataOutputStream(bout);
         try {
@@ -642,7 +642,7 @@ public class helperFunctions {
             try {
                 dout.writeInt(arr.length);
                 for (int i = 0; i < arr.length; i++) {
-                    dout.writeDouble(arr[i]);
+                    dout.writeFloat(arr[i]);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -651,16 +651,16 @@ public class helperFunctions {
         return bout.toByteArray();
     }
 
-    public static List<double[]> readArrays(byte[] in) {
+    public static List<float[]> readArrays(byte[] in) {
         DataInputStream input = new DataInputStream(new ByteArrayInputStream(in));
-        List<double[]> data = null;
+        List<float[]> data = null;
         try {
             int size = input.readInt();
             data = new ArrayList<>(size);
             for (int i = 0; i < size; i++) {
-                double[] arr = new double[input.readInt()];
+                float[] arr = new float[input.readInt()];
                 for (int j = 0; j < arr.length; j++) {
-                    arr[j] = input.readDouble();
+                    arr[j] = input.readFloat();
                 }
                 data.add(arr);
             }

@@ -45,7 +45,7 @@ public class RedisSimpleStreamProducer implements Runnable {
         finished = false;
         jedis = new Jedis(host, port);
 
-        System.out.println("Check_init_RedisStreamProducerBeta, " + System.currentTimeMillis() +
+        System.out.println("Check_init_RedisSimpleStreamProducer, " + System.currentTimeMillis() +
                 ", host: " + this.host + ", port: " + this.port + ", qName: " + this.queueName);
     }
 
@@ -93,7 +93,7 @@ public class RedisSimpleStreamProducer implements Runnable {
 
                     //System.out.println("peekFrame.frameId (" + peekFrame.frameId +") == 1 + currentFrameID: " + currentFrameID);
                     GeneralizedStreamFrame nextFrame = pollFrame();
-                    List<double[]> data = (List<double[]>) nextFrame.data;
+                    List<float[]> data = (List<float[]>) nextFrame.data;
                     jedis.rpush(this.queueName, helperFunctions.toBytes(data));
 
                     System.out.println("finishedAdd: " + System.currentTimeMillis() + ",Fid: " + nextFrame.frameId);
