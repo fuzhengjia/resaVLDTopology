@@ -77,13 +77,13 @@ public class optlFlowGeneratorMultiOptFlowHogMBH extends BaseRichBolt {
         DescMat mbhMatY = mbhMatXY[1];
         DescMat hogMat = HogComp(this.prev_grey, hogInfo, width, height);
 
-        collector.emit(STREAM_FEATURE_FLOW, tuple, new Values(frameId, hogMat, mbhMatX, mbhMatY));
+        collector.emit(STREAM_FEATURE_FLOW, tuple, new Values(frameId, new DescMat[] {hogMat, mbhMatX, mbhMatY}));
         collector.ack(tuple);
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_OPT_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
-        outputFieldsDeclarer.declareStream(STREAM_FEATURE_FLOW, new Fields(FIELD_FRAME_ID, FIELD_HOG_MAT, FIELD_MBHX_MAT, FIELD_MBHY_MAT));
+        outputFieldsDeclarer.declareStream(STREAM_FEATURE_FLOW, new Fields(FIELD_FRAME_ID, FIELD_MBH_HOG_MAT));
     }
 }

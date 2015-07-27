@@ -83,11 +83,9 @@ public class featureGeneratorAlpha extends BaseRichBolt {
         }
         //System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
         if (streamId.equals(STREAM_FEATURE_FLOW)) {
-            DescMat hogMat = (DescMat) tuple.getValueByField(FIELD_HOG_MAT);
-            DescMat mbhxMat = (DescMat) tuple.getValueByField(FIELD_MBHX_MAT);
-            DescMat mbhyMat = (DescMat) tuple.getValueByField(FIELD_MBHY_MAT);
+            DescMat[] feaMat = (DescMat[]) tuple.getValueByField(FIELD_MBH_HOG_MAT);
 
-            desMatMap.computeIfAbsent(frameId, k -> new DescMat[]{hogMat, mbhxMat, mbhyMat});
+            desMatMap.computeIfAbsent(frameId, k -> feaMat);
 
         } else if (streamId.equals(STREAM_FEATURE_TRACE)) {
             List<List<PointDesc>> traceRecords = (List<List<PointDesc>>) tuple.getValueByField(FIELD_TRACE_RECORD);
@@ -101,7 +99,7 @@ public class featureGeneratorAlpha extends BaseRichBolt {
         }
 
         if (desMatMap.containsKey(frameId) && traceData.containsKey(frameId)
-                && traceMonitor.get(frameId) == this.traceAggBoltTaskNumber) {
+                && traceMonitor.get(frameId) == this.traceAggBoltTaskNumber && desMatMap.size() > this.maxTrackerLength) {
 
             collector.emit(STREAM_CACHE_CLEAN, new Values(frameId));
 
