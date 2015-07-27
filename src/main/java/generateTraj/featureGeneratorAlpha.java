@@ -178,7 +178,7 @@ public class featureGeneratorAlpha extends BaseRichBolt {
                     + ", traceFeature: " + traceFeatures.size() + "@" + System.currentTimeMillis());
 
             collector.emit(STREAM_FRAME_FV, tuple, new Values(frameId, traceFeatures));
-            desMatMap.remove(frameId - this.maxTrackerLength - 1);
+            desMatMap.remove(frameId - this.maxTrackerLength - 10);
             traceData.remove(frameId);
         } else {
             System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId
