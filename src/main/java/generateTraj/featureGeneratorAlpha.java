@@ -56,6 +56,7 @@ public class featureGeneratorAlpha extends BaseRichBolt {
         this.collector = outputCollector;
         traceData = new HashMap<>();
         traceMonitor = new HashMap<>();
+        desMatMap = new HashMap<>();
 
         this.traceAggBoltTaskNumber = topologyContext.getComponentTasks(traceAggBoltNameString).size();
 
