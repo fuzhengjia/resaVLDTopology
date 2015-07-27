@@ -98,8 +98,15 @@ public class featureGeneratorAlpha extends BaseRichBolt {
             }
         }
 
+        boolean allReady = true;
+        for (int i = frameId - this.maxTrackerLength - 1; i < frameId; i ++){
+            if (this.desMatMap.containsKey(i) == false){
+                allReady = false;
+            }
+        }
+
         if (desMatMap.containsKey(frameId) && traceData.containsKey(frameId)
-                && traceMonitor.get(frameId) == this.traceAggBoltTaskNumber && desMatMap.size() > this.maxTrackerLength) {
+                && traceMonitor.get(frameId) == this.traceAggBoltTaskNumber && allReady) {
 
             collector.emit(STREAM_CACHE_CLEAN, new Values(frameId));
 
