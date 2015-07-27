@@ -96,7 +96,7 @@ public class tomActionDetTopAlpha {
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
 
         builder.setBolt(redisFrameOut, new RedisSimpleFrameOutput(), getInt(conf, redisFrameOut + ".parallelism"))
-                .globalGrouping(frameDisplay, STREAM_FRAME_DISPLAY)
+                .globalGrouping(frameDisplay, STREAM_FRAME_FV)
                 .setNumTasks(getInt(conf, redisFrameOut + ".tasks"));
 
         StormTopology topology = builder.createTopology();
