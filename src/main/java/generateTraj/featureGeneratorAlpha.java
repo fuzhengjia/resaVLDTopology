@@ -112,7 +112,7 @@ public class featureGeneratorAlpha extends BaseRichBolt {
 
             List<List<PointDesc>> traceRecords = traceData.get(frameId);
             List<float[]> traceFeatures = new ArrayList<>();
-            int t_stride = cvFloor(this.maxTrackerLength + 1 / this.nt_cell);
+            int t_stride = cvFloor(this.maxTrackerLength / this.nt_cell);
 
             for (List<PointDesc> trace : traceRecords) {
                 if (trace.size() != this.maxTrackerLength + 1) {
