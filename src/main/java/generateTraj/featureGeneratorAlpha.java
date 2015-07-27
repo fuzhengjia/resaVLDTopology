@@ -82,8 +82,11 @@ public class featureGeneratorAlpha extends BaseRichBolt {
         }
         //System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
         if (streamId.equals(STREAM_FEATURE_FLOW)) {
-            DescMat[] mbhHogMat = (DescMat[]) tuple.getValueByField(FIELD_MBH_HOG_MAT);
-            desMatMap.computeIfAbsent(frameId, k -> mbhHogMat);
+            DescMat hogMat = (DescMat) tuple.getValueByField(FIELD_HOG_MAT);
+            DescMat mbhxMat = (DescMat) tuple.getValueByField(FIELD_MBHX_MAT);
+            DescMat mbhyMat = (DescMat) tuple.getValueByField(FIELD_MBHY_MAT);
+
+            desMatMap.computeIfAbsent(frameId, k -> new DescMat[]{hogMat, mbhxMat, mbhyMat});
 
         } else if (streamId.equals(STREAM_FEATURE_TRACE)) {
             List<List<PointDesc>> traceRecords = (List<List<PointDesc>>) tuple.getValueByField(FIELD_TRACE_RECORD);
