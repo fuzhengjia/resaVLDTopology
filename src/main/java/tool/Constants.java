@@ -8,9 +8,11 @@ public interface Constants {
 
     public static String STREAM_FRAME_OUTPUT = "stream-frame";
     public static String STREAM_FRAME_DISPLAY = "stream-display";
+    public static String STREAM_FRAME_FV = "stream-fv";
     public static String STREAM_OPT_FLOW = "stream-optical-flow";
     public static String STREAM_GREY_FLOW = "stream-grey-flow";
     public static String STREAM_EIG_FLOW = "stream-eig-flow";
+    public static String STREAM_FEATURE_FLOW = "stream-fea-flow";
     public static String STREAM_RAW_FRAME = "stream-raw-frm";
     public static String STREAM_NEW_TRACE = "stream-new-trace";
     public static String STREAM_EXIST_TRACE = "stream-exist-trace";
@@ -20,6 +22,8 @@ public interface Constants {
     public static String STREAM_REMOVE_TRACE = "stream-remove-trace";
     public static String STREAM_EXIST_REMOVE_TRACE = "stream-e-r-trace";
     public static String STREAM_PLOT_TRACE = "stream-plot-trace";
+    public static String STREAM_FEATURE_TRACE = "stream-fea-trace";
+
     public static String STREAM_CACHE_CLEAN = "stream-cache-clean";
 
     public static String FIELD_FRAME_ID = "frame-id";
@@ -38,7 +42,9 @@ public interface Constants {
     public static String FIELD_FLOW_IMPL = "flow-impl";
     public static String FIELD_MBHX_MAT = "mbhx-mat";
     public static String FIELD_MBHY_MAT = "mbhy-mat";
-
+    public static String FIELD_HOG_MAT = "hog-mat";
+    public static String FIELD_MBH_HOG_MAT = "mbh-hog-mat";
+    public static String FIELD_FEA_VEC = "fea-vec";
     ////////////////For logo detection
 
     public final static String PATCH_STREAM = "patch-stm";

@@ -2,9 +2,9 @@ package generateTraj;
 
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_imgproc;
+import topology.Serializable;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.FloatBuffer;
 import java.util.*;
 
@@ -197,11 +197,10 @@ public class helperFunctions {
     }
 
     //We have re-organized the input and output to the oringal c++ version
-    public static DescMat[] MbhComp(opencv_core.IplImage flow, DescInfo descInfo,
-                                    int width, int height) {
+    public static DescMat[] MbhComp(IplImage flow, DescInfo descInfo, int width, int height) {
         //int width = descMatX.width;
         //int height = descMatX.height;
-        opencv_core.IplImage flowX = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
+        IplImage flowX = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
         IplImage flowY = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
         IplImage flowXdX = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
         IplImage flowXdY = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
@@ -240,6 +239,19 @@ public class helperFunctions {
         cvReleaseImage(flowXdY);
         cvReleaseImage(flowYdX);
         cvReleaseImage(flowYdY);
+
+        return retVal;
+    }
+
+    public static DescMat HogComp(IplImage img, DescInfo descInfo, int width, int height) {
+        IplImage imgX = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
+        IplImage imgY = cvCreateImage(cvSize(width, height), IPL_DEPTH_32F, 1);
+
+        opencv_imgproc.cvSobel(img, imgX, 1, 0, 1);
+        opencv_imgproc.cvSobel(img, imgY, 0, 1, 1);
+        DescMat retVal = BuildDescMat(imgX, imgY, descInfo, width, height);
+        cvReleaseImage(imgX);
+        cvReleaseImage(imgY);
 
         return retVal;
     }
@@ -321,6 +333,27 @@ public class helperFunctions {
     }
 
     public static CvScalar getRect(CvPoint2D32f point, CvSize size, DescInfo descInfo) {
+        int x_min = descInfo.blockWidth / 2;
+        int y_min = descInfo.blockHeight / 2;
+        int x_max = size.width() - descInfo.blockWidth;
+        int y_max = size.height() - descInfo.blockHeight;
+
+        float tmp_x = point.x() - x_min;
+        float temp_x = Math.min(Math.max(tmp_x, 0.0f), (float) x_max);
+
+        float tmp_y = point.y() - y_min;
+        float temp_y = Math.min(Math.max(tmp_y, 0.0f), (float) y_max);
+
+        CvScalar rect = new CvScalar();
+        rect.setVal(0, temp_x);
+        rect.setVal(1, temp_y);
+        rect.setVal(2, descInfo.blockWidth);
+        rect.setVal(3, descInfo.blockHeight);
+
+        return rect;
+    }
+
+    public static CvScalar getRect(Serializable.CvPoint2D32f point, CvSize size, DescInfo descInfo) {
         int x_min = descInfo.blockWidth / 2;
         int y_min = descInfo.blockHeight / 2;
         int x_max = size.width() - descInfo.blockWidth;
@@ -507,10 +540,77 @@ public class helperFunctions {
             bk2[i].y(tmpY);
         }
 
-
-
         return new Object[]{bk2, new float[]{mean_x, mean_y, var_x, var_y, length}, 1};
+    }
 
+    public static int isValid(List<PointDesc> track) {
+        float min_var = 1.732f;
+        float max_var = 50;
+        float max_dis = 20;
+
+        float mean_x = 0;
+        float mean_y = 0;
+        float var_x = 0;
+        float var_y = 0;
+        float length = 0;
+
+        int size = track.size();
+        CvPoint2D32f[] bk = new CvPoint2D32f[size];
+        for (int i = 0; i < size; i++) {
+            bk[i] = new CvPoint2D32f();
+            //mean_x += track[i].x();
+            //mean_y += track[i].y();
+            bk[i].x(track.get(i).sPoint.x());
+            bk[i].y(track.get(i).sPoint.y());
+            mean_x += bk[i].x();
+            mean_y += bk[i].y();
+        }
+
+        mean_x /= size;
+        mean_y /= size;
+
+        for (int i = 0; i < size; i++) {
+            float tmpX = bk[i].x();
+            bk[i].x(tmpX - mean_x);
+            var_x += (bk[i].x() * bk[i].x());
+
+            float tmpY = bk[i].y();
+            bk[i].y(tmpY - mean_y);
+            var_y += (bk[i].y() * bk[i].y());
+        }
+
+        var_x /= size;
+        var_y /= size;
+        var_x = (float) Math.sqrt(var_x);
+        var_y = (float) Math.sqrt(var_y);
+
+        if (var_x < min_var && var_y < min_var) {
+            return 0;
+        }
+
+        if (var_x > max_var || var_x > max_var) {
+            return 0;
+        }
+
+        for (int i = 1; i < size; i++) {
+            float temp_x = bk[i].x() - bk[i - 1].x();
+            float temp_y = bk[i].y() - bk[i - 1].y();
+            length += Math.sqrt(temp_x * temp_x + temp_y * temp_y);
+            bk[i - 1].x(temp_x);
+            bk[i - 1].y(temp_y);
+        }
+
+        float len_thre = length * 0.7f;
+        for (int i = 0; i < size - 1; i++) {
+            float temp_x = bk[i].x();
+            float temp_y = bk[i].y();
+            float temp_dis = (float) Math.sqrt(temp_x * temp_x + temp_y * temp_y);
+            if (temp_dis > max_dis && temp_dis > len_thre) {
+                return 0;
+            }
+        }
+
+        return 1;
     }
 
     public static void WriteTrajFeature2Txt(
@@ -528,5 +628,45 @@ public class helperFunctions {
             oStream.write(TRJfeature[i] + " ");
         }
         oStream.newLine();
+    }
+
+    public static byte[] toBytes(List<double[]> data) {
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        DataOutputStream dout = new DataOutputStream(bout);
+        try {
+            dout.writeInt(data.size());
+        } catch (IOException e) {
+            // never arrive here
+        }
+        data.stream().forEach(arr -> {
+            try {
+                dout.writeInt(arr.length);
+                for (int i = 0; i < arr.length; i++) {
+                    dout.writeDouble(arr[i]);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        return bout.toByteArray();
+    }
+
+    public static List<double[]> readArrays(byte[] in) {
+        DataInputStream input = new DataInputStream(new ByteArrayInputStream(in));
+        List<double[]> data = null;
+        try {
+            int size = input.readInt();
+            data = new ArrayList<>(size);
+            for (int i = 0; i < size; i++) {
+                double[] arr = new double[input.readInt()];
+                for (int j = 0; j < arr.length; j++) {
+                    arr[j] = input.readDouble();
+                }
+                data.add(arr);
+            }
+        } catch (IOException e) {
+            // never arrive here
+        }
+        return data;
     }
 }
