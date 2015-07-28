@@ -58,14 +58,13 @@ public class frameDisplayMultiDelta extends BaseRichBolt {
         for (int i = 0; i < scale_num; i++) {
             fscales[i] = (float) Math.pow(scale_stride, i);
         }
-
-        IplImage fake = new IplImage();
     }
 
     @Override
     public void execute(Tuple tuple) {
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
+        IplImage fake = new IplImage();
 
         if (frameId == 0) {
             collector.ack(tuple);
