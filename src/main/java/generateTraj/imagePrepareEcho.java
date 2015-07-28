@@ -98,9 +98,9 @@ public class imagePrepareEcho extends BaseRichBolt {
             prev_grey = cvCreateImage(cvGetSize(frame), 8, 1);
             prev_grey_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(frame), 8, 1);
 
-            eig_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(this.grey), 32, 1);
+            //eig_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(this.grey), 32, 1);
             //TODO: check
-            //eig_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(this.prev_grey), 32, 1);
+            eig_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(this.prev_grey), 32, 1);
         }
 
         cvCopy(frame, image, null);
@@ -130,9 +130,9 @@ public class imagePrepareEcho extends BaseRichBolt {
             this.eig = cvCloneImage(eig_pyramid.getImage(ixyScale));
             double[] maxVal = new double[1];
             maxVal[0] = 0.0;
-            opencv_imgproc.cvCornerMinEigenVal(grey, this.eig, 3, 3);
+            //opencv_imgproc.cvCornerMinEigenVal(grey, this.eig, 3, 3);
             //TODO: check
-            //opencv_imgproc.cvCornerMinEigenVal(prev_grey, this.eig, 3, 3);
+            opencv_imgproc.cvCornerMinEigenVal(prev_grey, this.eig, 3, 3);
 
             cvMinMaxLoc(eig, null, maxVal, null, null, null);
             double threshold = maxVal[0] * quality;
