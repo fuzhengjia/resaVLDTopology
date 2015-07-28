@@ -104,7 +104,7 @@ public class tomTrajDisplayTopEchoBatch {
 
         int min_dis = getInt(conf, "min_distance");
         int init_counter = getInt(conf, "init_counter");
-        //conf.registerSerialization(Serializable.Mat.class);
+        conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
         StormSubmitter.submitTopology("tTrajTopEchoBatch-" + init_counter + "-" + min_dis, conf, topology);
     }
