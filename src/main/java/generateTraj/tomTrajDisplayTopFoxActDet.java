@@ -84,12 +84,12 @@ public class tomTrajDisplayTopFoxActDet {
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
         builder.setBolt(frameDisplay, new featureGeneratorAlpha(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
-                .fieldsGrouping(imgPrepareBolt, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
-                .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
+                .globalGrouping(optFlowGenBolt, STREAM_FEATURE_FLOW)
+                .globalGrouping(traceAggregator, STREAM_FEATURE_TRACE)
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
 
         builder.setBolt(redisFrameOut, new RedisSimpleFrameOutput(), getInt(conf, redisFrameOut + ".parallelism"))
-                .globalGrouping(frameDisplay, STREAM_FRAME_DISPLAY)
+                .globalGrouping(frameDisplay, STREAM_FRAME_FV)
                 .setNumTasks(getInt(conf, redisFrameOut + ".tasks"));
 
         StormTopology topology = builder.createTopology();
