@@ -108,6 +108,8 @@ public class RedisSimpleStreamProducer implements Runnable {
                     List<float[]> data = (List<float[]>) nextFrame.data;
                     data.forEach(v -> {
                         try {
+                            bufferedWriter.write(nextFrame.frameId + "-" + v.length);
+                            bufferedWriter.newLine();
                             for (int i = 0; i < v.length; i++) {
                                 bufferedWriter.write(v[i] + " ");
                             }

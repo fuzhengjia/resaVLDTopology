@@ -164,7 +164,11 @@ public class traceAggFoxActDet extends BaseRichBolt {
             for (Map.Entry<String, List<Serializable.CvPoint2D32f>> trace : traceData.entrySet()) {
                 int traceLen = trace.getValue().size();
                 if (traceLen > maxTrackerLength) {
-                    if (helperFunctions.isValid(trace.getValue()) == 1){
+                    Serializable.CvPoint2D32f[] vTrace = new Serializable.CvPoint2D32f[traceLen];
+                    for (int i = 0; i < vTrace.length; i ++){
+                        vTrace[i] = new Serializable.CvPoint2D32f(trace.getValue().get(i));
+                    }
+                    if (helperFunctions.isValid(vTrace) == true){
                         traceForFeatures.add(trace.getValue());
                     }
                     traceToRemove.add(trace.getKey());

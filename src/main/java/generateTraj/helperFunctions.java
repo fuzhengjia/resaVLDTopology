@@ -613,6 +613,74 @@ public class helperFunctions {
         return 1;
     }
 
+    public static boolean isValid(Serializable.CvPoint2D32f[] track) {
+        float min_var = 1.732f;
+        float max_var = 50;
+        float max_dis = 20;
+
+        float mean_x = 0;
+        float mean_y = 0;
+        float var_x = 0;
+        float var_y = 0;
+        float length = 0;
+
+        int size = track.length;
+        CvPoint2D32f[] bk = new CvPoint2D32f[size];
+        for (int i = 0; i < size; i++) {
+            bk[i] = new CvPoint2D32f();
+            bk[i].x(track[i].x());
+            bk[i].y(track[i].y());
+            mean_x += bk[i].x();
+            mean_y += bk[i].y();
+        }
+
+        mean_x /= size;
+        mean_y /= size;
+
+        for (int i = 0; i < size; i++) {
+            float tmpX = bk[i].x();
+            bk[i].x(tmpX - mean_x);
+            var_x += (bk[i].x() * bk[i].x());
+
+            float tmpY = bk[i].y();
+            bk[i].y(tmpY - mean_y);
+            var_y += (bk[i].y() * bk[i].y());
+        }
+
+        var_x /= size;
+        var_y /= size;
+        var_x = (float) Math.sqrt(var_x);
+        var_y = (float) Math.sqrt(var_y);
+
+        if (var_x < min_var && var_y < min_var) {
+            return false;
+        }
+
+        if (var_x > max_var || var_x > max_var) {
+            return false;
+        }
+
+        for (int i = 1; i < size; i++) {
+            float temp_x = bk[i].x() - bk[i - 1].x();
+            float temp_y = bk[i].y() - bk[i - 1].y();
+            length += Math.sqrt(temp_x * temp_x + temp_y * temp_y);
+            bk[i - 1].x(temp_x);
+            bk[i - 1].y(temp_y);
+        }
+
+        float len_thre = length * 0.7f;
+        for (int i = 0; i < size - 1; i++) {
+            float temp_x = bk[i].x();
+            float temp_y = bk[i].y();
+            float temp_dis = (float) Math.sqrt(temp_x * temp_x + temp_y * temp_y);
+            if (temp_dis > max_dis && temp_dis > len_thre) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static void WriteTrajFeature2Txt(
             BufferedWriter oStream, float[] Track_Info, float[] XYs, List<Float> MBHfeature, float[] TRJfeature) throws IOException {
         for (int i = 0; i < Track_Info.length; i++) {
