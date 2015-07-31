@@ -27,7 +27,7 @@ public class featureGeneratorAlpha extends BaseRichBolt {
     OutputCollector collector;
 
     private HashMap<Integer, DescMat[]> desMatMap;
-    private HashMap<Integer, List<List<PointDesc>>> traceData;
+    private HashMap<Integer, List<List<Serializable.CvPoint2D32f>>> traceData;
     private HashMap<Integer, Integer> traceMonitor;
 
     static int scale_num = 1;
@@ -68,27 +68,25 @@ public class featureGeneratorAlpha extends BaseRichBolt {
         this.maxTrackerLength = ConfigUtil.getInt(map, "maxTrackerLength", 15);
         this.hogInfo = new DescInfo(8, 0, 1, patch_size, nxy_cell, nt_cell, min_flow);
         this.mbhInfo = new DescInfo(8, 0, 1, patch_size, nxy_cell, nt_cell, min_flow);
-
-        IplImage fake = new IplImage();
     }
 
     @Override
     public void execute(Tuple tuple) {
         String streamId = tuple.getSourceStreamId();
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
+        IplImage fake = new IplImage();
 
         if (frameId == 0) {
             collector.ack(tuple);
             return;
         }
-        //System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
+
         if (streamId.equals(STREAM_FEATURE_FLOW)) {
             DescMat[] feaMat = (DescMat[]) tuple.getValueByField(FIELD_MBH_HOG_MAT);
-
             desMatMap.computeIfAbsent(frameId, k -> feaMat);
 
         } else if (streamId.equals(STREAM_FEATURE_TRACE)) {
-            List<List<PointDesc>> traceRecords = (List<List<PointDesc>>) tuple.getValueByField(FIELD_TRACE_RECORD);
+            List<List<Serializable.CvPoint2D32f>> traceRecords = (List<List<Serializable.CvPoint2D32f>>) tuple.getValueByField(FIELD_TRACE_RECORD);
             if (!traceMonitor.containsKey(frameId)) {
                 traceMonitor.put(frameId, 1);
                 traceData.put(frameId, traceRecords);
@@ -99,23 +97,23 @@ public class featureGeneratorAlpha extends BaseRichBolt {
         }
 
         //TODO: can we remove this check?
-//        boolean allReady = true;
-//        for (int i = frameId - this.maxTrackerLength - 1; i < frameId; i ++){
-//            if (this.desMatMap.containsKey(i) == false){
-//                allReady = false;
-//            }
-//        }
+        boolean allReady = true;
+        for (int i = frameId - this.maxTrackerLength - 1; i < frameId; i ++){
+            if (this.desMatMap.containsKey(i) == false){
+                allReady = false;
+            }
+        }
 
         if (desMatMap.containsKey(frameId) && traceData.containsKey(frameId)
-                && traceMonitor.get(frameId) == this.traceAggBoltTaskNumber && this.desMatMap.size() > this.maxTrackerLength) {
+                && traceMonitor.get(frameId) == this.traceAggBoltTaskNumber && allReady){//this.desMatMap.size() > this.maxTrackerLength) {
 
             collector.emit(STREAM_CACHE_CLEAN, new Values(frameId));
 
-            List<List<PointDesc>> traceRecords = traceData.get(frameId);
+            List<List<Serializable.CvPoint2D32f>> traceRecords = traceData.get(frameId);
             List<float[]> traceFeatures = new ArrayList<>();
             int t_stride = cvFloor(this.maxTrackerLength / this.nt_cell);
 
-            for (List<PointDesc> trace : traceRecords) {
+            for (List<Serializable.CvPoint2D32f> trace : traceRecords) {
                 if (trace.size() != this.maxTrackerLength + 1) {
                     throw new IllegalArgumentException("trace.size() != this.maxTrackerLength + 1, trace.size() = " + trace.size());
                 }
@@ -135,13 +133,13 @@ public class featureGeneratorAlpha extends BaseRichBolt {
                         mbhyVec[m] = 0;
                     }
                     for (int t = 0; t < t_stride; t++, iDescIndex++) {
-                        int fID = frameId - trace.size() + 1 + iDescIndex;
+                        int fID = frameId - trace.size() + 2 + iDescIndex;
                         DescMat[] desMat = desMatMap.get(fID);
                         DescMat mbhMatX = desMat[0];
                         DescMat mbhMatY = desMat[1];
                         DescMat hogMat = desMat[2];
 
-                        CvScalar rect = helperFunctions.getRect(trace.get(iDescIndex).sPoint, cvSize(hogMat.width, hogMat.height), hogInfo);
+                        CvScalar rect = helperFunctions.getRect(trace.get(iDescIndex), cvSize(hogMat.width, hogMat.height), hogInfo);
                         float[] mbhX = helperFunctions.getDesc(mbhMatX, rect, mbhInfo);
                         float[] mbhY = helperFunctions.getDesc(mbhMatY, rect, mbhInfo);
                         float[] hog = helperFunctions.getDesc(hogMat, rect, hogInfo);
@@ -202,7 +200,6 @@ public class featureGeneratorAlpha extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        //outputFieldsDeclarer.declareStream(STREAM_FRAME_DISPLAY, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
         outputFieldsDeclarer.declareStream(STREAM_FRAME_FV, new Fields(FIELD_FRAME_ID, FIELD_FEA_VEC));
         outputFieldsDeclarer.declareStream(STREAM_CACHE_CLEAN, new Fields(FIELD_FRAME_ID));
     }

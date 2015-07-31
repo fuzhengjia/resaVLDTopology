@@ -8,6 +8,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import topology.Serializable;
+import util.ConfigUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ public class frameDisplayMultiFox extends BaseRichBolt {
 
     String traceAggBoltNameString;
     int traceAggBoltTaskNumber;
+    private boolean toDebug = false;
 
     public frameDisplayMultiFox(String traceAggBoltNameString) {
         this.traceAggBoltNameString = traceAggBoltNameString;
@@ -53,6 +55,7 @@ public class frameDisplayMultiFox extends BaseRichBolt {
         traceMonitor = new HashMap<>();
 
         this.traceAggBoltTaskNumber = topologyContext.getComponentTasks(traceAggBoltNameString).size();
+        toDebug = ConfigUtil.getBoolean(map, "debugTopology", false);
 
         fscales = new float[scale_num];
         for (int i = 0; i < scale_num; i++) {
@@ -119,15 +122,18 @@ public class frameDisplayMultiFox extends BaseRichBolt {
             Mat mat = new Mat(frame);
             Serializable.Mat sMat = new Serializable.Mat(mat);
             collector.emit(STREAM_FRAME_DISPLAY, tuple, new Values(frameId, sMat));
-            //producer.addFrame(new StreamFrame(frameId, mat));
-            System.out.println("FrameDisplay-finishedAdd: " + frameId + ", tCnt: " + traceRecords.size()
-                    + "@" + System.currentTimeMillis());
             rawFrameMap.remove(frameId);
             traceData.remove(frameId);
+            if (toDebug) {
+                System.out.println("FrameDisplay-finishedAdd: " + frameId + ", tCnt: " + traceRecords.size()
+                        + "@" + System.currentTimeMillis());
+            }
         } else {
-            System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId
-                    + ",rawFrameMap(" + rawFrameMap.containsKey(frameId) + ").Size: " + rawFrameMap.size()
-                    + ",traceData(" + traceData.containsKey(frameId) + ").Size: " + traceData.size());
+            if (toDebug) {
+                System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId
+                        + ",rawFrameMap(" + rawFrameMap.containsKey(frameId) + ").Size: " + rawFrameMap.size()
+                        + ",traceData(" + traceData.containsKey(frameId) + ").Size: " + traceData.size());
+            }
         }
         collector.ack(tuple);
     }

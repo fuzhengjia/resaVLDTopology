@@ -543,7 +543,7 @@ public class helperFunctions {
         return new Object[]{bk2, new float[]{mean_x, mean_y, var_x, var_y, length}, 1};
     }
 
-    public static int isValid(List<PointDesc> track) {
+    public static int isValid(List<Serializable.CvPoint2D32f> track) {
         float min_var = 1.732f;
         float max_var = 50;
         float max_dis = 20;
@@ -560,8 +560,8 @@ public class helperFunctions {
             bk[i] = new CvPoint2D32f();
             //mean_x += track[i].x();
             //mean_y += track[i].y();
-            bk[i].x(track.get(i).sPoint.x());
-            bk[i].y(track.get(i).sPoint.y());
+            bk[i].x(track.get(i).x());
+            bk[i].y(track.get(i).y());
             mean_x += bk[i].x();
             mean_y += bk[i].y();
         }

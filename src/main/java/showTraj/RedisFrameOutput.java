@@ -44,6 +44,7 @@ public class RedisFrameOutput extends BaseRichBolt {
     private int sleepTime;
     private int startFrameID;
     private int maxWaitCount;
+    private boolean toDebug = false;
 
     //private int accumulateFrameSize;
 
@@ -64,6 +65,7 @@ public class RedisFrameOutput extends BaseRichBolt {
         this.sleepTime = getInt(map, "sleepTime", 10);
         this.startFrameID = getInt(map, "startFrameID", 1);
         this.maxWaitCount = getInt(map, "maxWaitCount", 4);
+        toDebug = ConfigUtil.getBoolean(map, "debugTopology", false);
 
 //        accumulateFrameSize = ConfigUtil.getInt(map, "accumulateFrameSize", 1);
 //        rawFrameMap = new HashMap<>();
@@ -84,7 +86,9 @@ public class RedisFrameOutput extends BaseRichBolt {
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
         producer.addFrame(new StreamFrame(frameId, sMat.toJavaCVMat()));
 
-        System.out.println("producerAdd: " + System.currentTimeMillis() + ":" + frameId);
+        if (toDebug) {
+            System.out.println("producerAdd: " + System.currentTimeMillis() + ":" + frameId);
+        }
         collector.ack(tuple);
     }
 }

@@ -33,6 +33,8 @@ public class FrameImplImageSourceGamma extends RedisQueueSpout {
 
     private Serializable.Mat sMatPrev;
 
+    private boolean toDebug = false;
+
     public FrameImplImageSourceGamma(String host, int port, String queue) {
         super(host, port, queue, true);
     }
@@ -47,6 +49,8 @@ public class FrameImplImageSourceGamma extends RedisQueueSpout {
         inWidth = ConfigUtil.getInt(conf, "inWidth", 640);
         inHeight = ConfigUtil.getInt(conf, "inHeight", 480);
 
+        toDebug = ConfigUtil.getBoolean(conf, "debugTopology", false);
+
         sMatPrev = null;
     }
 
@@ -54,14 +58,8 @@ public class FrameImplImageSourceGamma extends RedisQueueSpout {
     protected void emitData(Object data) {
         String id = String.valueOf(frameId);
         byte[] imgBytes = (byte[]) data;
-        ImageInputStream iis = null;
 
         try {
-            //iis = ImageIO.createImageInputStream(new ByteArrayInputStream(imgBytes));
-            //BufferedImage img = ImageIO.read(iis);
-            //opencv_core.IplImage image = opencv_core.IplImage.createFrom(img);
-
-            //byte[] imgBytes = (byte[]) data.getValueByField(FIELD_FRAME_BYTES);
             IplImage image = cvDecodeImage(cvMat(1, imgBytes.length, CV_8UC1, new BytePointer(imgBytes)));
 
             IplImage frame = cvCreateImage(cvSize(inWidth, inHeight), nDepth, nChannel);
@@ -73,8 +71,10 @@ public class FrameImplImageSourceGamma extends RedisQueueSpout {
             if (frameId > 0 && sMatPrev != null){
                 collector.emit(STREAM_FRAME_OUTPUT, new Values(frameId, sMat, sMatPrev), id);
 
-                long nowTime = System.currentTimeMillis();
-                System.out.printf("Sendout: " + nowTime + "," + frameId);
+                if (toDebug) {
+                    long nowTime = System.currentTimeMillis();
+                    System.out.printf("Sendout: " + nowTime + "," + frameId);
+                }
             }
             frameId++;
             sMatPrev = new Serializable.Mat(mat);

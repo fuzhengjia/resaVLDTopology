@@ -10,6 +10,7 @@ import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
 import tool.FrameImplImageSourceGamma;
 import topology.Serializable;
+import util.ConfigUtil;
 
 import java.io.FileNotFoundException;
 
@@ -17,23 +18,15 @@ import static tool.Constants.*;
 import static topology.StormConfigManager.*;
 
 /**
- * Created by Tom Fu on July 24, 2015.
+ * Created by Tom Fu on Jan 29, 2015.
  * TODO: Notes:
- * traceGenerator 是否可以并行？ 这样需要feedback分开，register也要分开 -> done
  * 扩展，如果有2个scale的话，需要对当前程序扩展！
- * 产生光流是bottleneck-> done
- * 此版本暂时通过测试
- * 尝试将optFlowGen and optFlowAgg 分布式化->done
- * 在echo 版本中， optFlowTracker也作了细分，大大降低了传输的network cost
- * 在echo 版本中，ImgPrep在把eig frame传给traceGen的时候，也做了划分，减少了network cost
- * 在echo 版本的基础上，使用batch传输策略，即，将所有的trace的点，收集之后再传给下一个bolt，
- * 这样的batch似乎有效的提高了传输和处理的效率
- * Test 通过，现在18-3能到25fps，具体performance可以查询笔记
- *
- * 在 tomTrajDisplayTopEchoBatch 的基础上
- * 这个版本开始加入action detection的模块
+ * 在echoBatch里有个大的bug，产生trace的方式有问题
+ * 1. 应该由preFrame产生newTrace到当前的optFrame来更新，这个版本里面尝试解决这个问题
+ * 2. 第二个bug是在flowTracker里面，对新的trace， 会自动扔掉第一个点！！！
+ * 2. 重写一些data structure
  */
-public class tomActionDetTopAlpha {
+public class tomTrajDisplayTopFoxActDet {
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
@@ -61,7 +54,7 @@ public class tomActionDetTopAlpha {
         builder.setSpout(spoutName, new FrameImplImageSourceGamma(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(imgPrepareBolt, new imagePrepareEcho(traceGenBolt), getInt(conf, imgPrepareBolt + ".parallelism"))
+        builder.setBolt(imgPrepareBolt, new imagePrepareFox(traceGenBolt), getInt(conf, imgPrepareBolt + ".parallelism"))
                 .shuffleGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
@@ -73,30 +66,30 @@ public class tomActionDetTopAlpha {
                 .shuffleGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
                 .setNumTasks(getInt(conf, optFlowTrans + ".tasks"));
 
-        builder.setBolt(traceGenBolt, new traceGeneratorEchoBatch(traceAggregator, optFlowTracker), getInt(conf, traceGenBolt + ".parallelism"))
+        builder.setBolt(traceGenBolt, new traceGenFox(traceAggregator, optFlowTracker), getInt(conf, traceGenBolt + ".parallelism"))
                 .directGrouping(imgPrepareBolt, STREAM_EIG_FLOW)
                 .allGrouping(traceAggregator, STREAM_INDICATOR_TRACE)
                 .setNumTasks(getInt(conf, traceGenBolt + ".tasks"));
 
-        builder.setBolt(optFlowTracker, new optFlowTrackerEchoBatch(traceAggregator), getInt(conf, optFlowTracker + ".parallelism"))
+        builder.setBolt(optFlowTracker, new optFlowTrackerFox(traceAggregator), getInt(conf, optFlowTracker + ".parallelism"))
                 .directGrouping(traceGenBolt, STREAM_NEW_TRACE)
                 .directGrouping(traceAggregator, STREAM_RENEW_TRACE)
                 .directGrouping(optFlowTrans, STREAM_OPT_FLOW)
                 .allGrouping(frameDisplay, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
 
-        builder.setBolt(traceAggregator, new traceAggregatorEchoBatchActDet(traceGenBolt, optFlowTracker), getInt(conf, traceAggregator + ".parallelism"))
+        builder.setBolt(traceAggregator, new traceAggFoxActDet(traceGenBolt, optFlowTracker), getInt(conf, traceAggregator + ".parallelism"))
                 .directGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
                 .directGrouping(optFlowTracker, STREAM_EXIST_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
         builder.setBolt(frameDisplay, new featureGeneratorAlpha(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
-                .globalGrouping(optFlowGenBolt, STREAM_FEATURE_FLOW)
-                .globalGrouping(traceAggregator, STREAM_FEATURE_TRACE)
+                .fieldsGrouping(imgPrepareBolt, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
 
         builder.setBolt(redisFrameOut, new RedisSimpleFrameOutput(), getInt(conf, redisFrameOut + ".parallelism"))
-                .globalGrouping(frameDisplay, STREAM_FRAME_FV)
+                .globalGrouping(frameDisplay, STREAM_FRAME_DISPLAY)
                 .setNumTasks(getInt(conf, redisFrameOut + ".tasks"));
 
         StormTopology topology = builder.createTopology();
@@ -107,8 +100,10 @@ public class tomActionDetTopAlpha {
 
         int min_dis = getInt(conf, "min_distance");
         int init_counter = getInt(conf, "init_counter");
+        int w = ConfigUtil.getInt(conf, "inWidth", 640);
+        int h = ConfigUtil.getInt(conf, "inHeight", 480);
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tTrajTopActDet-" + init_counter + "-" + min_dis, conf, topology);
+        StormSubmitter.submitTopology("tTrajTopFoxActDet-" + init_counter + "-" + min_dis + "-" + w + "-" + h, conf, topology);
     }
 }
