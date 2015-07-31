@@ -133,7 +133,7 @@ public class featureGeneratorAlpha extends BaseRichBolt {
                         mbhyVec[m] = 0;
                     }
                     for (int t = 0; t < t_stride; t++, iDescIndex++) {
-                        int fID = frameId - trace.size() + 2 + iDescIndex;
+                        int fID = frameId - trace.size() + 1 + iDescIndex;
                         DescMat[] desMat = desMatMap.get(fID);
                         DescMat mbhMatX = desMat[0];
                         DescMat mbhMatY = desMat[1];
