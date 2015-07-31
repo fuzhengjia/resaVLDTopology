@@ -136,7 +136,7 @@ public class traceGenFox extends BaseRichBolt {
             int totalValidedCount = 0;
             int nextFrameID = frameId + 1; //after generate the new traces, change to the nextFrameID.
             int[] totalValidCntList = new int[this.traceAggBoltTasks.size()];
-            if (frameId > 0) {
+            if (frameId >= 0) {
                 double threshold = eigInfo.getTh();
                 int offset = eigInfo.getOff();
 
