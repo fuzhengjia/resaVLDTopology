@@ -7,7 +7,10 @@ import topology.StreamFrame;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -33,6 +36,8 @@ public class RedisSimpleStreamProducer implements Runnable {
     //private BlockingQueue<byte[]> dataQueue = new ArrayBlockingQueue<>(10000);
     private Jedis jedis;
 
+    private BufferedWriter bufferedWriter = null;
+
     /**
      * Creates a producer expecting frames in range [firstFrameId, lastFrameId), with an additional parameter qSize
      */
@@ -47,6 +52,13 @@ public class RedisSimpleStreamProducer implements Runnable {
 
         System.out.println("Check_init_RedisSimpleStreamProducer, " + System.currentTimeMillis() +
                 ", host: " + this.host + ", port: " + this.port + ", qName: " + this.queueName);
+
+        try {
+            bufferedWriter = new BufferedWriter(new FileWriter("/tmp/abc.txt"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -94,6 +106,16 @@ public class RedisSimpleStreamProducer implements Runnable {
                     //System.out.println("peekFrame.frameId (" + peekFrame.frameId +") == 1 + currentFrameID: " + currentFrameID);
                     GeneralizedStreamFrame nextFrame = pollFrame();
                     List<float[]> data = (List<float[]>) nextFrame.data;
+                    data.forEach(v -> {
+                        try {
+                            for (int i = 0; i < v.length; i++) {
+                                bufferedWriter.write(v[i] + " ");
+                            }
+                            bufferedWriter.newLine();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
                     jedis.rpush(this.queueName, helperFunctions.toBytes(data));
 
                     System.out.println("finishedAdd: " + System.currentTimeMillis() + ",Fid: " + nextFrame.frameId);

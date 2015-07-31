@@ -191,9 +191,9 @@ public class featureGeneratorAlpha extends BaseRichBolt {
             desMatMap.remove(frameId - this.maxTrackerLength - 10);
             traceData.remove(frameId);
         } else {
-            System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId
-                    + ",desMatMap(" + desMatMap.containsKey(frameId) + ").Size: " + desMatMap.size()
-                    + ",traceData(" + traceData.containsKey(frameId) + ").Size: " + traceData.size());
+//            System.out.println("finished: " + System.currentTimeMillis() + ":" + frameId
+//                    + ",desMatMap(" + desMatMap.containsKey(frameId) + ").Size: " + desMatMap.size()
+//                    + ",traceData(" + traceData.containsKey(frameId) + ").Size: " + traceData.size());
         }
         collector.ack(tuple);
     }
