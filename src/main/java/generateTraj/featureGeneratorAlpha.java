@@ -98,14 +98,14 @@ public class featureGeneratorAlpha extends BaseRichBolt {
 
         //TODO: can we remove this check?
         boolean allReady = true;
-        for (int i = frameId - this.maxTrackerLength - 1; i < frameId; i ++){
-            if (this.desMatMap.containsKey(i) == false){
+        for (int i = frameId - this.maxTrackerLength - 1; i < frameId; i++) {
+            if (this.desMatMap.containsKey(i) == false) {
                 allReady = false;
             }
         }
 
         if (desMatMap.containsKey(frameId) && traceData.containsKey(frameId)
-                && traceMonitor.get(frameId) == this.traceAggBoltTaskNumber && allReady){//this.desMatMap.size() > this.maxTrackerLength) {
+                && traceMonitor.get(frameId) == this.traceAggBoltTaskNumber && allReady) {//this.desMatMap.size() > this.maxTrackerLength) {
 
             collector.emit(STREAM_CACHE_CLEAN, new Values(frameId));
 
@@ -132,7 +132,8 @@ public class featureGeneratorAlpha extends BaseRichBolt {
                         mbhxVec[m] = 0;
                         mbhyVec[m] = 0;
                     }
-                    for (int t = 0; t < t_stride; t++, iDescIndex++) {
+                    for (int t = 0; t < t_stride; t++) {
+                        iDescIndex++;
                         int fID = frameId - trace.size() + 2 + iDescIndex;
                         DescMat[] desMat = desMatMap.get(fID);
                         DescMat mbhMatX = desMat[0];
@@ -163,9 +164,9 @@ public class featureGeneratorAlpha extends BaseRichBolt {
 //                        allFeatures[hogIndexSt + m] = hogVec[m] / (float) t_stride;
 //                        allFeatures[mbhxIndexSt + m] = mbhxVec[m] / (float) t_stride;
 //                        allFeatures[mbhyIndexSt + m] = mbhyVec[m] / (float) t_stride;
-                        hogFeatures[n * this.nt_cell + m] = hogVec[m] / (float) t_stride;
-                        mbhXFeatures[n * this.nt_cell + m] = mbhxVec[m] / (float) t_stride;
-                        mbhYFeatures[n * this.nt_cell + m] = mbhyVec[m] / (float) t_stride;
+                        hogFeatures[n * this.dimension + m] = hogVec[m] / (float) t_stride;
+                        mbhXFeatures[n * this.dimension + m] = mbhxVec[m] / (float) t_stride;
+                        mbhYFeatures[n * this.dimension + m] = mbhyVec[m] / (float) t_stride;
                     }
                 }
 
