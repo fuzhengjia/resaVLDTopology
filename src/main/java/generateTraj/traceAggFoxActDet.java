@@ -162,21 +162,23 @@ public class traceAggFoxActDet extends BaseRichBolt {
             }
 
             System.out.println("DeepInAgg, traceCnt: " + traceData.size() + ", frameID: " + frameId);
-            String debInfo = null;
-            for (Map.Entry<String, List<Serializable.CvPoint2D32f>> trace : traceData.entrySet()){
-                debInfo = "tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
-                for (int kk = 0; kk < trace.getValue().size(); kk ++){
-                    debInfo += "(" + trace.getValue().get(kk).x() + "," + trace.getValue().get(kk).y() + ")->";
-                }
-                System.out.println(debInfo);
-            }
 
+            int overLen = 0;
+            int overLenValid = 0;
             List<List<Serializable.CvPoint2D32f>> traceForFeatures = new ArrayList<>();
             for (Map.Entry<String, List<Serializable.CvPoint2D32f>> trace : traceData.entrySet()) {
                 int traceLen = trace.getValue().size();
                 if (traceLen > maxTrackerLength) {
+                    overLen ++;
                     if (helperFunctions.isValid(trace.getValue()) == 1){
                         traceForFeatures.add(trace.getValue());
+                        overLenValid ++;
+                        String debInfo = null;
+                            debInfo = "fID: " + frameId + ", tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
+                            for (int kk = 0; kk < trace.getValue().size(); kk ++){
+                                debInfo += "(" + trace.getValue().get(kk).x() + "," + trace.getValue().get(kk).y() + ")->";
+                            }
+                            System.out.println(debInfo);
                     }
                     traceToRemove.add(trace.getKey());
                 } else {
@@ -196,6 +198,7 @@ public class traceAggFoxActDet extends BaseRichBolt {
                     renewTraces.get(q % flowTrackerTasks.size()).add(fdPt);
                 }
             }
+            System.out.println("DeepInAgg, traceCntAfter: " + traceData.size() + ", frameID: " + frameId + ",ol: " + overLen + ",olv: " + overLenValid + ", toRenew: " + traceToRegisterCnt);
             collector.emit(STREAM_FEATURE_TRACE, new Values(frameId, traceForFeatures));
 
             for (int i = 0; i < flowTrackerTasks.size(); i ++){
