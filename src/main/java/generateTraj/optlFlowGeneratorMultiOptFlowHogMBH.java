@@ -81,7 +81,7 @@ public class optlFlowGeneratorMultiOptFlowHogMBH extends BaseRichBolt {
         DescMat mbhMatY = mbhMatXY[1];
         DescMat hogMat = HogComp(prev_grey_temp, hogInfo, width, height);
 
-        collector.emit(STREAM_FEATURE_FLOW, tuple, new Values(frameId, new DescMat[] {hogMat, mbhMatX, mbhMatY}));
+        collector.emit(STREAM_FEATURE_FLOW, tuple, new Values(frameId, new DescMat[] {mbhMatX, mbhMatY, hogMat}));
         collector.ack(tuple);
 
         cvRelease(grey_temp);
