@@ -98,7 +98,7 @@ public class featureGeneratorAlpha extends BaseRichBolt {
 
         //TODO: can we remove this check?
         boolean allReady = true;
-        for (int i = frameId - this.maxTrackerLength - 1; i < frameId; i++) {
+        for (int i = frameId - this.maxTrackerLength; i <= frameId; i++) {
             if (this.desMatMap.containsKey(i) == false) {
                 allReady = false;
             }
