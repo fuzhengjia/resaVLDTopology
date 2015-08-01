@@ -200,7 +200,7 @@ public class traceAggFoxActDet extends BaseRichBolt {
                         feedbackIndicators.add(ywx);
                     }
 
-                    int q = Math.min(Math.max(cvRound(point.y()), 0), height - 1);
+                    int q = Math.min(Math.max(cvFloor(point.y()), 0), height - 1);
                     renewTraces.get(q % flowTrackerTasks.size()).add(fdPt);
                 }
             }

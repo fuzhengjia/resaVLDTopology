@@ -26,6 +26,7 @@ import static topology.StormConfigManager.*;
  * 2. 第二个bug是在flowTracker里面，对新的trace， 会自动扔掉第一个点！！！
  * 2. 重写一些data structure
  * TODO:小心bug在OpticalFlowTracker里的函数：getNextFlowPointSimple, 为了和单机版一致，需要用cvFloor而不是cvRound！！！！
+ * 注意，还有traceGen里面也有！！！
  */
 public class tomTrajDisplayTopFoxActDet {
 

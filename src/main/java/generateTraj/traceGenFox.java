@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.cvPoint2D32f;
-import static org.bytedeco.javacpp.opencv_core.cvRound;
 import static tool.Constants.*;
 
 /**
@@ -170,7 +169,7 @@ public class traceGenFox extends BaseRichBolt {
                                     //System.out.println("traceID: " + traceID + ",tIDindex: " + tIDindex + ", totalValidCntList.Len: "  +totalValidCntList.length);
                                     totalValidCntList[tIDindex]++;
 
-                                    int q = Math.min(Math.max(cvRound(firstPt.y()), 0), height - 1);
+                                    int q = Math.min(Math.max(opencv_core.cvFloor(firstPt.y()), 0), height - 1);
                                     newTraces.get(q % flowTrackerTasks.size()).add(newTrace);
                                 }
                             }
