@@ -78,7 +78,7 @@ public class traceAggFoxActDet extends BaseRichBolt {
             Integer registerTraceCnt = tuple.getIntegerByField(FIELD_TRACE_CONTENT);
             TwoIntegers wh = (TwoIntegers) tuple.getValueByField(FIELD_WIDTH_HEIGHT);
 
-            System.out.println("DeepInAgg, registerCnt: " + registerTraceCnt + ", frameID: " + frameId);
+//            System.out.println("DeepInAgg, registerCnt: " + registerTraceCnt + ", frameID: " + frameId);
             newPointsWHInfo.computeIfAbsent(frameId, k -> new ArrayList<>()).add(wh);
             ///TODO: to deal with special case when registerTraceIDList is empty!!!
             if (frameId == 1 && !traceMonitor.containsKey(frameId)) {
@@ -162,13 +162,13 @@ public class traceAggFoxActDet extends BaseRichBolt {
             }
 
             System.out.println("DeepInAgg, traceCnt: " + traceData.size() + ", frameID: " + frameId);
-//            for (Map.Entry<String, List<Serializable.CvPoint2D32f>> trace : traceData.entrySet()) {
-//                String debInfo = "fID: " + frameId + ", tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
-//                for (int kk = 0; kk < trace.getValue().size(); kk ++){
-//                    debInfo += "(" + trace.getValue().get(kk).x() + "," + trace.getValue().get(kk).y() + ")->";
-//                }
-//                System.out.println(debInfo);
-//            }
+            for (Map.Entry<String, List<Serializable.CvPoint2D32f>> trace : traceData.entrySet()) {
+                String debInfo = "fID: " + frameId + ", tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
+                for (int kk = 0; kk < trace.getValue().size(); kk ++){
+                    debInfo += "(" + trace.getValue().get(kk).x() + "," + trace.getValue().get(kk).y() + ")->";
+                }
+                System.out.println(debInfo);
+            }
             int overLen = 0;
             int overLenValid = 0;
             List<List<Serializable.CvPoint2D32f>> traceForFeatures = new ArrayList<>();
@@ -178,13 +178,13 @@ public class traceAggFoxActDet extends BaseRichBolt {
                     overLen ++;
                     if (helperFunctions.isValid(trace.getValue()) == 1) {
                         traceForFeatures.add(trace.getValue());
-                        overLenValid++;
-                        String debInfo = null;
-                        debInfo = "fID: " + frameId + ", tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
-                        for (int kk = 0; kk < trace.getValue().size(); kk++) {
-                            debInfo += "(" + trace.getValue().get(kk).x() + "," + trace.getValue().get(kk).y() + ")->";
-                        }
-                        System.out.println(debInfo);
+//                        overLenValid++;
+//                        String debInfo = null;
+//                        debInfo = "fID: " + frameId + ", tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
+//                        for (int kk = 0; kk < trace.getValue().size(); kk++) {
+//                            debInfo += "(" + trace.getValue().get(kk).x() + "," + trace.getValue().get(kk).y() + ")->";
+//                        }
+//                        System.out.println(debInfo);
                     }
                     traceToRemove.add(trace.getKey());
                 } else {
@@ -196,12 +196,7 @@ public class traceAggFoxActDet extends BaseRichBolt {
                     int y = cvFloor(point.y() / min_distance);
                     int ywx = y * width + x;
 
-                    //if (point.x() < min_distance * width && point.y() < min_distance * height) {
-                    //    feedbackIndicators.add(ywx);
-                    //}
-                    if (point.x() >= min_distance * width || point.y() >= min_distance * height) {
-
-                    } else {
+                    if (point.x() < min_distance * width && point.y() < min_distance * height) {
                         feedbackIndicators.add(ywx);
                     }
 
@@ -209,7 +204,7 @@ public class traceAggFoxActDet extends BaseRichBolt {
                     renewTraces.get(q % flowTrackerTasks.size()).add(fdPt);
                 }
             }
-            System.out.println("DeepInAgg, traceCntAfter: " + traceData.size() + ", frameID: " + frameId + ",ol: " + overLen + ",olv: " + overLenValid + ", toRenew: " + traceToRegisterCnt);
+//            System.out.println("DeepInAgg, traceCntAfter: " + traceData.size() + ", frameID: " + frameId + ",ol: " + overLen + ",olv: " + overLenValid + ", toRenew: " + traceToRegisterCnt);
             collector.emit(STREAM_FEATURE_TRACE, new Values(frameId, traceForFeatures));
 
             for (int i = 0; i < flowTrackerTasks.size(); i++) {
