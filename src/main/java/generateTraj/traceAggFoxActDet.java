@@ -178,7 +178,7 @@ public class traceAggFoxActDet extends BaseRichBolt {
                     overLen ++;
                     if (helperFunctions.isValid(trace.getValue()) == 1) {
                         traceForFeatures.add(trace.getValue());
-//                        overLenValid++;
+                        overLenValid++;
 //                        String debInfo = null;
 //                        debInfo = "fID: " + frameId + ", tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
 //                        for (int kk = 0; kk < trace.getValue().size(); kk++) {
