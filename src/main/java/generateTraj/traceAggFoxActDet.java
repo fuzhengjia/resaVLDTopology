@@ -77,8 +77,9 @@ public class traceAggFoxActDet extends BaseRichBolt {
         } else if (streamId.equals(STREAM_REGISTER_TRACE)) {
             Integer registerTraceCnt = tuple.getIntegerByField(FIELD_TRACE_CONTENT);
             TwoIntegers wh = (TwoIntegers) tuple.getValueByField(FIELD_WIDTH_HEIGHT);
-            newPointsWHInfo.computeIfAbsent(frameId, k -> new ArrayList<>()).add(wh);
 
+            System.out.println("DeepInAgg, registerCnt: " + registerTraceCnt + ", frameID: " + frameId);
+            newPointsWHInfo.computeIfAbsent(frameId, k -> new ArrayList<>()).add(wh);
             ///TODO: to deal with special case when registerTraceIDList is empty!!!
             if (frameId == 1 && !traceMonitor.containsKey(frameId)) {
                 traceMonitor.put(frameId, 0);
@@ -158,6 +159,14 @@ public class traceAggFoxActDet extends BaseRichBolt {
             List<List<TraceMetaAndLastPoint>> renewTraces = new ArrayList<>();
             for (int i = 0; i < flowTrackerTasks.size(); i ++){
                 renewTraces.add(new ArrayList<>());
+            }
+
+            System.out.println("DeepInAgg, traceCnt: " + traceData.size() + ", frameID: " + frameId);
+            for (Map.Entry<String, List<Serializable.CvPoint2D32f>> trace : traceData.entrySet()){
+                for (int kk = 0; kk < trace.getValue().size(); kk ++){
+                    System.out.print("(" + trace.getValue().get(kk).x() + "," + trace.getValue().get(kk).y() + ") ");
+                }
+                System.out.println();
             }
 
             List<List<Serializable.CvPoint2D32f>> traceForFeatures = new ArrayList<>();
