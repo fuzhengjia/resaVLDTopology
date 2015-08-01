@@ -196,7 +196,12 @@ public class traceAggFoxActDet extends BaseRichBolt {
                     int y = cvFloor(point.y() / min_distance);
                     int ywx = y * width + x;
 
-                    if (point.x() < min_distance * width && point.y() < min_distance * height) {
+                    //if (point.x() < min_distance * width && point.y() < min_distance * height) {
+                    //    feedbackIndicators.add(ywx);
+                    //}
+                    if (point.x() >= min_distance * width || point.y() >= min_distance * height) {
+
+                    } else {
                         feedbackIndicators.add(ywx);
                     }
 
