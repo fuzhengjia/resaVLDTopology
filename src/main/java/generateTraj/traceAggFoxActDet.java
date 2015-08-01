@@ -71,7 +71,7 @@ public class traceAggFoxActDet extends BaseRichBolt {
         IplImage fk = new IplImage();
 
         if (streamId.equals(STREAM_EXIST_REMOVE_TRACE)) {
-            List<Object> messages = (List<Object>)tuple.getValueByField(FIELD_TRACE_CONTENT);
+            List<Object> messages = (List<Object>) tuple.getValueByField(FIELD_TRACE_CONTENT);
             messageQueue.computeIfAbsent(frameId, k -> new LinkedList<>()).addAll(messages);
 
         } else if (streamId.equals(STREAM_REGISTER_TRACE)) {
@@ -132,9 +132,9 @@ public class traceAggFoxActDet extends BaseRichBolt {
             } else if (m instanceof String) {
                 String traceID2Remove = (String) m;
                 traceData.computeIfPresent(traceID2Remove, (k, v) -> traceData.remove(k));
-            } else if (m instanceof NewTraceMeta){
+            } else if (m instanceof NewTraceMeta) {
                 ///TODO: caution we have modified here!!!
-                NewTraceMeta trace = (NewTraceMeta)m;
+                NewTraceMeta trace = (NewTraceMeta) m;
                 if (traceData.containsKey(trace.traceID)) {
                     throw new IllegalArgumentException("traceID already exist!, frameId: " + frameId + ", traceID: " + trace.traceID);
                 }
@@ -157,11 +157,11 @@ public class traceAggFoxActDet extends BaseRichBolt {
             int nextFrameID = frameId + 1;
 
             List<List<TraceMetaAndLastPoint>> renewTraces = new ArrayList<>();
-            for (int i = 0; i < flowTrackerTasks.size(); i ++){
+            for (int i = 0; i < flowTrackerTasks.size(); i++) {
                 renewTraces.add(new ArrayList<>());
             }
 
-            System.out.println("DeepInAgg, traceCnt: " + traceData.size() + ", frameID: " + frameId);
+//            System.out.println("DeepInAgg, traceCnt: " + traceData.size() + ", frameID: " + frameId);
 //            for (Map.Entry<String, List<Serializable.CvPoint2D32f>> trace : traceData.entrySet()) {
 //                String debInfo = "fID: " + frameId + ", tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
 //                for (int kk = 0; kk < trace.getValue().size(); kk ++){
@@ -169,22 +169,22 @@ public class traceAggFoxActDet extends BaseRichBolt {
 //                }
 //                System.out.println(debInfo);
 //            }
-            int overLen = 0;
-            int overLenValid = 0;
+//            int overLen = 0;
+//            int overLenValid = 0;
             List<List<Serializable.CvPoint2D32f>> traceForFeatures = new ArrayList<>();
             for (Map.Entry<String, List<Serializable.CvPoint2D32f>> trace : traceData.entrySet()) {
                 int traceLen = trace.getValue().size();
                 if (traceLen > maxTrackerLength) {
-                    overLen ++;
-                    if (helperFunctions.isValid(trace.getValue()) == 1){
+//                    overLen ++;
+                    if (helperFunctions.isValid(trace.getValue()) == 1) {
                         traceForFeatures.add(trace.getValue());
-                        overLenValid ++;
-                        String debInfo = null;
-                            debInfo = "fID: " + frameId + ", tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
-                            for (int kk = 0; kk < trace.getValue().size(); kk ++){
-                                debInfo += "(" + trace.getValue().get(kk).x() + "," + trace.getValue().get(kk).y() + ")->";
-                            }
-                            System.out.println(debInfo);
+//                        overLenValid++;
+//                        String debInfo = null;
+//                        debInfo = "fID: " + frameId + ", tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
+//                        for (int kk = 0; kk < trace.getValue().size(); kk++) {
+//                            debInfo += "(" + trace.getValue().get(kk).x() + "," + trace.getValue().get(kk).y() + ")->";
+//                        }
+//                        System.out.println(debInfo);
                     }
                     traceToRemove.add(trace.getKey());
                 } else {
@@ -204,10 +204,10 @@ public class traceAggFoxActDet extends BaseRichBolt {
                     renewTraces.get(q % flowTrackerTasks.size()).add(fdPt);
                 }
             }
-            System.out.println("DeepInAgg, traceCntAfter: " + traceData.size() + ", frameID: " + frameId + ",ol: " + overLen + ",olv: " + overLenValid + ", toRenew: " + traceToRegisterCnt);
+//            System.out.println("DeepInAgg, traceCntAfter: " + traceData.size() + ", frameID: " + frameId + ",ol: " + overLen + ",olv: " + overLenValid + ", toRenew: " + traceToRegisterCnt);
             collector.emit(STREAM_FEATURE_TRACE, new Values(frameId, traceForFeatures));
 
-            for (int i = 0; i < flowTrackerTasks.size(); i ++){
+            for (int i = 0; i < flowTrackerTasks.size(); i++) {
                 int tID = flowTrackerTasks.get(i);
                 collector.emitDirect(tID, STREAM_RENEW_TRACE, new Values(nextFrameID, renewTraces.get(i)));
             }
@@ -222,7 +222,7 @@ public class traceAggFoxActDet extends BaseRichBolt {
                 collector.emit(STREAM_INDICATOR_TRACE, new Values(frameId, feedbackIndicators));
             } else {
                 List<TwoIntegers> empty = new ArrayList<>();
-                for (int i = 0; i < traceGenBoltTaskNumber; i++){
+                for (int i = 0; i < traceGenBoltTaskNumber; i++) {
                     empty.add(new TwoIntegers(wh.getV1(), wh.getV2()));
                 }
                 newPointsWHInfo.put(nextFrameID, empty);
