@@ -118,14 +118,14 @@ public class featureGeneratorAlpha extends BaseRichBolt {
                     throw new IllegalArgumentException("trace.size() != this.maxTrackerLength + 1, trace.size() = " + trace.size());
                 }
 
-                String debInfo = "fID: " + frameId + ", len: " + trace.size() + "-";
-                for (int kk = 0; kk < trace.size(); kk++) {
-                    debInfo += "(" + trace.get(kk).x() + "," + trace.get(kk).y() + ")->";
-                }
-
-                String mbhXStr = "mbhX->";
-                String mbhYStr = "mbhY->";
-                String hogStr = "hog->";
+//                String debInfo = "fID: " + frameId + ", len: " + trace.size() + "-";
+//                for (int kk = 0; kk < trace.size(); kk++) {
+//                    debInfo += "(" + trace.get(kk).x() + "," + trace.get(kk).y() + ")->";
+//                }
+//
+//                String mbhXStr = "mbhX->";
+//                String mbhYStr = "mbhY->";
+//                String hogStr = "hog->";
                 float[] hogFeatures = new float[this.nt_cell * this.dimension];
                 float[] mbhXFeatures = new float[this.nt_cell * this.dimension];
                 float[] mbhYFeatures = new float[this.nt_cell * this.dimension];
@@ -151,9 +151,9 @@ public class featureGeneratorAlpha extends BaseRichBolt {
                         float[] mbhX = helperFunctions.getDesc(mbhMatX, rect, mbhInfo);
                         float[] mbhY = helperFunctions.getDesc(mbhMatY, rect, mbhInfo);
                         float[] hog = helperFunctions.getDesc(hogMat, rect, hogInfo);
-                        mbhXStr += mbhX[0] + "->";
-                        mbhYStr += mbhY[0] + "->";
-                        hogStr += hog[0] + "->";
+//                        mbhXStr += mbhX[0] + "->";
+//                        mbhYStr += mbhY[0] + "->";
+//                        hogStr += hog[0] + "->";
 
                         for (int m = 0; m < this.dimension; m++) {
                             hogVec[m] += hog[m];
@@ -180,7 +180,7 @@ public class featureGeneratorAlpha extends BaseRichBolt {
                     }
                 }
 
-                System.out.println(debInfo + mbhXStr + mbhYStr + hogStr);
+//                System.out.println(debInfo + mbhXStr + mbhYStr + hogStr);
                 if (allFeatures.length != 288) {
                     throw new IllegalArgumentException("allFeatures.length != 288");
                 }
