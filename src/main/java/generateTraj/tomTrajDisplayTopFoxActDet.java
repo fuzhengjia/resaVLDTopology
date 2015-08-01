@@ -25,6 +25,7 @@ import static topology.StormConfigManager.*;
  * 1. 应该由preFrame产生newTrace到当前的optFrame来更新，这个版本里面尝试解决这个问题
  * 2. 第二个bug是在flowTracker里面，对新的trace， 会自动扔掉第一个点！！！
  * 2. 重写一些data structure
+ * TODO:小心bug在OpticalFlowTracker里的函数：getNextFlowPointSimple, 为了和单机版一致，需要用cvFloor而不是cvRound！！！！
  */
 public class tomTrajDisplayTopFoxActDet {
 
