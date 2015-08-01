@@ -180,11 +180,12 @@ public class optFlowTrackerFoxSimple extends BaseRichBolt {
         int width = flow.width();
         int height = flow.height();
 
-        //int p = Math.min(Math.max(cvFloor(point_in.x()), 0), width - 1);
-        //int q = Math.min(Math.max(cvFloor(point_in.y()), 0), height - 1);
+        //TODO:!!!!be careful!!!
+        int p = Math.min(Math.max(cvFloor(point_in.x()), 0), width - 1);
+        int q = Math.min(Math.max(cvFloor(point_in.y()), 0), height - 1);
 
-        int p = Math.min(Math.max(cvRound(point_in.x()), 0), width - 1);
-        int q = Math.min(Math.max(cvRound(point_in.y()), 0), height - 1);
+        //int p = Math.min(Math.max(cvRound(point_in.x()), 0), width - 1);
+        //int q = Math.min(Math.max(cvRound(point_in.y()), 0), height - 1);
 
         FloatBuffer floatBuffer = flow.getByteBuffer(q * flow.widthStep()).asFloatBuffer();
         int xsIndex = 2 * p;
