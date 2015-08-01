@@ -78,7 +78,7 @@ public class traceAggFoxActDet extends BaseRichBolt {
             Integer registerTraceCnt = tuple.getIntegerByField(FIELD_TRACE_CONTENT);
             TwoIntegers wh = (TwoIntegers) tuple.getValueByField(FIELD_WIDTH_HEIGHT);
 
-//            System.out.println("DeepInAgg, registerCnt: " + registerTraceCnt + ", frameID: " + frameId);
+            System.out.println("DeepInAgg, registerCnt: " + registerTraceCnt + ", frameID: " + frameId);
             newPointsWHInfo.computeIfAbsent(frameId, k -> new ArrayList<>()).add(wh);
             ///TODO: to deal with special case when registerTraceIDList is empty!!!
             if (frameId == 1 && !traceMonitor.containsKey(frameId)) {
@@ -204,7 +204,7 @@ public class traceAggFoxActDet extends BaseRichBolt {
                     renewTraces.get(q % flowTrackerTasks.size()).add(fdPt);
                 }
             }
-//            System.out.println("DeepInAgg, traceCntAfter: " + traceData.size() + ", frameID: " + frameId + ",ol: " + overLen + ",olv: " + overLenValid + ", toRenew: " + traceToRegisterCnt);
+            System.out.println("DeepInAgg, traceCntAfter: " + traceData.size() + ", frameID: " + frameId + ",ol: " + overLen + ",olv: " + overLenValid + ", toRenew: " + traceToRegisterCnt);
             collector.emit(STREAM_FEATURE_TRACE, new Values(frameId, traceForFeatures));
 
             for (int i = 0; i < flowTrackerTasks.size(); i++) {
