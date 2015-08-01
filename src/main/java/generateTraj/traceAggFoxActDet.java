@@ -164,7 +164,7 @@ public class traceAggFoxActDet extends BaseRichBolt {
             System.out.println("DeepInAgg, traceCnt: " + traceData.size() + ", frameID: " + frameId);
             String debInfo = null;
             for (Map.Entry<String, List<Serializable.CvPoint2D32f>> trace : traceData.entrySet()){
-                debInfo += "tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
+                debInfo = "tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
                 for (int kk = 0; kk < trace.getValue().size(); kk ++){
                     debInfo += "(" + trace.getValue().get(kk).x() + "," + trace.getValue().get(kk).y() + ")->";
                 }
