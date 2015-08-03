@@ -52,11 +52,11 @@ public class tomTrajDisplayTopFoxActDetSimpleCase {
         builder.setSpout(spoutName, new FrameImplImageSourceGamma(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
-        builder.setBolt(imgPrepareBolt, new imagePrepareFox(traceGenBolt), getInt(conf, imgPrepareBolt + ".parallelism"))
+        builder.setBolt(imgPrepareBolt, new imagePrepareFoxSimple(traceGenBolt), getInt(conf, imgPrepareBolt + ".parallelism"))
                 .shuffleGrouping(spoutName, STREAM_FRAME_OUTPUT)
                 .setNumTasks(getInt(conf, imgPrepareBolt + ".tasks"));
 
-        builder.setBolt(optFlowGenBolt, new optlFlowGeneratorMultiOptFlowHogMBH(), getInt(conf, optFlowGenBolt + ".parallelism"))
+        builder.setBolt(optFlowGenBolt, new optlFlowGeneratorMultiOptFlowHogMBHSimple(), getInt(conf, optFlowGenBolt + ".parallelism"))
                 .shuffleGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
