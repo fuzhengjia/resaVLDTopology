@@ -101,15 +101,17 @@ public class imagePrepareFoxSimple extends BaseRichBolt {
 
         cvCopy(frame, image, null);
         opencv_imgproc.cvCvtColor(image, grey, opencv_imgproc.CV_BGR2GRAY);
-        grey_pyramid.rebuild(grey);
-        IplImage grey_temp = cvCloneImage(grey_pyramid.getImage(ixyScale));
+//        grey_pyramid.rebuild(grey);
+//        IplImage grey_temp = cvCloneImage(grey_pyramid.getImage(ixyScale));
+        IplImage grey_temp = cvCloneImage(grey);
         Mat gMat = new Mat(grey_temp);
         Serializable.Mat sgMat = new Serializable.Mat(gMat);
 
         cvCopy(framePrev, prev_image, null);
         opencv_imgproc.cvCvtColor(prev_image, prev_grey, opencv_imgproc.CV_BGR2GRAY);
-        prev_grey_pyramid.rebuild(prev_grey);
-        IplImage prev_grey_temp = cvCloneImage(prev_grey_pyramid.getImage(ixyScale));
+//        prev_grey_pyramid.rebuild(prev_grey);
+//        IplImage prev_grey_temp = cvCloneImage(prev_grey_pyramid.getImage(ixyScale));
+        IplImage prev_grey_temp = cvCloneImage(prev_grey);
         Mat gMatPrev = new Mat(prev_grey_temp);
         Serializable.Mat sgMatPrev = new Serializable.Mat(gMatPrev);
 
@@ -166,8 +168,8 @@ public class imagePrepareFoxSimple extends BaseRichBolt {
             }
             cvReleaseImage(eig_temp);
         }
-        cvReleaseImage(prev_grey_temp);
-        cvReleaseImage(grey_temp);
+        //cvReleaseImage(prev_grey_temp);
+        //cvReleaseImage(grey_temp);
         collector.ack(tuple);
     }
 
