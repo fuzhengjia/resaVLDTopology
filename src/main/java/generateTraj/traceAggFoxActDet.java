@@ -161,14 +161,14 @@ public class traceAggFoxActDet extends BaseRichBolt {
                 renewTraces.add(new ArrayList<>());
             }
 
-            System.out.println("DeepInAgg, traceCnt: " + traceData.size() + ", frameID: " + frameId);
-            for (Map.Entry<String, List<Serializable.CvPoint2D32f>> trace : traceData.entrySet()) {
-                String debInfo = "fID: " + frameId + ", tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
-                for (int kk = 0; kk < trace.getValue().size(); kk ++){
-                    debInfo += "(" + trace.getValue().get(kk).x() + "," + trace.getValue().get(kk).y() + ")->";
-                }
-                System.out.println(debInfo);
-            }
+//            System.out.println("DeepInAgg, traceCnt: " + traceData.size() + ", frameID: " + frameId);
+//            for (Map.Entry<String, List<Serializable.CvPoint2D32f>> trace : traceData.entrySet()) {
+//                String debInfo = "fID: " + frameId + ", tID: " + trace.getKey() + ", len: " + trace.getValue().size() + "-";
+//                for (int kk = 0; kk < trace.getValue().size(); kk ++){
+//                    debInfo += "(" + trace.getValue().get(kk).x() + "," + trace.getValue().get(kk).y() + ")->";
+//                }
+//                System.out.println(debInfo);
+//            }
             int overLen = 0;
             int overLenValid = 0;
             List<List<Serializable.CvPoint2D32f>> traceForFeatures = new ArrayList<>();

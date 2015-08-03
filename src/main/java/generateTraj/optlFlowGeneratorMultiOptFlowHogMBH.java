@@ -124,6 +124,12 @@ public class optlFlowGeneratorMultiOptFlowHogMBH extends BaseRichBolt {
         System.out.println("(" + point_in.x() + "," +point_in.y() + "," + p + "," + q + "," + xsIndex + "," + ysIndex
                 + "," +  floatBuffer.get(xsIndex) + "," + floatBuffer.get(ysIndex) + ")->(" + + point_out.x() + "," + point_out.y() + ")");
 
+        System.out.print("Line: " + q + ":");
+        for (int t = 0; t < width - 1; t ++){
+            System.out.print(floatBuffer.get(t * 2) + "," + floatBuffer.get(t * 2 + 1) + "->");
+        }
+        System.out.println();
+
         if (point_out.x() > 0 && point_out.x() < width && point_out.y() > 0 && point_out.y() < height) {
             return point_out;
         } else {

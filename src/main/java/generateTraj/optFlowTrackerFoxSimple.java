@@ -199,8 +199,8 @@ public class optFlowTrackerFoxSimple extends BaseRichBolt {
         point_out.x(point_in.x() + floatBuffer.get(xsIndex));
         point_out.y(point_in.y() + floatBuffer.get(ysIndex));
 
-        System.out.println("(" + point_in.x() + "," +point_in.y() + "," + p + "," + q + "," + xsIndex + "," + ysIndex
-                 + "," +  floatBuffer.get(xsIndex) + "," + floatBuffer.get(ysIndex) + ")->(" + + point_out.x() + "," + point_out.y() + ")");
+//        System.out.println("(" + point_in.x() + "," +point_in.y() + "," + p + "," + q + "," + xsIndex + "," + ysIndex
+//                 + "," +  floatBuffer.get(xsIndex) + "," + floatBuffer.get(ysIndex) + ")->(" + + point_out.x() + "," + point_out.y() + ")");
 
         if (point_out.x() > 0 && point_out.x() < width && point_out.y() > 0 && point_out.y() < height) {
             return point_out;
