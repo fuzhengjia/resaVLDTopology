@@ -88,7 +88,7 @@ public class optlFlowGeneratorMultiOptFlowHogMBH extends BaseRichBolt {
         Serializable.CvPoint2D32f p = new Serializable.CvPoint2D32f();
         p.x(95.69521f);
         p.y(21.003756f);
-        getNextFlowPointSimple(flow, p);
+        getNextFlowPointSimple(flow, p, frameId);
 
         cvRelease(grey_temp);
         cvRelease(prev_grey_temp);
@@ -101,7 +101,7 @@ public class optlFlowGeneratorMultiOptFlowHogMBH extends BaseRichBolt {
         outputFieldsDeclarer.declareStream(STREAM_FEATURE_FLOW, new Fields(FIELD_FRAME_ID, FIELD_MBH_HOG_MAT));
     }
 
-    public Serializable.CvPoint2D32f getNextFlowPointSimple(IplImage flow, Serializable.CvPoint2D32f point_in) {
+    public Serializable.CvPoint2D32f getNextFlowPointSimple(IplImage flow, Serializable.CvPoint2D32f point_in, int fID) {
 
         int width = flow.width();
         int height = flow.height();
@@ -124,7 +124,7 @@ public class optlFlowGeneratorMultiOptFlowHogMBH extends BaseRichBolt {
         System.out.println("(" + point_in.x() + "," +point_in.y() + "," + p + "," + q + "," + xsIndex + "," + ysIndex
                 + "," +  floatBuffer.get(xsIndex) + "," + floatBuffer.get(ysIndex) + ")->(" + + point_out.x() + "," + point_out.y() + ")");
 
-        System.out.print("Line: " + q + ":");
+        System.out.print("fID: " + fID + ", Line: " + q + ":");
         for (int t = 0; t < width - 1; t ++){
             System.out.print(floatBuffer.get(t * 2) + "," + floatBuffer.get(t * 2 + 1) + "->");
         }
