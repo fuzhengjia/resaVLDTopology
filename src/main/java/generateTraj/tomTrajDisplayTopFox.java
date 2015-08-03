@@ -8,7 +8,7 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import showTraj.RedisFrameOutput;
-import tool.FrameImplImageSourceGamma;
+import tool.FrameImplImageSourceFox;
 import topology.Serializable;
 import util.ConfigUtil;
 
@@ -51,7 +51,7 @@ public class tomTrajDisplayTopFox {
         String frameDisplay = "TrajDisplay";
         String redisFrameOut = "RedisFrameOut";
 
-        builder.setSpout(spoutName, new FrameImplImageSourceGamma(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new FrameImplImageSourceFox(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(imgPrepareBolt, new imagePrepareFox(traceGenBolt), getInt(conf, imgPrepareBolt + ".parallelism"))
@@ -88,7 +88,7 @@ public class tomTrajDisplayTopFox {
                 .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
 
-        builder.setBolt(redisFrameOut, new RedisFrameOutput(), getInt(conf, redisFrameOut + ".parallelism"))
+        builder.setBolt(redisFrameOut, new RedisFrameOutputFox(), getInt(conf, redisFrameOut + ".parallelism"))
                 .globalGrouping(frameDisplay, STREAM_FRAME_DISPLAY)
                 .setNumTasks(getInt(conf, redisFrameOut + ".tasks"));
 

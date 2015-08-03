@@ -469,4 +469,55 @@ public class Serializable {
             return this.identifier.hashCode();
         }
     }
+
+    public static byte[] CvMat2ByteArray(opencv_core.Mat mat) {
+        if (!mat.isContinuous()) {
+            mat = mat.clone();
+        }
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out = null;
+        try {
+            out = new ObjectOutputStream(bos);
+            out.writeInt(mat.rows());
+            out.writeInt(mat.cols());
+            out.writeInt(mat.type());
+            out.writeInt(mat.arraySize());
+
+            byte[] data = new byte[mat.arraySize()];
+            mat.getByteBuffer().get(data);
+            out.write(data);
+            out.close();
+            byte[] int_bytes = bos.toByteArray();
+            bos.close();
+
+            //System.out.println("out: " + this.rows + "-" + this.cols + "-" + this.type + "-" + this.data.length + "-" + int_bytes.length);
+            return int_bytes;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static opencv_core.Mat ByteArray2CvMat(byte[] input){
+        ByteArrayInputStream bis = new ByteArrayInputStream(input);
+        ObjectInput in = null;
+        try {
+            in = new ObjectInputStream(bis);
+            int rows = in.readInt();
+            int cols = in.readInt();
+            int type = in.readInt();
+            int size = in.readInt();
+            byte[] data = new byte[size];
+            int readed = 0;
+            while (readed < size) {
+                readed += in.read(data, readed, size - readed);
+            }
+
+            return new opencv_core.Mat(rows, cols, type, new BytePointer(data));
+//            System.out.println("in: " + this.rows + "-" + this.cols + "-" + this.type + "-" + input.length + "-" + size + "-" + readed);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

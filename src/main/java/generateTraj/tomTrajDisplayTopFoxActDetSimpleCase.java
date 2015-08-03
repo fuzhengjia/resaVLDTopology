@@ -6,7 +6,7 @@ import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
-import tool.FrameImplImageSourceGamma;
+import tool.FrameImplImageSourceFox;
 import topology.Serializable;
 import util.ConfigUtil;
 
@@ -49,7 +49,7 @@ public class tomTrajDisplayTopFoxActDetSimpleCase {
         String frameDisplay = "TrajDisplay";
         String redisFrameOut = "RedisFrameOut";
 
-        builder.setSpout(spoutName, new FrameImplImageSourceGamma(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
+        builder.setSpout(spoutName, new FrameImplImageSourceFox(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(imgPrepareBolt, new imagePrepareFoxSimple(traceGenBolt), getInt(conf, imgPrepareBolt + ".parallelism"))
