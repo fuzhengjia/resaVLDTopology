@@ -5,7 +5,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_imgproc;
 import topology.Serializable;
 import util.ConfigUtil;
@@ -13,7 +13,6 @@ import util.ConfigUtil;
 import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.*;
-import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;
 import static tool.Constants.*;
 
 /**
@@ -26,7 +25,6 @@ import static tool.Constants.*;
 public class FrameImplImageSourceFox extends RedisQueueSpout {
 
     private int frameId;
-    //private String idPrefix;
     private int nChannel;
     private int nDepth;
     private int inHeight;
@@ -61,14 +59,14 @@ public class FrameImplImageSourceFox extends RedisQueueSpout {
         byte[] imgBytes = (byte[]) data;
 
         try {
-
+            IplImage fkImage = new IplImage();
             Serializable.Mat revMat = new Serializable.Mat(imgBytes);
 
             IplImage image = revMat.toJavaCVMat().asIplImage();
             IplImage frame = cvCreateImage(cvSize(inWidth, inHeight), nDepth, nChannel);
             opencv_imgproc.cvResize(image, frame, opencv_imgproc.CV_INTER_AREA);
 
-            Mat mat = new Mat(image);
+            opencv_core.Mat mat = new opencv_core.Mat(frame);
             Serializable.Mat sMat = new Serializable.Mat(mat);
 
             if (frameId > 0 && sMatPrev != null){
