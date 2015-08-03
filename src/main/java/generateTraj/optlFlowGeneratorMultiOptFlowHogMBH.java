@@ -10,6 +10,7 @@ import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.opencv_video;
 import topology.Serializable;
 
+import java.nio.FloatBuffer;
 import java.util.Map;
 
 import static generateTraj.helperFunctions.HogComp;
@@ -84,6 +85,11 @@ public class optlFlowGeneratorMultiOptFlowHogMBH extends BaseRichBolt {
         collector.emit(STREAM_FEATURE_FLOW, tuple, new Values(frameId, new DescMat[] {mbhMatX, mbhMatY, hogMat}));
         collector.ack(tuple);
 
+        Serializable.CvPoint2D32f p = new Serializable.CvPoint2D32f();
+        p.x(95.69521f);
+        p.y(21.003756f);
+        getNextFlowPointSimple(flow, p);
+
         cvRelease(grey_temp);
         cvRelease(prev_grey_temp);
         cvRelease(flow);
@@ -93,5 +99,35 @@ public class optlFlowGeneratorMultiOptFlowHogMBH extends BaseRichBolt {
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_OPT_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
         outputFieldsDeclarer.declareStream(STREAM_FEATURE_FLOW, new Fields(FIELD_FRAME_ID, FIELD_MBH_HOG_MAT));
+    }
+
+    public Serializable.CvPoint2D32f getNextFlowPointSimple(IplImage flow, Serializable.CvPoint2D32f point_in) {
+
+        int width = flow.width();
+        int height = flow.height();
+
+        //TODO:!!!!be careful!!!
+        int p = Math.min(Math.max(cvFloor(point_in.x()), 0), width - 1);
+        int q = Math.min(Math.max(cvFloor(point_in.y()), 0), height - 1);
+
+        //int p = Math.min(Math.max(cvRound(point_in.x()), 0), width - 1);
+        //int q = Math.min(Math.max(cvRound(point_in.y()), 0), height - 1);
+
+        FloatBuffer floatBuffer = flow.getByteBuffer(q * flow.widthStep()).asFloatBuffer();
+        int xsIndex = 2 * p;
+        int ysIndex = 2 * p + 1;
+
+        Serializable.CvPoint2D32f point_out = new Serializable.CvPoint2D32f();
+        point_out.x(point_in.x() + floatBuffer.get(xsIndex));
+        point_out.y(point_in.y() + floatBuffer.get(ysIndex));
+
+        System.out.println("(" + point_in.x() + "," +point_in.y() + "," + p + "," + q + "," + xsIndex + "," + ysIndex
+                + "," +  floatBuffer.get(xsIndex) + "," + floatBuffer.get(ysIndex) + ")->(" + + point_out.x() + "," + point_out.y() + ")");
+
+        if (point_out.x() > 0 && point_out.x() < width && point_out.y() > 0 && point_out.y() < height) {
+            return point_out;
+        } else {
+            return null;
+        }
     }
 }

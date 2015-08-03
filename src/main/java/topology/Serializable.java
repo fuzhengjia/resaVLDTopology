@@ -76,14 +76,14 @@ public class Serializable {
             this.cols = mat.cols();
             this.type = mat.type();
             int size = mat.arraySize();
-//            this.data = new byte[size];
-//            mat.getByteBuffer().get(this.data);
-
-            ByteBuffer bb = mat.getByteBuffer();
-            bb.rewind();
             this.data = new byte[size];
-            while (bb.hasRemaining())  // should happen only once
-                bb.get(this.data);
+            mat.getByteBuffer().get(this.data);
+
+//            ByteBuffer bb = mat.getByteBuffer();
+//            bb.rewind();
+//            this.data = new byte[size];
+//            while (bb.hasRemaining())  // should happen only once
+//                bb.get(this.data);
         }
 
         /**
