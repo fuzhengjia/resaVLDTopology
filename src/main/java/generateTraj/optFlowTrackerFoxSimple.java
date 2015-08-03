@@ -106,6 +106,8 @@ public class optFlowTrackerFoxSimple extends BaseRichBolt {
                 if (pointOut != null) {
                     TraceMetaAndLastPoint traceNext = new TraceMetaAndLastPoint(trace.traceID, pointOut);
                     messages.get(index).add(traceNext);
+                    System.out.println("fID: " + frameId + ", (" + trace.lastPoint.x() + "," +trace.lastPoint.y()
+                            + ")->(" + + pointOut.x() + "," + pointOut.y() + ")");
                 } else {
                     messages.get(index).add(trace.traceID);
                 }
@@ -116,6 +118,8 @@ public class optFlowTrackerFoxSimple extends BaseRichBolt {
                 if (pointOut != null) {
                     NewTraceMeta traceNext = new NewTraceMeta(trace.traceID, trace.firstPoint, pointOut);
                     messages.get(index).add(traceNext);
+                    System.out.println("fID: " + frameId + ", (" + trace.firstPoint.x() + "," +trace.firstPoint.y()
+                            + ")->(" + + pointOut.x() + "," + pointOut.y() + ")");
                 } else {
                     messages.get(index).add(trace.traceID);
                 }
