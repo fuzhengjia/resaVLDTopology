@@ -55,13 +55,9 @@ public class optlFlowGeneratorMultiOptFlowHogMBHSimple extends BaseRichBolt {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
         IplImage imageFK = new IplImage();
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-        //this.grey = sMat.toJavaCVMat().asIplImage();
-        //IplImage grey_temp = cvCloneImage(this.grey);
         IplImage grey_temp = cvCloneImage(sMat.toJavaCVMat().asIplImage());
 
         Serializable.Mat sMatPrev = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT_PREV);
-        //this.prev_grey = sMatPrev.toJavaCVMat().asIplImage();
-        //IplImage prev_grey_temp = cvCloneImage(this.prev_grey);
         IplImage prev_grey_temp = cvCloneImage(sMatPrev.toJavaCVMat().asIplImage());
 
         IplImage flow = cvCreateImage(cvGetSize(grey_temp), IPL_DEPTH_32F, 2);
@@ -84,11 +80,6 @@ public class optlFlowGeneratorMultiOptFlowHogMBHSimple extends BaseRichBolt {
         collector.emit(STREAM_FEATURE_FLOW, tuple, new Values(frameId, new DescMat[] {mbhMatX, mbhMatY, hogMat}));
         collector.ack(tuple);
 
-        Serializable.CvPoint2D32f p = new Serializable.CvPoint2D32f();
-        p.x(95.69521f);
-        p.y(21.003756f);
-        getNextFlowPointSimple(flow, p, frameId);
-
         cvRelease(grey_temp);
         cvRelease(prev_grey_temp);
         cvRelease(flow);
@@ -100,39 +91,4 @@ public class optlFlowGeneratorMultiOptFlowHogMBHSimple extends BaseRichBolt {
         outputFieldsDeclarer.declareStream(STREAM_FEATURE_FLOW, new Fields(FIELD_FRAME_ID, FIELD_MBH_HOG_MAT));
     }
 
-    public Serializable.CvPoint2D32f getNextFlowPointSimple(IplImage flow, Serializable.CvPoint2D32f point_in, int fID) {
-
-        int width = flow.width();
-        int height = flow.height();
-
-        //TODO:!!!!be careful!!!
-        int p = Math.min(Math.max(cvFloor(point_in.x()), 0), width - 1);
-        int q = Math.min(Math.max(cvFloor(point_in.y()), 0), height - 1);
-
-        //int p = Math.min(Math.max(cvRound(point_in.x()), 0), width - 1);
-        //int q = Math.min(Math.max(cvRound(point_in.y()), 0), height - 1);
-
-        FloatBuffer floatBuffer = flow.getByteBuffer(q * flow.widthStep()).asFloatBuffer();
-        int xsIndex = 2 * p;
-        int ysIndex = 2 * p + 1;
-
-        Serializable.CvPoint2D32f point_out = new Serializable.CvPoint2D32f();
-        point_out.x(point_in.x() + floatBuffer.get(xsIndex));
-        point_out.y(point_in.y() + floatBuffer.get(ysIndex));
-
-        System.out.println("(" + point_in.x() + "," +point_in.y() + "," + p + "," + q + "," + xsIndex + "," + ysIndex
-                + "," +  floatBuffer.get(xsIndex) + "," + floatBuffer.get(ysIndex) + ")->(" + + point_out.x() + "," + point_out.y() + ")");
-
-        System.out.print("fID: " + fID + ", Line: " + q + ":");
-        for (int t = 0; t < width - 1; t ++){
-            System.out.print(floatBuffer.get(t * 2) + "," + floatBuffer.get(t * 2 + 1) + "->");
-        }
-        System.out.println();
-
-        if (point_out.x() > 0 && point_out.x() < width && point_out.y() > 0 && point_out.y() < height) {
-            return point_out;
-        } else {
-            return null;
-        }
-    }
 }
