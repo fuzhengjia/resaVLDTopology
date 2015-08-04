@@ -186,7 +186,7 @@ public class featureGeneratorAlpha extends BaseRichBolt {
                     }
                 }
 
-                System.out.println(debInfo + mbhXStr + mbhYStr + hogStr + hogSumStr + mbhXSumStr + mbhYStr);
+                System.out.println(debInfo + mbhXStr + mbhYStr + hogStr + hogSumStr + mbhXSumStr + mbhYSumStr);
                 if (allFeatures.length != 288) {
                     throw new IllegalArgumentException("allFeatures.length != 288");
                 }
