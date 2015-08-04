@@ -118,20 +118,20 @@ public class featureGeneratorAlpha extends BaseRichBolt {
                     throw new IllegalArgumentException("trace.size() != this.maxTrackerLength + 1, trace.size() = " + trace.size());
                 }
 
-                String debInfo = "fID: " + frameId + ", len: " + trace.size() + "-";
-                for (int kk = 0; kk < trace.size(); kk++) {
-                    debInfo += "(" + trace.get(kk).x() + "," + trace.get(kk).y() + ")->";
-                }
-                String mbhXStr = "mbhX->";
-                String mbhYStr = "mbhY->";
-                String hogStr = "hog->";
-                String mbhXSumStr = "mbhXSum->";
-                String mbhYSumStr = "mbhYSum->";
-                String hogSumStr = "hogSum->";
+//                String debInfo = "fID: " + frameId + ", len: " + trace.size() + "-";
+//                for (int kk = 0; kk < trace.size(); kk++) {
+//                    debInfo += "(" + trace.get(kk).x() + "," + trace.get(kk).y() + ")->";
+//                }
+//                String mbhXStr = "mbhX->";
+//                String mbhYStr = "mbhY->";
+//                String hogStr = "hog->";
+//                String mbhXSumStr = "mbhXSum->";
+//                String mbhYSumStr = "mbhYSum->";
+//                String hogSumStr = "hogSum->";
 
-                float[] hogFeatures = new float[this.nt_cell * this.dimension];
-                float[] mbhXFeatures = new float[this.nt_cell * this.dimension];
-                float[] mbhYFeatures = new float[this.nt_cell * this.dimension];
+//                float[] hogFeatures = new float[this.nt_cell * this.dimension];
+//                float[] mbhXFeatures = new float[this.nt_cell * this.dimension];
+//                float[] mbhYFeatures = new float[this.nt_cell * this.dimension];
                 float[] allFeatures = new float[this.nt_cell * this.dimension * 3];
                 int iDescIndex = 0;
                 for (int n = 0; n < this.nt_cell; n++) {
@@ -155,9 +155,9 @@ public class featureGeneratorAlpha extends BaseRichBolt {
                         float[] mbhY = helperFunctions.getDesc(mbhMatY, rect, mbhInfo);
                         float[] hog = helperFunctions.getDesc(hogMat, rect, hogInfo);
 
-                        mbhXStr += mbhX[0] + "->";
-                        mbhYStr += mbhY[0] + "->";
-                        hogStr += hog[0] + "->";
+//                        mbhXStr += mbhX[0] + "->";
+//                        mbhYStr += mbhY[0] + "->";
+//                        hogStr += hog[0] + "->";
                         for (int m = 0; m < this.dimension; m++) {
                             hogVec[m] += hog[m];
                             mbhxVec[m] += mbhX[m];
@@ -174,31 +174,31 @@ public class featureGeneratorAlpha extends BaseRichBolt {
                     int mbhyIndexSt = hogIndexSt + this.nt_cell * this.dimension * 2;
 
                     for (int m = 0; m < this.dimension; m++) {
-//                        allFeatures[hogIndexSt + m] = hogVec[m] / (float) t_stride;
-//                        allFeatures[mbhxIndexSt + m] = mbhxVec[m] / (float) t_stride;
-//                        allFeatures[mbhyIndexSt + m] = mbhyVec[m] / (float) t_stride;
-                        hogFeatures[n * this.dimension + m] = hogVec[m] / (float) t_stride;
-                        mbhXFeatures[n * this.dimension + m] = mbhxVec[m] / (float) t_stride;
-                        mbhYFeatures[n * this.dimension + m] = mbhyVec[m] / (float) t_stride;
-                        mbhXSumStr += mbhxVec[m] + "->";
-                        mbhYSumStr += mbhyVec[m] + "->";
-                        hogSumStr += hogVec[m] + "->";
+                        allFeatures[hogIndexSt + m] = hogVec[m] / (float) t_stride;
+                        allFeatures[mbhxIndexSt + m] = mbhxVec[m] / (float) t_stride;
+                        allFeatures[mbhyIndexSt + m] = mbhyVec[m] / (float) t_stride;
+//                        hogFeatures[n * this.dimension + m] = hogVec[m] / (float) t_stride;
+//                        mbhXFeatures[n * this.dimension + m] = mbhxVec[m] / (float) t_stride;
+//                        mbhYFeatures[n * this.dimension + m] = mbhyVec[m] / (float) t_stride;
+//                        mbhXSumStr += mbhxVec[m] + "->";
+//                        mbhYSumStr += mbhyVec[m] + "->";
+//                        hogSumStr += hogVec[m] + "->";
                     }
                 }
 
-                System.out.println(debInfo + mbhXStr + mbhYStr + hogStr + hogSumStr + mbhXSumStr + mbhYSumStr);
-                if (allFeatures.length != 288) {
-                    throw new IllegalArgumentException("allFeatures.length != 288");
-                }
-                for (int i = 0; i < this.nt_cell * this.dimension; i++) {
-                    allFeatures[i] = hogFeatures[i];
-                }
-                for (int i = 0; i < this.nt_cell * this.dimension; i++) {
-                    allFeatures[this.nt_cell * this.dimension + i] = mbhXFeatures[i];
-                }
-                for (int i = 0; i < this.nt_cell * this.dimension; i++) {
-                    allFeatures[this.nt_cell * this.dimension * 2 + i] = mbhYFeatures[i];
-                }
+//                System.out.println(debInfo + mbhXStr + mbhYStr + hogStr + hogSumStr + mbhXSumStr + mbhYSumStr);
+//                if (allFeatures.length != 288) {
+//                    throw new IllegalArgumentException("allFeatures.length != 288");
+//                }
+//                for (int i = 0; i < this.nt_cell * this.dimension; i++) {
+//                    allFeatures[i] = hogFeatures[i];
+//                }
+//                for (int i = 0; i < this.nt_cell * this.dimension; i++) {
+//                    allFeatures[this.nt_cell * this.dimension + i] = mbhXFeatures[i];
+//                }
+//                for (int i = 0; i < this.nt_cell * this.dimension; i++) {
+//                    allFeatures[this.nt_cell * this.dimension * 2 + i] = mbhYFeatures[i];
+//                }
                 traceFeatures.add(allFeatures);
             }
 
