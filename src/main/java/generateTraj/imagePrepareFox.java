@@ -93,8 +93,7 @@ public class imagePrepareFox extends BaseRichBolt {
             prev_grey = cvCreateImage(cvGetSize(frame), 8, 1);
             prev_grey_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(frame), 8, 1);
 
-            //eig_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(this.grey), 32, 1);
-            //TODO: check
+            ///a bug fixed here for Fox version!, use prev_grey_temp instead of grey_temp
             eig_pyramid = new IplImagePyramid(scale_stride, scale_num, cvGetSize(this.prev_grey), 32, 1);
         }
 
@@ -122,9 +121,8 @@ public class imagePrepareFox extends BaseRichBolt {
             IplImage eig_temp = cvCloneImage(eig_pyramid.getImage(ixyScale));
             double[] maxVal = new double[1];
             maxVal[0] = 0.0;
+            ///a bug fixed here for Fox version!, use prev_grey_temp instead of grey_temp
             opencv_imgproc.cvCornerMinEigenVal(prev_grey_temp, eig_temp, 3, 3);
-            //TODO: check
-            //opencv_imgproc.cvCornerMinEigenVal(prev_grey, eig_temp, 3, 3);
 
             cvMinMaxLoc(eig_temp, null, maxVal, null, null, null);
             double threshold = maxVal[0] * quality;
