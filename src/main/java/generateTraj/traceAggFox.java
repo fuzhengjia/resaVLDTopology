@@ -150,8 +150,10 @@ public class traceAggFox extends BaseRichBolt {
             List<Integer> feedbackIndicators = new ArrayList<>();
             int traceToRegisterCnt = 0;
             List<String> traceToRemove = new ArrayList<>();
-            int width = wh.getV1();
-            int height = wh.getV2();
+            int frameWidth = wh.getV1();
+            int frameHeight = wh.getV2();
+            int eigWidth = cvFloor(frameWidth / min_distance);
+            int eigHeight = cvFloor(frameHeight / min_distance);
             int nextFrameID = frameId + 1;
 
             List<List<TraceMetaAndLastPoint>> renewTraces = new ArrayList<>();
@@ -170,13 +172,13 @@ public class traceAggFox extends BaseRichBolt {
 
                     int x = cvFloor(point.x() / min_distance);
                     int y = cvFloor(point.y() / min_distance);
-                    int ywx = y * width + x;
+                    int ywx = y * eigWidth + x;
 
-                    if (point.x() < min_distance * width && point.y() < min_distance * height) {
+                    if (point.x() < min_distance * eigWidth && point.y() < min_distance * eigHeight) {
                         feedbackIndicators.add(ywx);
                     }
 
-                    int q = Math.min(Math.max(cvFloor(point.y()), 0), height - 1);
+                    int q = Math.min(Math.max(cvFloor(point.y()), 0), frameHeight - 1);
                     renewTraces.get(q % flowTrackerTasks.size()).add(fdPt);
                 }
             }
