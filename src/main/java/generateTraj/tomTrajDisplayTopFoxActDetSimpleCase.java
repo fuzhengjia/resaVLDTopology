@@ -22,7 +22,12 @@ import static topology.StormConfigManager.*;
  * 在echoBatch里有个大的bug，产生trace的方式有问题
  * 1. 应该由preFrame产生newTrace到当前的optFrame来更新，这个版本里面尝试解决这个问题
  * 2. 第二个bug是在flowTracker里面，对新的trace， 会自动扔掉第一个点！！！
- * 2. 重写一些data structure
+ * 3. 重写一些data structure
+ * TODO:小心bug在OpticalFlowTracker里的函数：getNextFlowPointSimple, 为了和单机版一致，需要用cvFloor而不是cvRound！！！！
+ * 注意，还有traceGen里面也有！！！
+ * TODO: 4. 注意在ImageSender 和 FrameIplImageSource 里面，在一开始读取，和转换成byte[]时候会发生的数据变化，也是导致不一致的原因之一
+ * TODO: 大bug！ 5. 在imagePrep中的width 和height = cvFloor(grey.width() / min_distance); 不是真正的 frame的 width 和height，
+ * TODO: 包括后来传到 traceAgg做feedback用的，不能在agg里面直接用来产生renew的点的taskID！！！
  */
 public class tomTrajDisplayTopFoxActDetSimpleCase {
 

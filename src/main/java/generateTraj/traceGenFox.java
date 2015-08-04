@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.bytedeco.javacpp.opencv_core.cvFloor;
 import static org.bytedeco.javacpp.opencv_core.cvPoint2D32f;
 import static tool.Constants.*;
 
@@ -120,10 +121,12 @@ public class traceGenFox extends BaseRichBolt {
             List<float[]> floatArray = eigFrameMap.get(frameId);
             EigRelatedInfo eigInfo = eigInfoMap.get(frameId);
 
-            int width = eigInfo.getW();
-            int height = eigInfo.getH();
+            int frameWidth = eigInfo.getW();
+            int frameHeight = eigInfo.getH();
+            int eigWidth = cvFloor(frameWidth / min_distance);
+            int eigHeight = cvFloor(frameHeight / min_distance);
 
-            boolean[] counters = new boolean[width * height];
+            boolean[] counters = new boolean[eigWidth * eigHeight];
             if (feedbackIndicators.size() > 0) {
                 for (int index : feedbackIndicators) {
                     counters[index] = true;
@@ -146,11 +149,11 @@ public class traceGenFox extends BaseRichBolt {
 
                 //System.out.println("i: " + this.thisTaskIndex + ", tID: " + this.thisTaskID + ", size: " + floatArray.size()
                 //        + ",w: "+ width + ", h: " + height + ",off: " + offset + ", min_dis:" + min_distance);
-                for (int i = 0; i < height; i++) {
+                for (int i = 0; i < eigHeight; i++) {
                     ///only for particular rows
                     if (i % taskCnt == thisTaskIndex) {
-                        for (int j = 0; j < width; j++) {
-                            int ywx = i * width + j;
+                        for (int j = 0; j < eigWidth; j++) {
+                            int ywx = i * eigWidth + j;
                             if (counters[ywx] == false) {
                                 //FloatBuffer floatBuffer = eig.getByteBuffer(y * eig.widthStep()).asFloatBuffer();
                                 //float ve = floatBuffer.get(x);
@@ -169,7 +172,8 @@ public class traceGenFox extends BaseRichBolt {
                                     //System.out.println("traceID: " + traceID + ",tIDindex: " + tIDindex + ", totalValidCntList.Len: "  +totalValidCntList.length);
                                     totalValidCntList[tIDindex]++;
 
-                                    int q = Math.min(Math.max(opencv_core.cvFloor(firstPt.y()), 0), height - 1);
+                                    //Caution, here is a bug, must NOT use eigHeight, but use frameHeight!!!
+                                    int q = Math.min(Math.max(opencv_core.cvFloor(firstPt.y()), 0), frameHeight - 1);
                                     newTraces.get(q % flowTrackerTasks.size()).add(newTrace);
                                 }
                             }
@@ -191,7 +195,8 @@ public class traceGenFox extends BaseRichBolt {
             //collector.emit(STREAM_REGISTER_TRACE, new Values(frameId, totalValidedCount, new TwoIntegers(width, height)));
             for (int i = 0; i < totalValidCntList.length; i++) {
                 int tID = this.traceAggBoltTasks.get(i);
-                collector.emitDirect(tID, STREAM_REGISTER_TRACE, new Values(nextFrameID, totalValidCntList[i], new TwoIntegers(width, height)));
+                ///Caution!!! here shall be eigWidth, eigHeight
+                collector.emitDirect(tID, STREAM_REGISTER_TRACE, new Values(nextFrameID, totalValidCntList[i], new TwoIntegers(frameWidth, frameHeight)));
             }
             this.feedbackIndicatorList.remove(frameId);
             this.eigFrameMap.remove(frameId);

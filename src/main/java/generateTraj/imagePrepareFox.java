@@ -113,8 +113,10 @@ public class imagePrepareFox extends BaseRichBolt {
 
         collector.emit(STREAM_GREY_FLOW, tuple, new Values(frameId, sgMat, sgMatPrev));
 
-        int width = cvFloor(grey.width() / min_distance);
-        int height = cvFloor(grey.height() / min_distance);
+        int frameWidth = grey.width();
+        int frameHeight = grey.height();
+        int eigWidth = cvFloor(frameWidth / min_distance);
+        int eigHeight = cvFloor(frameHeight / min_distance);
         int preFrameID = frameId -1 ;
         if (preFrameID % init_counter == 0) {
 
@@ -136,7 +138,7 @@ public class imagePrepareFox extends BaseRichBolt {
             }
 
             int floatArraySize = grey.width() + offset  + 1;
-            for (int i = 0; i < height; i++) {
+            for (int i = 0; i < eigHeight; i++) {
                 int y = opencv_core.cvFloor(i * min_distance + offset);
 
                 FloatBuffer floatBuffer =  eig_temp.getByteBuffer(y * eig_temp.widthStep()).asFloatBuffer();
@@ -150,7 +152,7 @@ public class imagePrepareFox extends BaseRichBolt {
             for (int i = 0; i < traceGeneratorTasks.size(); i++) {
                 int tID = traceGeneratorTasks.get(i);
                 //System.out.println("i: " + i + ", tID: " + tID + ", size: " + group.get(i).size() + ",w: "+ width + ", h: " + height + ",off: " + offset + ", min_dis:" + min_distance);
-                collector.emitDirect(tID, STREAM_EIG_FLOW, tuple, new Values(preFrameID, group.get(i), new EigRelatedInfo(width, height, offset, threshold)));
+                collector.emitDirect(tID, STREAM_EIG_FLOW, tuple, new Values(preFrameID, group.get(i), new EigRelatedInfo(frameWidth, frameHeight, offset, threshold)));
             }
             cvReleaseImage(eig_temp);
         }

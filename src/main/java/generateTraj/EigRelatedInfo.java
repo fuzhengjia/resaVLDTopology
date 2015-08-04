@@ -7,6 +7,9 @@ import com.esotericsoftware.kryo.io.Output;
 
 /**
  * Created by Tom.fu on 4/2/2015.
+ * Notice, int eigWidth = cvFloor(frameWidth / min_distance);  int eigHeight = cvFloor(frameHeight / min_distance);
+ * they shall not be same, in eigInfo, we suggest only store frameWidth and frameHeight
+ * and then use the two formula to calculate eigWidth and eigHeight!!!
  */
 public class EigRelatedInfo implements java.io.Serializable, KryoSerializable {
 
