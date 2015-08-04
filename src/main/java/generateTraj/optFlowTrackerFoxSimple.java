@@ -97,25 +97,25 @@ public class optFlowTrackerFoxSimple extends BaseRichBolt {
         for (int i = 0; i < this.traceAggBoltTasks.size(); i ++){
             messages.add(new ArrayList<>());
         }
-//        List<float[]> groups = new ArrayList<>();
-//        for (int h = 0; h < flow.height(); h++) {
-//            //FloatBuffer floatBuffer = flow.getByteBuffer(h * flow.widthStep()).asFloatBuffer();
-//            FloatBuffer floatBuffer =  flow.getByteBuffer(h * flow.widthStep()).asFloatBuffer();
-//            float[] floatArray = new float[flow.width()*2];
-//            floatBuffer.get(floatArray);
-//
-//            if (h % this.taskCnt == this.taskIndex) {
-//                groups.add(floatArray);
-//            }
-//        }
+        List<float[]> groups = new ArrayList<>();
+        for (int h = 0; h < flow.height(); h++) {
+            //FloatBuffer floatBuffer = flow.getByteBuffer(h * flow.widthStep()).asFloatBuffer();
+            FloatBuffer floatBuffer =  flow.getByteBuffer(h * flow.widthStep()).asFloatBuffer();
+            float[] floatArray = new float[flow.width()*2];
+            floatBuffer.get(floatArray);
+
+            if (h % this.taskCnt == this.taskIndex) {
+                groups.add(floatArray);
+            }
+        }
         while (!traceRecords.isEmpty()) {
             Object m = traceRecords.poll();
 
             if (m instanceof TraceMetaAndLastPoint) {
                 TraceMetaAndLastPoint trace = (TraceMetaAndLastPoint)m;
 
-                Serializable.CvPoint2D32f pointOut = getNextFlowPointSimple(flow, trace.lastPoint);
-//                Serializable.CvPoint2D32f pointOut = getNextFlowPointSimple(groups, new TwoIntegers(flow.width(), flow.height()), trace.lastPoint);
+//                Serializable.CvPoint2D32f pointOut = getNextFlowPointSimple(flow, trace.lastPoint);
+                Serializable.CvPoint2D32f pointOut = getNextFlowPointSimple(groups, new TwoIntegers(flow.width(), flow.height()), trace.lastPoint);
                 int index = trace.getTargetTaskIndex(this.traceAggBoltTasks);
                 if (pointOut != null) {
                     TraceMetaAndLastPoint traceNext = new TraceMetaAndLastPoint(trace.traceID, pointOut);
@@ -127,8 +127,8 @@ public class optFlowTrackerFoxSimple extends BaseRichBolt {
                 }
             } else if (m instanceof NewTraceMeta) {
                 NewTraceMeta trace = (NewTraceMeta) m;
-                Serializable.CvPoint2D32f pointOut = getNextFlowPointSimple(flow, trace.firstPoint);
-//                Serializable.CvPoint2D32f pointOut = getNextFlowPointSimple(groups, new TwoIntegers(flow.width(), flow.height()), trace.firstPoint);
+//                Serializable.CvPoint2D32f pointOut = getNextFlowPointSimple(flow, trace.firstPoint);
+                Serializable.CvPoint2D32f pointOut = getNextFlowPointSimple(groups, new TwoIntegers(flow.width(), flow.height()), trace.firstPoint);
                 int index = trace.getTargetTaskIndex(this.traceAggBoltTasks);
                 if (pointOut != null) {
                     NewTraceMeta traceNext = new NewTraceMeta(trace.traceID, trace.firstPoint, pointOut);
