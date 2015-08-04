@@ -236,6 +236,10 @@ public class optFlowTrackerFoxSimple extends BaseRichBolt {
 //        int p = Math.min(Math.max(cvRound(point_in.x()), 0), width - 1);
 //        int q = Math.min(Math.max(cvRound(point_in.y()), 0), height - 1);
 
+        if (q % this.taskCnt != this.taskIndex){
+            System.out.println("Caution!!! q % this.taskCnt != this.taskIndex!, q: " + q + ", taskCnt: "  +taskCnt + ", taskIndex: " + this.taskIndex);
+        }
+
         int rowIndex = q / this.taskCnt;
         float[] fData = floatArray.get(rowIndex);
         //FloatBuffer floatBuffer = ByteBuffer.wrap(data).asFloatBuffer();
