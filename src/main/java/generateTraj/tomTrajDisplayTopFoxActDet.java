@@ -65,7 +65,7 @@ public class tomTrajDisplayTopFoxActDet {
                 .shuffleGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
-        builder.setBolt(optFlowTrans, new optlFlowTransEcho(optFlowTracker), getInt(conf, optFlowTrans + ".parallelism"))
+        builder.setBolt(optFlowTrans, new optlFlowTransFox(optFlowTracker), getInt(conf, optFlowTrans + ".parallelism"))
                 .shuffleGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
                 .setNumTasks(getInt(conf, optFlowTrans + ".tasks"));
 
@@ -86,7 +86,7 @@ public class tomTrajDisplayTopFoxActDet {
                 .directGrouping(optFlowTracker, STREAM_EXIST_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
-        builder.setBolt(frameDisplay, new featureGeneratorAlpha(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
+        builder.setBolt(frameDisplay, new featureGenFox(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
                 .globalGrouping(optFlowGenBolt, STREAM_FEATURE_FLOW)
                 .globalGrouping(traceAggregator, STREAM_FEATURE_TRACE)
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));

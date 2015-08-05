@@ -29,7 +29,7 @@ import static topology.StormConfigManager.*;
  * TODO: 大bug！ 5. 在imagePrep中的width 和height = cvFloor(grey.width() / min_distance); 不是真正的 frame的 width 和height，
  * TODO: 包括后来传到 traceAgg做feedback用的，不能在agg里面直接用来产生renew的点的taskID！！！
  */
-public class tomTrajDisplayTopFoxActDetSimpleCase {
+public class tomTrajDisplayTopFoxActDetSimple {
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
@@ -65,7 +65,7 @@ public class tomTrajDisplayTopFoxActDetSimpleCase {
                 .shuffleGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
-        builder.setBolt(optFlowTrans, new optlFlowTrans(optFlowTracker), getInt(conf, optFlowTrans + ".parallelism"))
+        builder.setBolt(optFlowTrans, new optlFlowTransFoxSimple(optFlowTracker), getInt(conf, optFlowTrans + ".parallelism"))
                 .shuffleGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
                 .setNumTasks(getInt(conf, optFlowTrans + ".tasks"));
 
@@ -86,7 +86,7 @@ public class tomTrajDisplayTopFoxActDetSimpleCase {
                 .directGrouping(optFlowTracker, STREAM_EXIST_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
-        builder.setBolt(frameDisplay, new featureGeneratorAlpha(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
+        builder.setBolt(frameDisplay, new featureGenFox(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
                 .globalGrouping(optFlowGenBolt, STREAM_FEATURE_FLOW)
                 .globalGrouping(traceAggregator, STREAM_FEATURE_TRACE)
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));

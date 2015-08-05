@@ -12,33 +12,23 @@ import java.util.PriorityQueue;
 
 /**
  * Created by Tom Fu
- * RedisStreamProducerBeta keeps a timer for each frame, if the expected frame is late, it starts the time and wait until timeout,
- * then it simply drops this frame and come to the next expected frame. (suitable for loss insensitive application)
+ * Caution!!  RedisStreamProducerFox is used!
+ * Shall use TomVideoStreamReceiverByteArrForLinux for the output!!
  */
 public class RedisStreamProducerFox implements Runnable {
-    /**
-     * Ordered queue for putting frames in order
-     */
+
     private PriorityQueue<StreamFrame> stream;
-    /**
-     * Has the last expected frame come?
-     */
     private boolean finished;
 
-    //private static final byte[] END = new String("END").getBytes();
     private String host;
     private int port;
     private byte[] queueName;
-    //private BlockingQueue<byte[]> dataQueue = new ArrayBlockingQueue<>(10000);
     private Jedis jedis;
 
     private long sleepTime;
     private int startFrameID;
     private int maxWaitCount;
 
-    /**
-     * Creates a producer expecting frames in range [firstFrameId, lastFrameId)
-     */
     public RedisStreamProducerFox(String host, int port, String queueName) {
 
         stream = new PriorityQueue<>();
@@ -53,7 +43,13 @@ public class RedisStreamProducerFox implements Runnable {
     }
 
     /**
-     * Creates a producer expecting frames in range [firstFrameId, lastFrameId), with an additional parameter qSize
+     *
+     * @param host
+     * @param port
+     * @param queueName
+     * @param startFrameID
+     * @param maxWaitCount the count for checking the same delayed frame, if expires, skip this frame and move to the next expected frame
+     * @param sleepTime  if get a null frame (the expected frame is not received yet, then sleep this amount of time and check again
      */
     public RedisStreamProducerFox(String host, int port, String queueName,
                                   int startFrameID, int maxWaitCount, int sleepTime) {
@@ -68,7 +64,7 @@ public class RedisStreamProducerFox implements Runnable {
         this.maxWaitCount = maxWaitCount;
         this.sleepTime = sleepTime;
 
-        System.out.println("Check_init_RedisStreamProducerBeta, " + System.currentTimeMillis() +
+        System.out.println("Check_init_RedisStreamProducerFox, " + System.currentTimeMillis() +
                 ", host: " + this.host + ", port: " + this.port + ", qName: " + this.queueName +
                 ", stFrameID: " + this.startFrameID + ", sleepTime: " + this.sleepTime + ", mWaitCnt: " + this.maxWaitCount);
     }
@@ -84,7 +80,6 @@ public class RedisStreamProducerFox implements Runnable {
 
     /**
      * Get expected frame from the queue.
-     *
      * @return next expected frame, or null if it has not come yet.
      */
     public StreamFrame pollFrame() {

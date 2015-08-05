@@ -24,13 +24,13 @@ import static tool.Constants.*;
  * Similar to frame producer, maintain an ordered list of frames
  * Shall be in charge the whole frame!!!
  */
-public class optlFlowTransEcho extends BaseRichBolt {
+public class optlFlowTransFox extends BaseRichBolt {
     OutputCollector collector;
 
     List<Integer> targetComponentTasks;
     String flowTrackerName;
 
-    public optlFlowTransEcho(String flowTrackerName) {
+    public optlFlowTransFox(String flowTrackerName) {
         this.flowTrackerName = flowTrackerName;
     }
 

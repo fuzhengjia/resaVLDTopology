@@ -22,14 +22,14 @@ import static tool.Constants.*;
  * Maybe use global grouping and only one task/executor
  * Similar to frame producer, maintain an ordered list of frames
  */
-public class optlFlowTrans extends BaseRichBolt {
+public class optlFlowTransFoxSimple extends BaseRichBolt {
     OutputCollector collector;
     private int taskIndex;
     private int taskCnt;
     List<Integer> targetComponentTasks;
     String flowTrackerName;
 
-    public optlFlowTrans(String flowTrackerName) {
+    public optlFlowTransFoxSimple(String flowTrackerName) {
         this.flowTrackerName = flowTrackerName;
     }
 

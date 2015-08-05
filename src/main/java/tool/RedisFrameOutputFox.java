@@ -1,18 +1,20 @@
-package generateTraj;
+package tool;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import tool.GeneralizedStreamFrame;
-import tool.RedisSimpleStreamProducer;
+import org.bytedeco.javacpp.opencv_core;
+import tool.RedisStreamProducerFox;
+import topology.Serializable;
+import topology.StreamFrame;
+import util.ConfigUtil;
 
-import java.util.List;
 import java.util.Map;
 
-import static tool.Constants.FIELD_FEA_VEC;
 import static tool.Constants.FIELD_FRAME_ID;
+import static tool.Constants.FIELD_FRAME_MAT;
 import static util.ConfigUtil.getInt;
 
 /**
@@ -25,11 +27,14 @@ import static util.ConfigUtil.getInt;
  *
  * The alternation can be RedisStreamProducer, which maintains a fix length sorted queue as a buffer for sorting, and re-ordering
  * dump out the data at head only when new data arrive at the tail.
+ *
+ * Caution!!  RedisStreamProducerFox is used!
+ * Shall use TomVideoStreamReceiverByteArrForLinux for the output!!
  */
-public class FileSimpleFrameOutput extends BaseRichBolt {
+public class RedisFrameOutputFox extends BaseRichBolt {
     OutputCollector collector;
 
-    RedisSimpleStreamProducer producer;
+    RedisStreamProducerFox producer;
 
     private String host;
     private int port;
@@ -37,10 +42,8 @@ public class FileSimpleFrameOutput extends BaseRichBolt {
     private int sleepTime;
     private int startFrameID;
     private int maxWaitCount;
+    private boolean toDebug = false;
 
-    //private int accumulateFrameSize;
-
-    //private HashMap<Integer, Serializable.Mat> rawFrameMap;
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
 
@@ -57,22 +60,24 @@ public class FileSimpleFrameOutput extends BaseRichBolt {
         this.sleepTime = getInt(map, "sleepTime", 10);
         this.startFrameID = getInt(map, "startFrameID", 1);
         this.maxWaitCount = getInt(map, "maxWaitCount", 4);
+        toDebug = ConfigUtil.getBoolean(map, "debugTopology", false);
 
-        producer = new RedisSimpleStreamProducer(host, port, queueName);
+        producer = new RedisStreamProducerFox(host, port, queueName, startFrameID, maxWaitCount, sleepTime);
         new Thread(producer).start();
 
     }
 
-    // Fields("frameId", "frameMat", "patchCount")
-    // Fields("frameId", "foundRectList")
     @Override
     public void execute(Tuple tuple) {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
-        List<float[]> data = (List<float[]>)tuple.getValueByField(FIELD_FEA_VEC);
+        opencv_core.IplImage imageFK = new opencv_core.IplImage();
 
-        producer.addFrame(new GeneralizedStreamFrame(frameId, data));
+        Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
+        producer.addFrame(new StreamFrame(frameId, sMat.toJavaCVMat()));
 
-        System.out.println("producerAdd: " + System.currentTimeMillis() + ":" + frameId);
+        if (toDebug) {
+            System.out.println("producerAdd: " + System.currentTimeMillis() + ":" + frameId);
+        }
         collector.ack(tuple);
     }
 }

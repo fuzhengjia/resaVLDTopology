@@ -18,6 +18,7 @@ import static topology.StormConfigManager.*;
 
 /**
  * Created by tomFu on Aug 3, special design for actdet_fox version!!!
+ * Shall use FrameImplImageSourceFox
  *  In summary, from imageSender (IplImage->Mat->sMat->byte[]) to redis queue -> byte[]->sMat->Mat->IplImage)
  */
 public class SimpleImageSenderFox {

@@ -7,8 +7,8 @@ import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
-import showTraj.RedisFrameOutput;
 import tool.FrameImplImageSourceFox;
+import tool.RedisFrameOutputFox;
 import topology.Serializable;
 import util.ConfigUtil;
 
@@ -62,7 +62,7 @@ public class tomTrajDisplayTopFox {
                 .shuffleGrouping(imgPrepareBolt, STREAM_GREY_FLOW)
                 .setNumTasks(getInt(conf, optFlowGenBolt + ".tasks"));
 
-        builder.setBolt(optFlowTrans, new optlFlowTransEcho(optFlowTracker), getInt(conf, optFlowTrans + ".parallelism"))
+        builder.setBolt(optFlowTrans, new optlFlowTransFox(optFlowTracker), getInt(conf, optFlowTrans + ".parallelism"))
                 .shuffleGrouping(optFlowGenBolt, STREAM_OPT_FLOW)
                 .setNumTasks(getInt(conf, optFlowTrans + ".tasks"));
 

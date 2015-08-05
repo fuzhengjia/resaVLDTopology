@@ -27,6 +27,7 @@ public interface Constants {
     public static String STREAM_CACHE_CLEAN = "stream-cache-clean";
 
     public static String FIELD_FRAME_ID = "frame-id";
+    public static String FIELD_SAMPLE_ID = "sample-id";
     public static String FIELD_FRAME_BYTES = "frm-bytes";
     public static String FIELD_FRAME_MAT = "frm-mat";
     public static String FIELD_OPT_MAT = "opt-mat";

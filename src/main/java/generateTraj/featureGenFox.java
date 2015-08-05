@@ -23,7 +23,7 @@ import static tool.Constants.*;
  * Input is MbhMat and HogMat for a window of 15-20 frames, and the trace records with length = 16
  * Output the feature vectors for each trace.
  */
-public class featureGeneratorAlpha extends BaseRichBolt {
+public class featureGenFox extends BaseRichBolt {
     OutputCollector collector;
 
     private HashMap<Integer, DescMat[]> desMatMap;
@@ -47,7 +47,7 @@ public class featureGeneratorAlpha extends BaseRichBolt {
     String traceAggBoltNameString;
     int traceAggBoltTaskNumber;
 
-    public featureGeneratorAlpha(String traceAggBoltNameString) {
+    public featureGenFox(String traceAggBoltNameString) {
         this.traceAggBoltNameString = traceAggBoltNameString;
     }
 
