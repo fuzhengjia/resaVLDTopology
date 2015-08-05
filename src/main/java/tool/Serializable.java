@@ -1,4 +1,4 @@
-package topology;
+package tool;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoSerializable;
@@ -8,7 +8,6 @@ import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.opencv_core;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 
 /**
  * This class provides kryo serialization for the JavaCV's Mat and Rect objects, so that Storm can wrap them in tuples.

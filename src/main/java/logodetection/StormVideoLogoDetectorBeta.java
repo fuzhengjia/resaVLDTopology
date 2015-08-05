@@ -1,20 +1,12 @@
 package logodetection;
 
 
-import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Rect;
 import org.bytedeco.javacpp.opencv_features2d.KeyPoint;
-import org.bytedeco.javacpp.opencv_highgui;
 import org.bytedeco.javacpp.opencv_nonfree.SIFT;
-import topology.Serializable;
+import tool.Serializable;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -58,10 +50,10 @@ import static org.bytedeco.javacpp.opencv_highgui.cvLoadImage;
  * {@link #getFoundRect()} returns null, then no logo has been detected on this patch.
  * <p>
  * 4. If you wish to add a new logo template (for example, you extracted a template from some frame), you should call
- * {@link #addTemplate(topology.Serializable.PatchIdentifier, topology.Serializable.Mat)}.
+ * {@link #addTemplate(Serializable.PatchIdentifier, Serializable.Mat)}.
  * <p>
  * 5. Also you may want to increment the priority of the existing logo template. Then you call
- * {@link #incrementPriority(topology.Serializable.PatchIdentifier, int)}.
+ * {@link #incrementPriority(Serializable.PatchIdentifier, int)}.
  *
  * @see LogoTemplate
  * @see RobustMatcher

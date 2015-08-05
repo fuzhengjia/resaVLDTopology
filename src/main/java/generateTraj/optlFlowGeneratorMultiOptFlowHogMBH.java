@@ -8,9 +8,8 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.opencv_video;
-import topology.Serializable;
+import tool.Serializable;
 
-import java.nio.FloatBuffer;
 import java.util.Map;
 
 import static generateTraj.helperFunctions.HogComp;

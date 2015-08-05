@@ -1,6 +1,6 @@
 package topologyexp;
 
-import topology.Serializable;
+import tool.Serializable;
 
 /**
  * Created by Intern04 on 19/8/2014.

@@ -8,7 +8,7 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import showTraj.RedisFrameOutputByteArr;
 import tool.FrameMatSourceOptFlow;
-import topology.Serializable;
+import tool.Serializable;
 
 import java.io.FileNotFoundException;
 

@@ -2,12 +2,8 @@ package tool;
 
 import org.bytedeco.javacpp.opencv_core;
 import redis.clients.jedis.Jedis;
-import topology.Serializable;
 import topology.StreamFrame;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.util.PriorityQueue;
 
 /**

@@ -8,8 +8,8 @@ import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_highgui;
-import org.bytedeco.javacpp.opencv_imgproc;
 import tool.RedisQueueSpout;
+import tool.Serializable;
 
 import java.util.Map;
 

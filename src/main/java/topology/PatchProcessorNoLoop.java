@@ -10,6 +10,7 @@ import backtype.storm.tuple.Values;
 import logodetection.Debug;
 import logodetection.Parameters;
 import logodetection.StormVideoLogoDetector;
+import tool.Serializable;
 
 import java.util.*;
 

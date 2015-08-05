@@ -7,9 +7,9 @@ import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
-import showTraj.RedisFrameOutput;
 import tool.FrameSourceFox;
 import tool.RedisFrameOutputFox;
+import tool.Serializable;
 import util.ConfigUtil;
 
 import java.io.FileNotFoundException;
@@ -31,6 +31,7 @@ import static topology.StormConfigManager.*;
  * send out unsampled frames to the patch generation bolt.
  *
  * Enabling sampling features.
+ * through testing
  */
 public class VLDTopFox {
 

@@ -7,7 +7,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import topology.Serializable;
+import tool.Serializable;
 import util.ConfigUtil;
 
 import java.util.*;

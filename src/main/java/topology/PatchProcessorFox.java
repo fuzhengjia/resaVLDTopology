@@ -12,6 +12,7 @@ import logodetection.SIFTfeatures;
 import logodetection.StormVideoLogoDetectorGamma;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_nonfree;
+import tool.Serializable;
 import util.ConfigUtil;
 
 import java.util.ArrayList;

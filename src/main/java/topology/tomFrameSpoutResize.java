@@ -11,6 +11,7 @@ import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FrameGrabber;
+import tool.Serializable;
 import util.ConfigUtil;
 
 import java.util.Map;

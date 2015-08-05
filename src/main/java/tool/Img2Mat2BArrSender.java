@@ -1,12 +1,9 @@
 package tool;
 
 import backtype.storm.Config;
-import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_highgui;
 import org.bytedeco.javacpp.opencv_imgproc;
 import redis.clients.jedis.Jedis;
-import topology.Serializable;
 import util.ConfigUtil;
 
 import java.io.*;

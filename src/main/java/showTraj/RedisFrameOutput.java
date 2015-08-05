@@ -6,11 +6,9 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import tool.RedisStreamProducerBeta;
-import topology.RedisStreamProducer;
-import topology.Serializable;
+import tool.Serializable;
 import topology.StreamFrame;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.cvMat;

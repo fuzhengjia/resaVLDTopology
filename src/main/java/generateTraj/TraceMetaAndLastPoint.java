@@ -1,6 +1,6 @@
 package generateTraj;
 
-import topology.Serializable;
+import tool.Serializable;
 
 import java.util.List;
 

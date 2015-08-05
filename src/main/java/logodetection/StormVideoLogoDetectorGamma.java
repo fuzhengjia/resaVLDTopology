@@ -5,7 +5,7 @@ import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Rect;
 import org.bytedeco.javacpp.opencv_features2d.KeyPoint;
 import org.bytedeco.javacpp.opencv_nonfree.SIFT;
-import topology.Serializable;
+import tool.Serializable;
 
 import java.util.ArrayList;
 import java.util.Collections;

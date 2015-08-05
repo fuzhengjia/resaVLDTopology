@@ -9,10 +9,8 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import logodetection.Debug;
 import logodetection.Parameters;
-import logodetection.StormVideoLogoDetector;
 import logodetection.StormVideoLogoDetectorBeta;
-import topology.LogoTemplateUpdate;
-import topology.Serializable;
+import tool.Serializable;
 import util.ConfigUtil;
 
 import java.util.*;

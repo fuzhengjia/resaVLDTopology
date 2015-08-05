@@ -9,7 +9,7 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import logodetection.*;
 import org.bytedeco.javacpp.opencv_nonfree;
-import topology.Serializable;
+import tool.Serializable;
 import util.ConfigUtil;
 
 import java.util.*;

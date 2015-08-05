@@ -9,6 +9,7 @@ import logodetection.Debug;
 import logodetection.Util;
 import org.bytedeco.javacpp.opencv_core;
 import tool.RedisStreamProducerBeta;
+import tool.Serializable;
 import util.ConfigUtil;
 
 import java.util.ArrayList;

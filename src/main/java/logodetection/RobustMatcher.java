@@ -4,7 +4,7 @@ import org.bytedeco.javacpp.opencv_calib3d;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_features2d;
 import org.bytedeco.javacv.JavaCV;
-import topology.Serializable;
+import tool.Serializable;
 
 import java.util.ArrayList;
 

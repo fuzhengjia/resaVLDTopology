@@ -1,11 +1,9 @@
 package test;
 
 import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_features2d;
 import org.bytedeco.javacpp.opencv_highgui;
-import org.bytedeco.javacv.CanvasFrame;
 import org.junit.Test;
-import topology.Serializable;
+import tool.Serializable;
 
 /**
  * Created by nurlan on 8/20/14.

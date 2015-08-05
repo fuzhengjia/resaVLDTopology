@@ -9,7 +9,7 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import tool.FrameImplImageSourceFox;
 import tool.RedisFrameOutputFox;
-import topology.Serializable;
+import tool.Serializable;
 import util.ConfigUtil;
 
 import java.io.FileNotFoundException;

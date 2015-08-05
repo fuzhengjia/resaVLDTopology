@@ -2,7 +2,7 @@ package logodetection;
 
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_features2d;
-import topology.Serializable;
+import tool.Serializable;
 
 /**
  *

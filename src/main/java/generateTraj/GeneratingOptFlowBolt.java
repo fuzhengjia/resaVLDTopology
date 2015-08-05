@@ -10,7 +10,7 @@ import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacpp.opencv_video;
-import topology.Serializable;
+import tool.Serializable;
 import util.ConfigUtil;
 
 import java.util.Map;

@@ -7,7 +7,7 @@ import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import tool.FrameSource;
-import topology.Serializable;
+import tool.Serializable;
 
 import java.io.FileNotFoundException;
 

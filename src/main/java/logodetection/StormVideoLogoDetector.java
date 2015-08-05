@@ -14,7 +14,7 @@ import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Rect;
 import org.bytedeco.javacpp.opencv_features2d.KeyPoint;
 import org.bytedeco.javacpp.opencv_nonfree.SIFT;
-import topology.Serializable;
+import tool.Serializable;
 
 /** This is a detector, which stores logo templates ({@link logodetection.LogoTemplate}),
  * and, given a patch of the frame, attempts to find a logo on it by matching it against each logo template.
@@ -50,10 +50,10 @@ import topology.Serializable;
  * {@link #getFoundRect()} returns null, then no logo has been detected on this patch.
  * <p>
  * 4. If you wish to add a new logo template (for example, you extracted a template from some frame), you should call
- * {@link #addTemplate(topology.Serializable.PatchIdentifier, topology.Serializable.Mat)}.
+ * {@link #addTemplate(Serializable.PatchIdentifier, Serializable.Mat)}.
  * <p>
  * 5. Also you may want to increment the priority of the existing logo template. Then you call
- * {@link #incrementPriority(topology.Serializable.PatchIdentifier, int)}.
+ * {@link #incrementPriority(Serializable.PatchIdentifier, int)}.
  *
  * @see logodetection.LogoTemplate
  * @see logodetection.RobustMatcher

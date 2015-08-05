@@ -2,7 +2,7 @@ package generateTraj;
 
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_imgproc;
-import topology.Serializable;
+import tool.Serializable;
 
 import java.io.*;
 import java.nio.FloatBuffer;

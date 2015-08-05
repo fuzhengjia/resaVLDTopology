@@ -131,10 +131,12 @@ extends java.lang.Object</pre>
  <a href="../logodetection/StormVideoLogoDetector.html#getFoundRect()"><code>getFoundRect()</code></a> returns null, then no logo has been detected on this patch.
  <p>
  4. If you wish to add a new logo template (for example, you extracted a template from some frame), you should call
- <a href="../logodetection/StormVideoLogoDetector.html#addTemplate(topology.Serializable.PatchIdentifier,%20topology.Serializable.Mat)"><code>addTemplate(topology.Serializable.PatchIdentifier, topology.Serializable.Mat)</code></a>.
+ <a href="../logodetection/StormVideoLogoDetector.html#addTemplate(tool.Serializable.PatchIdentifier,%20topology.Serializable.Mat)"><code>addTemplate(tool.Serializable.PatchIdentifier,
+     tool.Serializable.Mat)</code></a>.
  <p>
  5. Also you may want to increment the priority of the existing logo template. Then you call
- <a href="../logodetection/StormVideoLogoDetector.html#incrementPriority(topology.Serializable.PatchIdentifier,%20int)"><code>incrementPriority(topology.Serializable.PatchIdentifier, int)</code></a>.</div>
+ <a href="../logodetection/StormVideoLogoDetector.html#incrementPriority(tool.Serializable.PatchIdentifier,%20int)"><code>incrementPriority(tool.Serializable.PatchIdentifier,
+     int)</code></a>.</div>
 <dl><dt><span class="strong">See Also:</span></dt><dd><a href="../logodetection/LogoTemplate.html" title="class in logodetection"><code>LogoTemplate</code></a>, 
 <a href="../logodetection/RobustMatcher.html" title="class in logodetection"><code>RobustMatcher</code></a></dd></dl>
 </li>
@@ -240,7 +242,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../logodetection/StormVideoLogoDetector.html#addTemplate(topology.Serializable.PatchIdentifier,%20topology.Serializable.Mat)">addTemplate</a></strong>(<a href="../topology/Serializable.PatchIdentifier.html" title="class in topology">Serializable.PatchIdentifier</a>&nbsp;identifier,
+<td class="colLast"><code><strong><a href="../logodetection/StormVideoLogoDetector.html#addTemplate(tool.Serializable.PatchIdentifier,%20topology.Serializable.Mat)">addTemplate</a></strong>(<a href="../topology/Serializable.PatchIdentifier.html" title="class in topology">Serializable.PatchIdentifier</a>&nbsp;identifier,
            <a href="../topology/Serializable.Mat.html" title="class in topology">Serializable.Mat</a>&nbsp;mat)</code>
 <div class="block">Adds template to the dynamic list of logo templates.</div>
 </td>
@@ -278,7 +280,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><strong><a href="../logodetection/StormVideoLogoDetector.html#incrementPriority(topology.Serializable.PatchIdentifier,%20int)">incrementPriority</a></strong>(<a href="../topology/Serializable.PatchIdentifier.html" title="class in topology">Serializable.PatchIdentifier</a>&nbsp;identifier,
+<td class="colLast"><code><strong><a href="../logodetection/StormVideoLogoDetector.html#incrementPriority(tool.Serializable.PatchIdentifier,%20int)">incrementPriority</a></strong>(<a href="../topology/Serializable.PatchIdentifier.html" title="class in topology">Serializable.PatchIdentifier</a>&nbsp;identifier,
                  int&nbsp;value)</code>
 <div class="block">Finds a logo template identified by given patch identifier and increments its priority by value.</div>
 </td>
@@ -460,7 +462,7 @@ extends java.lang.Object</pre>
 <dl><dt><span class="strong">Returns:</span></dt><dd>identifier of parent template.</dd></dl>
 </li>
 </ul>
-<a name="incrementPriority(topology.Serializable.PatchIdentifier, int)">
+<a name="incrementPriority(tool.Serializable.PatchIdentifier, int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -474,7 +476,7 @@ extends java.lang.Object</pre>
  if this particular detector hasn't been updated by the Storm with this logo template.</dd></dl>
 </li>
 </ul>
-<a name="addTemplate(topology.Serializable.PatchIdentifier, topology.Serializable.Mat)">
+<a name="addTemplate(tool.Serializable.PatchIdentifier, tool.Serializable.Mat)">
 <!--   -->
 </a>
 <ul class="blockList">

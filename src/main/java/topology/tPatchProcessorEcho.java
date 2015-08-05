@@ -9,10 +9,10 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import logodetection.Parameters;
 import logodetection.SIFTfeatures;
-import logodetection.StormVideoLogoDetectorBeta;
 import logodetection.StormVideoLogoDetectorGamma;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_nonfree;
+import tool.Serializable;
 import util.ConfigUtil;
 
 import java.util.ArrayList;

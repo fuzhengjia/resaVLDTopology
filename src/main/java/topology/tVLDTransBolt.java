@@ -7,12 +7,10 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import generateTraj.TwoIntegers;
 import org.bytedeco.javacpp.opencv_core;
+import tool.Serializable;
 import util.ConfigUtil;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.cvMat;

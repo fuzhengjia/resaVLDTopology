@@ -8,9 +8,9 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import logodetection.Debug;
 import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_features2d;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FrameGrabber;
+import tool.Serializable;
 
 import java.util.Map;
 

@@ -1,16 +1,11 @@
 package tool;
 
 import backtype.storm.Config;
-import org.bytedeco.javacpp.opencv_imgproc;
 import redis.clients.jedis.Jedis;
-import topology.Serializable;
-import util.ConfigUtil;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_highgui.cvLoadImage;
 import static topology.StormConfigManager.*;
 

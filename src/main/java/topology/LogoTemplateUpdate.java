@@ -1,6 +1,6 @@
 package topology;
 
-import logodetection.LogoTemplate;
+import tool.Serializable;
 
 /**
  * Created by Intern04 on 19/8/2014.

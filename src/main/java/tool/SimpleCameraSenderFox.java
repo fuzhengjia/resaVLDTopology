@@ -4,11 +4,7 @@ import backtype.storm.Config;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_highgui;
 import redis.clients.jedis.Jedis;
-import topology.Serializable;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -20,6 +16,7 @@ import static topology.StormConfigManager.*;
  * In summary, from imageSender (IplImage->Mat->sMat->byte[]) to redis queue -> byte[]->sMat->Mat->IplImage)
  * Need test!!!
  * When call this function, the machine with physical camera sensor may need use "sodu" to get root access.
+ * through testing
  */
 public class SimpleCameraSenderFox {
 
