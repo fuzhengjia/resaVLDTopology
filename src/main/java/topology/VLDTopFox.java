@@ -98,7 +98,7 @@ public class VLDTopFox {
 
         List<String> templateFiles = getListOfStrings(conf, "originalTemplateFileNames");
 
-        StormSubmitter.submitTopology("tVLDEchoRIRO-s" + sampleFrames + "-" + W + "-" + H + "-L" + templateFiles.size(), conf, topology);
+        StormSubmitter.submitTopology("VLDTopFox-s" + sampleFrames + "-" + W + "-" + H + "-L" + templateFiles.size(), conf, topology);
 
     }
 }
