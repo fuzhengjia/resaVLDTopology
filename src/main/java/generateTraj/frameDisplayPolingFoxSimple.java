@@ -143,7 +143,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             if (frameId < offset){
                 cvPutText(frame, "Action Detection", showPos, font, showColor);
             }else {
-                int adjFrameID = frameId - offset - 1; ///window is 75, 0-14, 15-29, 30-44, 45-59, 60-74
+                int adjFrameID = frameId - offset; ///window is 75, 0-14, 15-29, 30-44, 45-59, 60-74
                 int winIndex = adjFrameID % this.windowSize;
                 int secPos = winIndex / this.frameRate;
 
