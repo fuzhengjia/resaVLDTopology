@@ -45,7 +45,7 @@ public class featureGenFoxAdv extends BaseRichBolt {
     String traceAggBoltNameString;
     int traceAggBoltTaskNumber;
 
-    List<Integer> unprocessedFrames;
+    HashSet<Integer> unprocessedFrames;
 
     public featureGenFoxAdv(String traceAggBoltNameString) {
         this.traceAggBoltNameString = traceAggBoltNameString;
@@ -69,7 +69,7 @@ public class featureGenFoxAdv extends BaseRichBolt {
         this.hogInfo = new DescInfo(8, 0, 1, patch_size, nxy_cell, nt_cell, min_flow);
         this.mbhInfo = new DescInfo(8, 0, 1, patch_size, nxy_cell, nt_cell, min_flow);
 
-        unprocessedFrames = new ArrayList<>();
+        unprocessedFrames = new HashSet<>();
     }
 
     @Override
@@ -105,6 +105,8 @@ public class featureGenFoxAdv extends BaseRichBolt {
 
             if (checkAvailability(unprocessedFrameID)){
                 collector.emit(STREAM_CACHE_CLEAN, new Values(unprocessedFrameID));
+
+                System.out.println("frameID: " + frameId + ",satisfy for processing unprocessedFrameID: " + unprocessedFrameID);
 
                 List<List<Serializable.CvPoint2D32f>> traceRecords = traceData.get(unprocessedFrameID);
                 List<float[]> traceFeatures = new ArrayList<>();
