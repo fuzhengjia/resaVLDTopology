@@ -118,6 +118,30 @@ public class NewMethod {
         return retVal;
     }
 
+    ///input: [288][288]...traceNum...[288]
+    ///output: [normalized(96)][normalized(96)]...traceNum...[normalized(96)] for each of hog, mbhx, mhby
+    public static float[] extractPartWithNormalization(List<float[]> source, int numData, int numDim, int start, int count) {
+        if (source.size() != numData) {
+            System.out.println("in extractPart, warning source.size() != numData, source.size: " + source.size()
+                    + ",numDim: " + numDim + ", numData: " + numData);
+            return null;
+        }
+
+        float[] retVal = new float[numData * count];
+
+        for (int i = 0; i < numData; i++) {
+            float sum = 0;
+            for (int j = 0; j < count; j++) {
+                sum += (source.get(i)[start + j] * source.get(i)[start + j]);
+            }
+            float base = (float) Math.sqrt(sum);
+            for (int j = 0; j < count; j++) {
+                int newIndex = i * count + j;
+                retVal[newIndex] = source.get(i)[start + j] / base;
+            }
+        }
+        return retVal;
+    }
 
     public static float[] getFVDataNew_float(float[] rawData, int numData, int numDim, GmmData gmmData) {
 //        Object[] enc = vl_fisher_encode_float(means, numDimension, numCluster, covs, priors, rawData, numData, 0);
@@ -203,7 +227,7 @@ public class NewMethod {
         for (int i = 0; i < trainingResult.size(); i++) {
             float sim = innerProduct(trainingResult.get(i), fv1, fv2, fv3);
             if (toPrint) {
-                System.out.println("i: " + i + ", sim: " + sim);
+                System.out.println("getClassificationResult_float, i: " + i + ", sim: " + sim);
             }
             if (sim > maxSimilarity) {
                 maxSimilarity = sim;
@@ -556,17 +580,10 @@ public class NewMethod {
     public static Object[] checkNew_float(List<float[]> rawInputData, List<float[]> trainingResult, int numDimension,
                                      PcaData hogPca, PcaData mbhxPca, PcaData mbhyPca, GmmData hogGmm, GmmData mbhxGmm, GmmData mbhyGmm, boolean toPrint) {
 
-
-        float[] rawData = new float[numDimension * rawInputData.size()];
-        for (int i = 0; i < rawInputData.size(); i ++){
-            for (int j = 0; j < numDimension; j ++){
-                rawData[i * numDimension + j] = rawInputData.get(i)[j];
-            }
-        }
         int numData = rawInputData.size();
-        float[] hogPart = extractPartWithNormalization(rawData, numData, numDimension, 0, 96);
-        float[] mbhxPart = extractPartWithNormalization(rawData, numData, numDimension, 96, 96);
-        float[] mbhyPart = extractPartWithNormalization(rawData, numData, numDimension, 192, 96);
+        float[] hogPart = extractPartWithNormalization(rawInputData, numData, numDimension, 0, 96);
+        float[] mbhxPart = extractPartWithNormalization(rawInputData, numData, numDimension, 96, 96);
+        float[] mbhyPart = extractPartWithNormalization(rawInputData, numData, numDimension, 192, 96);
 
         float[] hogPcaPart = applyPca(hogPart, numData, hogPca.aveDim, hogPca);
         float[] mbhxPcaPart = applyPca(mbhxPart, numData, mbhxPca.aveDim, mbhxPca);
