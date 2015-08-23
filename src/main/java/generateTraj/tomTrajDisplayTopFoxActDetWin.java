@@ -114,6 +114,6 @@ public class tomTrajDisplayTopFoxActDetWin {
         conf.setStatsSampleRate(1.0);
 
         int wSize = getInt(conf, "fvWinSize"); ///default value 75 = 15 * 5, 15fps for 5 seconds.
-        StormSubmitter.submitTopology("tTrajTopFoxActDetWin-" + init_counter + "-" + min_dis + "-" + w + "-" + h + "<>" + wSize, conf, topology);
+        StormSubmitter.submitTopology("tTrajTopFoxActDetWin-" + init_counter + "-" + min_dis + "-" + w + "-" + h + "-" + wSize, conf, topology);
     }
 }
