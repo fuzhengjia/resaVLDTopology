@@ -152,7 +152,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
                     int showSecondInfor = 3 - secPos;
                     cvPutText(frame, showSecondInfor + " ", showPos, font, showColor);
                 } else {
-                    int getClassificationID = fvResult.get(winIndex);
+                    int getClassificationID = fvResult.get(winIndex + 1);
                     cvPutText(frame, NewMethod.getClassificationString(getClassificationID), showPos, font, showColor);
                 }
                 fvResult.remove(winIndex - 3);
