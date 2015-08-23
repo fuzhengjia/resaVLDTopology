@@ -90,17 +90,17 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             rawFeatureDataList.get(winIndex).addAll(data);
             fvCounter.computeIfPresent(winIndex, (k, v) -> v + 1);
             System.out.println("frameID: " + frameId + ", winIndex: " + winIndex + ", fvCounter: " + fvCounter.get(winIndex));
-            if (fvCounter.get(winIndex) == this.windowSize) {
-
-                Object[] result = NewMethod.checkNew_float(rawFeatureDataList.get(winIndex), trainingResult,
-                        numDimension, hogPca, mbhxPca, mbhyPca, hogGmm, mbhxGmm, mbhyGmm, true);
-                int getClassificationID = (int)result[0];
-                float sim = (float)result[1];
-
-                rawFeatureDataList.remove(winIndex);
-                fvCounter.remove(winIndex);
-                System.out.println("simframeID: " + frameId + ", winIndex: " + winIndex + ", cResult: " + getClassificationID + ", sim: " + + sim +  ", ht.cnt: " + rawFeatureDataList.size());
-            }
+//            if (fvCounter.get(winIndex) == this.windowSize) {
+//
+//                Object[] result = NewMethod.checkNew_float(rawFeatureDataList.get(winIndex), trainingResult,
+//                        numDimension, hogPca, mbhxPca, mbhyPca, hogGmm, mbhxGmm, mbhyGmm, true);
+//                int getClassificationID = (int)result[0];
+//                float sim = (float)result[1];
+//
+//                rawFeatureDataList.remove(winIndex);
+//                fvCounter.remove(winIndex);
+//                System.out.println("simframeID: " + frameId + ", winIndex: " + winIndex + ", cResult: " + getClassificationID + ", sim: " + + sim +  ", ht.cnt: " + rawFeatureDataList.size());
+//            }
         } else {
             rawFeatureDataList.put(winIndex, data);
             fvCounter.put(winIndex, 1);
