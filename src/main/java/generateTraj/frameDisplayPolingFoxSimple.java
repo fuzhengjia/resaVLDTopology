@@ -89,7 +89,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
         if (rawFeatureDataList.containsKey(winIndex)) {
             rawFeatureDataList.get(winIndex).addAll(data);
             fvCounter.computeIfPresent(winIndex, (k, v) -> v + 1);
-
+            System.out.println("frameID: " + frameId + ", winIndex: " + winIndex + ", fvCounter: " + fvCounter.get(winIndex));
             if (fvCounter.get(winIndex) == this.windowSize) {
 
                 Object[] result = NewMethod.checkNew_float(rawFeatureDataList.get(winIndex), trainingResult,
