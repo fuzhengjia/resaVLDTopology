@@ -64,6 +64,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
         rawFeatureDataList = new HashMap<>();
+        rawFrameMap = new HashMap<>();
         fvCounter = new HashMap<>();
         fvResult = new HashMap<>();
 

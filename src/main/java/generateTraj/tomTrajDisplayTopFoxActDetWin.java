@@ -6,6 +6,7 @@ import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.tuple.Fields;
 import tool.FrameImplImageSourceFox;
 import tool.RedisFrameOutputFox;
 import tool.Serializable;
@@ -94,6 +95,7 @@ public class tomTrajDisplayTopFoxActDetWin {
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
 
         builder.setBolt(featurePooling, new frameDisplayPolingFoxSimple(), getInt(conf, featurePooling + ".parallelism"))
+                .globalGrouping(imgPrepareBolt, STREAM_FRAME_OUTPUT)
                 .globalGrouping(frameDisplay, STREAM_FRAME_FV)
                 .setNumTasks(getInt(conf, featurePooling + ".tasks"));
 
