@@ -95,10 +95,11 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
                 Object[] result = NewMethod.checkNew_float(rawFeatureDataList.get(winIndex), trainingResult,
                         numDimension, hogPca, mbhxPca, mbhyPca, hogGmm, mbhxGmm, mbhyGmm, true);
                 int getClassificationID = (int)result[0];
+                float sim = (float)result[1];
 
                 rawFeatureDataList.remove(winIndex);
                 fvCounter.remove(winIndex);
-                System.out.println("frameID: " + frameId + ", winIndex: " + winIndex + ", getClassificationResult: " + getClassificationID + ", ht.cnt: " + rawFeatureDataList.size());
+                System.out.println("frameID: " + frameId + ", winIndex: " + winIndex + ", cResult: " + getClassificationID + ", sim: " + + sim +  ", ht.cnt: " + rawFeatureDataList.size());
             }
         } else {
             rawFeatureDataList.put(winIndex, data);
