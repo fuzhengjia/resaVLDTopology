@@ -137,7 +137,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             IplImage frame = orgMat.asIplImage();
             CvFont font = new CvFont();
             cvInitFont(font, CV_FONT_VECTOR0, 0.5f, 0.5f, 0, 1, 8);
-            CvPoint showPos = cvPoint(5, 10);
+            CvPoint showPos = cvPoint(5, 20);
             CvScalar showColor = CV_RGB(0, 0, 0);
 
             if (frameId < offset + 2 * this.frameRate + 1){
