@@ -85,7 +85,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
         List<float[]> data = (List<float[]>) tuple.getValueByField(FIELD_FEA_VEC);
 
-        int winIndex = (frameId - 1) / this.windowSize;
+        int winIndex = (frameId - 1 - 14) / this.windowSize; ///there is an offset between frameID and Window
         if (rawFeatureDataList.containsKey(winIndex)) {
             rawFeatureDataList.get(winIndex).addAll(data);
             fvCounter.computeIfPresent(winIndex, (k, v) -> v + 1);
