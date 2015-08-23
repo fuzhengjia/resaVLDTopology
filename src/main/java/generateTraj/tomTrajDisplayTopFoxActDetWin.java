@@ -87,7 +87,7 @@ public class tomTrajDisplayTopFoxActDetWin {
                 .directGrouping(optFlowTracker, STREAM_EXIST_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
-        builder.setBolt(frameDisplay, new featureGenFox(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
+        builder.setBolt(frameDisplay, new featureGenFoxAdv(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
                 .globalGrouping(optFlowGenBolt, STREAM_FEATURE_FLOW)
                 .globalGrouping(traceAggregator, STREAM_FEATURE_TRACE)
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
