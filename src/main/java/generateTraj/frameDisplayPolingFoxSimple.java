@@ -173,7 +173,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
                     int t = this.windowInSeconds - showSecondInfor;
                     int percent = t * 100 / this.windowInSeconds;
 //                    cvPutText(frame, showSecondInfor + " ", showPos, font, showColor);
-                    cvPutText(frame, "detecting action ... " + percent + "%", showPos2, font, CvScalar.BLUE);
+                    cvPutText(frame, "detecting action... " + percent + "%", showPos2, font, CvScalar.BLUE);
 //                    for (int i = 0; i < this.windowInSeconds; i ++) {
 //                        int t = this.windowInSeconds - showSecondInfor;
 //                        if (i < t) {
