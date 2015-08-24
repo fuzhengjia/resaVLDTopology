@@ -151,7 +151,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             IplImage frame = orgMat.asIplImage();
             CvFont font = new CvFont();
             cvInitFont(font, CV_FONT_VECTOR0, 0.4f, 0.4f, 0, 1, 8);
-            CvPoint showPos = cvPoint(5, 10);
+            CvPoint showPos = cvPoint(5, 13);
             ///CvScalar showColor = CV_RGB(0, 0, 0);
             CvScalar showColor = CvScalar.BLUE;
             int xSt = 5;
@@ -172,27 +172,10 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
                     int showSecondInfor = this.countDownSeconds - secPos;
                     int t = this.windowInSeconds - showSecondInfor;
                     int percent = t * 100 / this.windowInSeconds;
-//                    cvPutText(frame, showSecondInfor + " ", showPos, font, showColor);
                     cvPutText(frame, "detecting action... " + percent + "%", showPos2, font, CvScalar.BLUE);
-//                    for (int i = 0; i < this.windowInSeconds; i ++) {
-//                        int t = this.windowInSeconds - showSecondInfor;
-//                        if (i < t) {
-//                            cvRectangle(frame, cvPoint(xSt + i * xWid, ySt), cvPoint(xSt + (i + 1) * xWid, ySt + yWid), opencv_core.CvScalar.GREEN, -1, 8, 0);
-//                        } else {
-//                            cvRectangle(frame, cvPoint(xSt + i * xWid, ySt), cvPoint(xSt + (i + 1) * xWid, ySt + yWid), opencv_core.CvScalar.GREEN, 1, 8, 0);
-//                        }
-//                    }
                 } else {
                     int getClassificationID = fvResult.containsKey(winIndex) == true ? fvResult.get(winIndex) : -1;
-                    int showSecondInfor = secPos - this.countDownSeconds;
                     cvPutText(frame, "Action: " + NewMethod.getClassificationString(getClassificationID), showPos, font, showColor);
-//                    for (int i = 0; i < this.windowInSeconds; i ++) {
-//                        if (i < showSecondInfor) {
-//                            cvRectangle(frame, cvPoint(xSt + i * xWid, ySt), cvPoint(xSt + (i + 1) * xWid, ySt + yWid), opencv_core.CvScalar.GREEN, -1, 8, 0);
-//                        } else {
-//                            cvRectangle(frame, cvPoint(xSt + i * xWid, ySt), cvPoint(xSt + (i + 1) * xWid, ySt + yWid), opencv_core.CvScalar.GREEN, 1, 8, 0);
-//                        }
-//                    }
                 }
                 fvResult.remove(winIndex - 3);
             }
