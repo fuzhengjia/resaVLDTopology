@@ -158,7 +158,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             int ySt = 100;
             int xWid = 5;
             int yWid = 10;
-            CvPoint showPos2 = cvPoint(5, 105);
+            CvPoint showPos2 = cvPoint(5, 110);
 
             if (frameId < maxTrackerLength + resultLastSeconds * frameRate) {
                 cvPutText(frame, "Action Detection", showPos, font, showColor);
