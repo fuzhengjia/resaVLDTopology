@@ -111,12 +111,16 @@ public class tomTrajDisplayTopFoxActDetWin {
 
         int min_dis = getInt(conf, "min_distance");
         int init_counter = getInt(conf, "init_counter");
-        int w = ConfigUtil.getInt(conf, "inWidth", 640);
-        int h = ConfigUtil.getInt(conf, "inHeight", 480);
+        int w = getInt(conf, "inWidth");
+        int h = getInt(conf, "inHeight");
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
 
-        int wSize = getInt(conf, "fvWinSize"); ///default value 75 = 15 * 5, 15fps for 5 seconds.
-        StormSubmitter.submitTopology("tTrajTopFoxActDetWin-" + init_counter + "-" + min_dis + "-" + w + "-" + h + "-" + wSize, conf, topology);
+        int frameRate = getInt(conf, "frameRate");
+        int windowInSeconds = getInt(conf, "windowInSeconds"); ///windowInFrames = windowInSeconds * frameRate
+        int resultLastSeconds = getInt(conf, "resultLastSeonds"); /// Countdown seconds = windowInseconds - resultLastSeconds
+
+        StormSubmitter.submitTopology("tTrajTopFoxActDetWin-"
+                + init_counter + "-" + min_dis + "-" + w + "-" + h + "-" + frameRate + "-" + windowInSeconds + "-" + resultLastSeconds, conf, topology);
     }
 }
