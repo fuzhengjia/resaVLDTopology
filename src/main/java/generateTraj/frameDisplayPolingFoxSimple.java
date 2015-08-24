@@ -10,7 +10,9 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import org.bytedeco.javacpp.opencv_core;
 import tool.Serializable;
+import util.ConfigUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,16 +39,21 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
     private HashMap<Integer, List<float[]>> rawFeatureDataList;
     private HashMap<Integer, Integer> fvCounter;
     private HashMap<Integer, Integer> fvResult;
-    private int windowSize;
     private HashMap<Integer, Serializable.Mat> rawFrameMap;
     private HashMap<Integer, Integer> traceMonitor;
+
+    List<opencv_core.CvScalar> colorList;
 
     int numDimension = 288;
     int numCluster = 256;
     int fvLength = 2 * numCluster * numDimension / 2;
 
-    int offset = 14;
-    int frameRate = 15;
+    int maxTrackerLength;
+    int frameRate;
+    int windowInSeconds;
+    int windowInFrames;
+    int resultLastSeconds;
+    int countDownSeconds;
 
     PcaData hogPca;
     PcaData mbhxPca;
@@ -58,7 +65,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
 
     List<float[]> trainingResult;
 
-    private boolean toDebug = true;
+    private boolean toDebug = false;
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -69,7 +76,13 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
         fvResult = new HashMap<>();
 
         traceMonitor = new HashMap<>();
-        this.windowSize = getInt(map, "fvWinSize", 75); ///default value 75 = 15 * 5, 15fps for 5 seconds.
+        this.frameRate = getInt(map, "frameRate", 15);
+        this.windowInSeconds = getInt(map, "windowInSeconds", 5); ///windowInFrames = windowInSeconds * frameRate
+        this.windowInFrames = this.windowInSeconds * this.frameRate;
+        /// [3][2][1][R][R]...[3][2][1][R][R]
+        this.resultLastSeconds = getInt(map, "resultLastSeonds", 2); /// Countdown seconds = windowInseconds - resultLastSeconds
+        this.maxTrackerLength = ConfigUtil.getInt(map, "maxTrackerLength", 15);  ///offset + 1
+        this.countDownSeconds = this.windowInSeconds - this.resultLastSeconds;
 
         String hogPcaFile = getString(map, "hogPcaFilePath");
         String mbhxPcaFile = getString(map, "mbhxPcaFilePath");
@@ -107,12 +120,13 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             List<float[]> data = (List<float[]>) tuple.getValueByField(FIELD_FEA_VEC);
             traceMonitor.put(frameId, -1); /// -1 means undefined action.
 
-            int winIndex = (frameId - 1 - offset) / this.windowSize; ///there is an offset between frameID and Window
+            ///there is an offset between frameID and Window, and this.maxTrackerLength = offset + 1;
+            int winIndex = (frameId - this.maxTrackerLength) / this.windowInFrames;
             if (rawFeatureDataList.containsKey(winIndex)) {
                 rawFeatureDataList.get(winIndex).addAll(data);
                 fvCounter.computeIfPresent(winIndex, (k, v) -> v + 1);
-                System.out.println("frameID: " + frameId + ", winIndex: " + winIndex + ", fvCounter: " + fvCounter.get(winIndex));
-                if (fvCounter.get(winIndex) == this.windowSize) {
+//                System.out.println("frameID: " + frameId + ", winIndex: " + winIndex + ", fvCounter: " + fvCounter.get(winIndex));
+                if (fvCounter.get(winIndex) == this.windowInFrames) {
 
                     Object[] result = NewMethod.checkNew_float(rawFeatureDataList.get(winIndex), trainingResult,
                             numDimension, hogPca, mbhxPca, mbhyPca, hogGmm, mbhxGmm, mbhyGmm, true);
@@ -121,7 +135,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
 
                     rawFeatureDataList.remove(winIndex);
                     fvCounter.remove(winIndex);
-                    System.out.println("simframeID: " + frameId + ", winIndex: " + winIndex + ", cResult: " + getClassificationID + ", sim: " + +sim + ", ht.cnt: " + rawFeatureDataList.size());
+//                    System.out.println("simframeID: " + frameId + ", winIndex: " + winIndex + ", cResult: " + getClassificationID + ", sim: " + +sim + ", ht.cnt: " + rawFeatureDataList.size());
                     traceMonitor.put(frameId, getClassificationID);
                     fvResult.put(winIndex, getClassificationID);
                 }
@@ -131,7 +145,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             }
         }
 
-        if (frameId < offset || (rawFrameMap.containsKey(frameId) && traceMonitor.containsKey(frameId))) {
+        if (frameId < this.maxTrackerLength || (rawFrameMap.containsKey(frameId) && traceMonitor.containsKey(frameId))) {
 
             Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
             IplImage frame = orgMat.asIplImage();
@@ -140,19 +154,19 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             CvPoint showPos = cvPoint(5, 15);
             CvScalar showColor = CV_RGB(0, 0, 0);
 
-            if (frameId < offset + 2 * this.frameRate + 1){
+            if (frameId < maxTrackerLength + resultLastSeconds * frameRate) {
                 cvPutText(frame, "Action Detection", showPos, font, showColor);
-            }else {
-                int adjFrameID = frameId - offset - 2 * this.frameRate - 1; ///window is 75, 0-14, 15-29, 30-44, 45-59, 60-74
-                int winIndex = adjFrameID / this.windowSize;
-                int secPos = (adjFrameID % this.windowSize) / this.frameRate;
+            } else {
+                int adjFrameID = frameId - maxTrackerLength - resultLastSeconds * frameRate; ///window is 75, 0-14, 15-29, 30-44, 45-59, 60-74
+                int winIndex = adjFrameID / this.windowInFrames;
+                int secPos = (adjFrameID % this.windowInFrames) / this.frameRate;
 
                 //3, 2, 1, x, x, 3, 2, 1, x, x,
-                if (secPos < 3) {//
-                    int showSecondInfor = 3 - secPos;
+                if (secPos < this.countDownSeconds) {//
+                    int showSecondInfor = this.countDownSeconds - secPos;
                     cvPutText(frame, showSecondInfor + " ", showPos, font, showColor);
                 } else {
-                    int getClassificationID = fvResult.get(winIndex);
+                    int getClassificationID = fvResult.containsKey(winIndex) == true ? fvResult.get(winIndex) : -1;
                     cvPutText(frame, NewMethod.getClassificationString(getClassificationID), showPos, font, showColor);
                 }
                 fvResult.remove(winIndex - 3);
