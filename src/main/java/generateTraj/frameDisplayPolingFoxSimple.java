@@ -172,7 +172,8 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
 //                    cvPutText(frame, showSecondInfor + " ", showPos, font, showColor);
                     cvPutText(frame, "detecting...", showPos, font, showColor);
                     for (int i = 0; i < this.windowInSeconds; i ++) {
-                        if (i < showSecondInfor) {
+                        int t = this.windowInSeconds - showSecondInfor;
+                        if (i < t) {
                             cvRectangle(frame, cvPoint(xSt + i * xWid, ySt), cvPoint(xSt + (i + 1) * xWid, ySt + yWid), opencv_core.CvScalar.GREEN, -1, 8, 0);
                         } else {
                             cvRectangle(frame, cvPoint(xSt + i * xWid, ySt), cvPoint(xSt + (i + 1) * xWid, ySt + yWid), opencv_core.CvScalar.GREEN, 1, 8, 0);
