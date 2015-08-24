@@ -118,7 +118,7 @@ public class tomTrajDisplayTopFoxActDetWin {
 
         int frameRate = getInt(conf, "frameRate");
         int windowInSeconds = getInt(conf, "windowInSeconds"); ///windowInFrames = windowInSeconds * frameRate
-        int resultLastSeconds = getInt(conf, "resultLastSeonds"); /// Countdown seconds = windowInseconds - resultLastSeconds
+        int resultLastSeconds = getInt(conf, "resultLastSeconds"); /// Countdown seconds = windowInseconds - resultLastSeconds
 
         StormSubmitter.submitTopology("tTrajTopFoxActDetWin-"
                 + init_counter + "-" + min_dis + "-" + w + "-" + h + "-" + frameRate + "-" + windowInSeconds + "-" + resultLastSeconds, conf, topology);

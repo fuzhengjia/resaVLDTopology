@@ -80,7 +80,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
         this.windowInSeconds = getInt(map, "windowInSeconds", 5); ///windowInFrames = windowInSeconds * frameRate
         this.windowInFrames = this.windowInSeconds * this.frameRate;
         /// [3][2][1][R][R]...[3][2][1][R][R]
-        this.resultLastSeconds = getInt(map, "resultLastSeonds", 2); /// Countdown seconds = windowInseconds - resultLastSeconds
+        this.resultLastSeconds = getInt(map, "resultLastSeconds", 2); /// Countdown seconds = windowInseconds - resultLastSeconds
         this.maxTrackerLength = ConfigUtil.getInt(map, "maxTrackerLength", 15);  ///offset + 1
         this.countDownSeconds = this.windowInSeconds - this.resultLastSeconds;
 
