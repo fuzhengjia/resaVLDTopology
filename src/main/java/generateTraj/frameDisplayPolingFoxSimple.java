@@ -149,23 +149,17 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
         if (frameId < this.maxTrackerLength || (rawFrameMap.containsKey(frameId) && traceMonitor.containsKey(frameId))) {
 
             Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
+            IplImage orgFrame = orgMat.asIplImage();
 
-            opencv_core.Mat matNew = new opencv_core.Mat();
-            opencv_core.Size size = new opencv_core.Size(640, 480);
-            opencv_imgproc.resize(orgMat, matNew, size);
-            IplImage frame = matNew.asIplImage();
+            IplImage frame = cvCreateImage(cvSize(640, 480), 8, 3);
+            opencv_imgproc.cvResize(orgFrame, frame, opencv_imgproc.CV_INTER_AREA);
 
-//            IplImage frame = orgMat.asIplImage();
             CvFont font = new CvFont();
-            cvInitFont(font, CV_FONT_VECTOR0, 0.4f, 0.4f, 0, 1, 8);
+            cvInitFont(font, CV_FONT_VECTOR0, 1.f, 1.0f, 0, 1, 8);
             CvPoint showPos = cvPoint(5, 13);
             ///CvScalar showColor = CV_RGB(0, 0, 0);
             CvScalar showColor = CvScalar.BLUE;
-            int xSt = 5;
-            int ySt = 100;
-            int xWid = 5;
-            int yWid = 10;
-            CvPoint showPos2 = cvPoint(5, 115);
+            CvPoint showPos2 = cvPoint(5, 460);
 
             if (frameId < maxTrackerLength + resultLastSeconds * frameRate) {
                 cvPutText(frame, "Action Detection", showPos, font, showColor);
