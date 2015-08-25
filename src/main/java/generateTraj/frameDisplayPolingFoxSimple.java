@@ -156,10 +156,10 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
 
             CvFont font = new CvFont();
             cvInitFont(font, CV_FONT_VECTOR0, 1.4f, 1.4f, 0, 2, 8);
-            CvPoint showPos = cvPoint(5, 20);
+            CvPoint showPos = cvPoint(5, 30);
             ///CvScalar showColor = CV_RGB(0, 0, 0);
             CvScalar showColor = CvScalar.BLUE;
-            CvPoint showPos2 = cvPoint(5, 460);
+            CvPoint showPos2 = cvPoint(5, 465);
 
             if (frameId < maxTrackerLength + resultLastSeconds * frameRate) {
                 cvPutText(frame, "Action Detection", showPos, font, showColor);
