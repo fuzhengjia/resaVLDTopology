@@ -11,6 +11,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacpp.opencv_imgproc;
 import tool.Serializable;
 import util.ConfigUtil;
 
@@ -148,7 +149,13 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
         if (frameId < this.maxTrackerLength || (rawFrameMap.containsKey(frameId) && traceMonitor.containsKey(frameId))) {
 
             Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
-            IplImage frame = orgMat.asIplImage();
+
+            opencv_core.Mat matNew = new opencv_core.Mat();
+            opencv_core.Size size = new opencv_core.Size(640, 480);
+            opencv_imgproc.resize(orgMat, matNew, size);
+            IplImage frame = matNew.asIplImage();
+
+//            IplImage frame = orgMat.asIplImage();
             CvFont font = new CvFont();
             cvInitFont(font, CV_FONT_VECTOR0, 0.4f, 0.4f, 0, 1, 8);
             CvPoint showPos = cvPoint(5, 13);
@@ -172,7 +179,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
                     int showSecondInfor = this.countDownSeconds - secPos;
                     int t = this.windowInSeconds - showSecondInfor;
                     int percent = t * 100 / this.windowInSeconds;
-                    cvPutText(frame, "detecting action... " + percent + "%", showPos2, font, CvScalar.BLUE);
+                    cvPutText(frame, "Detecting action... " + percent + "%", showPos2, font, CvScalar.BLUE);
                 } else {
                     int getClassificationID = fvResult.containsKey(winIndex) == true ? fvResult.get(winIndex) : -1;
                     cvPutText(frame, "Action: " + NewMethod.getClassificationString(getClassificationID), showPos, font, showColor);
