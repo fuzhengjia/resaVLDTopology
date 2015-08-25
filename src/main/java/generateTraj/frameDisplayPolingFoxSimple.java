@@ -155,8 +155,8 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             opencv_imgproc.cvResize(orgFrame, frame, opencv_imgproc.CV_INTER_AREA);
 
             CvFont font = new CvFont();
-            cvInitFont(font, CV_FONT_VECTOR0, 1.0f, 1.0f, 0, 1, 8);
-            CvPoint showPos = cvPoint(5, 13);
+            cvInitFont(font, CV_FONT_VECTOR0, 1.4f, 1.4f, 0, 2, 8);
+            CvPoint showPos = cvPoint(5, 20);
             ///CvScalar showColor = CV_RGB(0, 0, 0);
             CvScalar showColor = CvScalar.BLUE;
             CvPoint showPos2 = cvPoint(5, 460);
