@@ -30,14 +30,11 @@ import static topology.StormConfigManager.*;
  * Updated on April 29, the way to handle frame sampling issue is changed, this is pre-processed by the spout not to
  * send out unsampled frames to the patch generation bolt.
  *
- * Enabling sampling features.
+ * Enabling sampling features. Sampling problem is solved!
  * through testing
  */
 public class VLDTopFox {
 
-    //TODO: double check the new sampling handling approach.
-    // b) then avoid broadcast the whole frames, split the functions in PatchProcessorBolt.
-    //
 
     public static void main(String args[]) throws InterruptedException, AlreadyAliveException, InvalidTopologyException, FileNotFoundException {
         if (args.length != 1) {
@@ -62,7 +59,7 @@ public class VLDTopFox {
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
 
         builder.setBolt(patchGenBolt, new PatchGenFox(), getInt(conf, patchGenBolt + ".parallelism"))
-                .shuffleGrouping(spoutName, SAMPLE_FRAME_STREAM) //TODO: double check the new mechanism
+                .shuffleGrouping(spoutName, SAMPLE_FRAME_STREAM)
                 .setNumTasks(getInt(conf, patchGenBolt + ".tasks"));
 
         builder.setBolt(patchProcBolt, new PatchProcessorFox(), getInt(conf, patchProcBolt + ".parallelism"))
@@ -71,8 +68,6 @@ public class VLDTopFox {
                 .setNumTasks(getInt(conf, patchProcBolt + ".tasks"));
 
         builder.setBolt(patchAggBolt, new PatchAggFox(), getInt(conf, patchAggBolt + ".parallelism"))
-//                .globalGrouping(patchProcBolt, DETECTED_LOGO_STREAM)
-                //todo: still have problem when sample rate is even number!!!
                 .fieldsGrouping(patchProcBolt, DETECTED_LOGO_STREAM, new Fields(FIELD_SAMPLE_ID))
                 .setNumTasks(getInt(conf, patchAggBolt + ".tasks"));
 
