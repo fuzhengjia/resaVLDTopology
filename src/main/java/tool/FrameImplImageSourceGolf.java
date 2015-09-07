@@ -72,8 +72,7 @@ public class FrameImplImageSourceGolf extends RedisQueueSpout {
             Serializable.Mat sMat = new Serializable.Mat(mat);
 
             if (frameId > 0 && sMatPrev != null){
-                collector.emit(STREAM_FRAME_OUTPUT, new Values(frameId, sMat, sMatPrev), id);
-                collector.emit(ORIGINAL_FRAME_OUTPUT, new Values(frameId, revMat), id);
+                collector.emit(STREAM_FRAME_OUTPUT, new Values(frameId, sMat, sMatPrev, revMat), id);
 
                 if (toDebug) {
                     long nowTime = System.currentTimeMillis();
@@ -89,7 +88,6 @@ public class FrameImplImageSourceGolf extends RedisQueueSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_FRAME_MAT_PREV));
-        declarer.declareStream(ORIGINAL_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT));
+        declarer.declareStream(STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_FRAME_MAT_PREV, FIELD_FRAME_MAT_ORG));
     }
 }

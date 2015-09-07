@@ -94,7 +94,7 @@ public class frameDisplayMultiGolf extends BaseRichBolt {
         }
         //System.out.println("receive tuple, frameID: " + frameId + ", streamID: " + streamId);
         if (streamId.equals(ORIGINAL_FRAME_OUTPUT)) {
-            Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
+            Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT_ORG);
             rawFrameMap.computeIfAbsent(frameId, k -> sMat);
 
         } else if (streamId.equals(STREAM_PLOT_TRACE)) {

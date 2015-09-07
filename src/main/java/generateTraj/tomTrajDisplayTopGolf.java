@@ -88,7 +88,7 @@ public class tomTrajDisplayTopGolf {
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
         builder.setBolt(frameDisplay, new frameDisplayMultiGolf(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
-                .fieldsGrouping(spoutName, ORIGINAL_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping(imgPrepareBolt, ORIGINAL_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
                 .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
 

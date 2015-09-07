@@ -82,6 +82,9 @@ public class imagePrepareGolf extends BaseRichBolt {
         Serializable.Mat sMatPrev = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT_PREV);
         IplImage framePrev = sMatPrev.toJavaCVMat().asIplImage();
 
+        Serializable.Mat sMatOrg = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT_ORG);
+        collector.emit(ORIGINAL_FRAME_OUTPUT, tuple, new Values(frameId, sMatOrg));
+
         if (this.image == null || frameId == 1) { //only first time
             image = cvCreateImage(cvGetSize(frame), 8, 3);
             image.origin(frame.origin());
@@ -167,5 +170,6 @@ public class imagePrepareGolf extends BaseRichBolt {
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declareStream(STREAM_GREY_FLOW, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_FRAME_MAT_PREV));
         outputFieldsDeclarer.declareStream(STREAM_EIG_FLOW, true, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT, FIELD_EIG_INFO));
+        outputFieldsDeclarer.declareStream(ORIGINAL_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID, FIELD_FRAME_MAT_ORG));
     }
 }
