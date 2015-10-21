@@ -64,6 +64,7 @@ public class RedisQueueSpout extends BaseRichSpout {
     public void nextTuple() {
         Jedis jedis = getConnectedJedis();
         if (jedis == null) {
+            System.out.println("FrameSourceFox.Prepare, jedis == null");
             return;
         }
         Object text;
