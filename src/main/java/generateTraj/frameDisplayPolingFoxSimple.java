@@ -22,6 +22,7 @@ import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.*;
 import static tool.Constants.*;
+import static topology.StormConfigManager.getListOfStrings;
 import static topology.StormConfigManager.getString;
 import static util.ConfigUtil.getInt;
 
@@ -56,6 +57,9 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
     int resultLastSeconds;
     int countDownSeconds;
 
+    int outputW;
+    int outputH;
+
     PcaData hogPca;
     PcaData mbhxPca;
     PcaData mbhyPca;
@@ -65,6 +69,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
     GmmData mbhyGmm;
 
     List<float[]> trainingResult;
+    List<String> actionNameList;
 
     private boolean toDebug = false;
 
@@ -95,6 +100,9 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
 
         String trainDataFile = getString(map, "trainDataFilePath");
 
+        this.outputW = getInt(map, "outputW", 640);
+        this.outputH = getInt(map, "outputH", 480);
+
         hogPca = new PcaData(hogPcaFile);
         mbhxPca = new PcaData(mbhxPcaFile);
         mbhyPca = new PcaData(mbhyPcaFile);
@@ -104,6 +112,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
         mbhyGmm = new GmmData(mbhyGmmFile);
 
         trainingResult = NewMethod.getTrainingResult_float(trainDataFile, fvLength);
+        actionNameList = getListOfStrings(map, "actionNames");
     }
 
     @Override
@@ -151,7 +160,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
             IplImage orgFrame = orgMat.asIplImage();
 
-            IplImage frame = cvCreateImage(cvSize(640, 480), 8, 3);
+            IplImage frame = cvCreateImage(cvSize(this.outputW, this.outputH), 8, 3);
             opencv_imgproc.cvResize(orgFrame, frame, opencv_imgproc.CV_INTER_AREA);
 
             CvFont font = new CvFont();
@@ -159,7 +168,8 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             CvPoint showPos = cvPoint(5, 40);
             ///CvScalar showColor = CV_RGB(0, 0, 0);
             CvScalar showColor = CvScalar.BLUE;
-            CvPoint showPos2 = cvPoint(5, 465);
+            //CvPoint showPos2 = cvPoint(5, 465);
+            CvPoint showPos2 = cvPoint(5, this.outputH - 15);
 
             if (frameId < maxTrackerLength + resultLastSeconds * frameRate) {
                 cvPutText(frame, "Action Detection", showPos, font, showColor);
@@ -170,13 +180,13 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
 
                 //3, 2, 1, x, x, 3, 2, 1, x, x,
                 if (secPos < this.countDownSeconds) {//
-                    int showSecondInfor = this.countDownSeconds - secPos;
-                    int t = this.windowInSeconds - showSecondInfor;
+                    int showSecondInfo = this.countDownSeconds - secPos;
+                    int t = this.windowInSeconds - showSecondInfo;
                     int percent = t * 100 / this.windowInSeconds;
                     cvPutText(frame, "Detecting action... " + percent + "%", showPos2, font, CvScalar.BLUE);
                 } else {
                     int getClassificationID = fvResult.containsKey(winIndex) == true ? fvResult.get(winIndex) : -1;
-                    cvPutText(frame, "Action: " + NewMethod.getClassificationString(getClassificationID), showPos, font, showColor);
+                    cvPutText(frame, "Action: " + NewMethod.getClassificationString(getClassificationID, actionNameList), showPos, font, showColor);
                 }
                 fvResult.remove(winIndex - 3);
             }

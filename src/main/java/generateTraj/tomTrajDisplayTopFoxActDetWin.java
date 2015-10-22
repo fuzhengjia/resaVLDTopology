@@ -30,6 +30,7 @@ import static topology.StormConfigManager.*;
  * TODO: 4. 注意在ImageSender 和 FrameIplImageSource 里面，在一开始读取，和转换成byte[]时候会发生的数据变化，也是导致不一致的原因之一
  * TODO: 大bug！ 5. 在imagePrep中的width 和height = cvFloor(grey.width() / min_distance); 不是真正的 frame的 width 和height，
  * TODO: 包括后来传到 traceAgg做feedback用的，不能在agg里面直接用来产生renew的点的taskID！！！
+ * Comparing to tomTrajDisplayTopFoxActDet, this version does not show trajectories, just output detection results.
  */
 public class tomTrajDisplayTopFoxActDetWin {
 

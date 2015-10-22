@@ -28,7 +28,8 @@ import static topology.StormConfigManager.*;
  * 2. 重写一些data structure
  *
  * Golf version 是基于Fox version， 实现一个新功能，按照Peiyong的建议，当输入文件的resolution很大的时候，可以先resize变小，产生trajectory之后，
- * 再显示的时候resize回来。
+ * 再显示的时候resize回来。..............但是效果不好！！！
+ * 目前任然是用Fox版本
  */
 public class tomTrajDisplayTopGolf {
 

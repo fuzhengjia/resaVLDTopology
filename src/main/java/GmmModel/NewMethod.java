@@ -601,17 +601,12 @@ public class NewMethod {
         return new Object[]{testClassID, similarity};
     }
 
-    public static String getClassificationString(int result) {
+    public static String getClassificationString(int result, List<String> actionNames) {
 
-        switch (result){
-            case 0: return "boxing";
-            case 1: return "handclapping";
-            case 2: return "handwaving";
-            case 3: return "jogging";
-            case 4: return "running";
-            case 5: return "walking";
-            default: return "unknown";
+        if (result < actionNames.size()){
+            return actionNames.get(result);
         }
+        return "unknown";
     }
 }
 
