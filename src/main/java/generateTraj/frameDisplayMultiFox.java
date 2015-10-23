@@ -40,7 +40,6 @@ public class frameDisplayMultiFox extends BaseRichBolt {
     static float[] fscales;
     static int ixyScale = 0;
 
-
     int procWidth;
     int procHeight;
     int outputW;
