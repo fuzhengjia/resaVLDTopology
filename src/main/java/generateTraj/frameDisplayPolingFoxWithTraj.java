@@ -182,10 +182,11 @@ public class frameDisplayPolingFoxWithTraj extends BaseRichBolt {
 
             Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
             IplImage orgFrame = orgMat.asIplImage();
+            IplImage orgFrame2 = cvCloneImage(orgFrame);
 
             ///add action detection results.
             IplImage actFrame = cvCreateImage(cvSize(this.outputW, this.outputH), 8, 3);
-            opencv_imgproc.cvResize(orgFrame, actFrame, opencv_imgproc.CV_INTER_AREA);
+            opencv_imgproc.cvResize(orgFrame2, actFrame, opencv_imgproc.CV_INTER_AREA);
 
             CvFont font = new CvFont();
             cvInitFont(font, CV_FONT_VECTOR0, 1.2f, 1.2f, 0, 2, 8);
