@@ -9,6 +9,7 @@ public interface Constants {
     public static String STREAM_FRAME_OUTPUT = "stream-frame";
     public static String ORIGINAL_FRAME_OUTPUT = "org-frame";
     public static String STREAM_FRAME_DISPLAY = "stream-display";
+    public static String STREAM_FRAME_ACTDET_DISPLAY = "stream-actdet-display";
     public static String STREAM_FRAME_FV = "stream-fv";
     public static String STREAM_OPT_FLOW = "stream-optical-flow";
     public static String STREAM_GREY_FLOW = "stream-grey-flow";

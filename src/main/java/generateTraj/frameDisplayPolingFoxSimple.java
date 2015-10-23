@@ -169,10 +169,10 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             opencv_imgproc.cvResize(orgFrame, frame, opencv_imgproc.CV_INTER_AREA);
 
             CvFont font = new CvFont();
-            cvInitFont(font, CV_FONT_VECTOR0, 1.4f, 1.4f, 0, 2, 8);
+            cvInitFont(font, CV_FONT_VECTOR0, 1.2f, 1.2f, 0, 2, 8);
             CvPoint showPos = cvPoint(5, 40);
-            ///CvScalar showColor = CV_RGB(0, 0, 0);
-            CvScalar showColor = CvScalar.BLUE;
+            CvScalar showColor = CV_RGB(255, 127, 39);
+            //CvScalar showColor = CvScalar.YELLOW;
             //CvPoint showPos2 = cvPoint(5, 465);
             CvPoint showPos2 = cvPoint(5, this.outputH - 15);
 
@@ -188,7 +188,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
                     int showSecondInfo = this.countDownSeconds - secPos;
                     int t = this.windowInSeconds - showSecondInfo;
                     int percent = t * 100 / this.windowInSeconds;
-                    cvPutText(frame, "Detecting action... " + percent + "%", showPos2, font, CvScalar.BLUE);
+                    cvPutText(frame, "Detecting action... " + percent + "%", showPos2, font, showColor);
                 } else {
                     int getClassificationID = fvResult.containsKey(winIndex) == true ? fvResult.get(winIndex) : -1;
                     cvPutText(frame, "Action: " + NewMethod.getClassificationString(getClassificationID, actionNameList), showPos, font, showColor);

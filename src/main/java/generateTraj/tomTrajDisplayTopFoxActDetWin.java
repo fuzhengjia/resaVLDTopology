@@ -55,7 +55,7 @@ public class tomTrajDisplayTopFoxActDetWin {
         String optFlowTrans = "TrajOptFlowTrans";
         String optFlowTracker = "TrajOptFlowTracker";
         String traceAggregator = "TrajTraceAgg";
-        String frameDisplay = "TrajDisplay";
+        String featureGenBolg = "featureGen";
         String redisFrameOut = "RedisFrameOut";
         String featurePooling = "featurePooling";
 
@@ -83,7 +83,7 @@ public class tomTrajDisplayTopFoxActDetWin {
                 .directGrouping(traceGenBolt, STREAM_NEW_TRACE)
                 .directGrouping(traceAggregator, STREAM_RENEW_TRACE)
                 .directGrouping(optFlowTrans, STREAM_OPT_FLOW)
-                .allGrouping(frameDisplay, STREAM_CACHE_CLEAN)
+                .allGrouping(featureGenBolg, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
 
         builder.setBolt(traceAggregator, new traceAggFoxActDet(traceGenBolt, optFlowTracker), getInt(conf, traceAggregator + ".parallelism"))
@@ -91,14 +91,14 @@ public class tomTrajDisplayTopFoxActDetWin {
                 .directGrouping(optFlowTracker, STREAM_EXIST_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
-        builder.setBolt(frameDisplay, new featureGenFox(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
+        builder.setBolt(featureGenBolg, new featureGenFox(traceAggregator), getInt(conf, featureGenBolg + ".parallelism"))
                 .globalGrouping(optFlowGenBolt, STREAM_FEATURE_FLOW)
                 .globalGrouping(traceAggregator, STREAM_FEATURE_TRACE)
-                .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
+                .setNumTasks(getInt(conf, featureGenBolg + ".tasks"));
 
         builder.setBolt(featurePooling, new frameDisplayPolingFoxSimple(), getInt(conf, featurePooling + ".parallelism"))
                 .globalGrouping(imgPrepareBolt, STREAM_FRAME_OUTPUT)
-                .globalGrouping(frameDisplay, STREAM_FRAME_FV)
+                .globalGrouping(featureGenBolg, STREAM_FRAME_FV)
                 .setNumTasks(getInt(conf, featurePooling + ".tasks"));
 
         builder.setBolt(redisFrameOut, new RedisFrameOutputFox(), getInt(conf, redisFrameOut + ".parallelism"))

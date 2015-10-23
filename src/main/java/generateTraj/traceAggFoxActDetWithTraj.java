@@ -93,15 +93,6 @@ public class traceAggFoxActDetWithTraj extends BaseRichBolt {
                 throw new IllegalArgumentException("!traceMonitor.containsKey(frameId), frameID: " + frameId);
             }
             traceMonitor.computeIfPresent(frameId, (k, v) -> v + registerTraceCnt);
-//            System.out.println("Register frame: " + frameId
-//                    //+ ", registerTraceListCnt: " + registerTraceIDList.size()
-//                    + ", registerTraceCnt: " + registerTraceCnt
-//                    //+ ", traceSetSize: " + traceIDset.size()
-//                    + ", traceMonitorCnt: " + traceMonitor.size()
-//                    + ", messageQueueSize: " + messageQueue.size()
-//                    + ", newPointsWHInfoSize: " + newPointsWHInfo.size()
-//                    //+ ", totalRegistered: " + traceMonitor.get(frameId).size()
-//                    );
         }
 
         if (traceMonitor.containsKey(frameId) && messageQueue.containsKey(frameId)
@@ -150,11 +141,11 @@ public class traceAggFoxActDetWithTraj extends BaseRichBolt {
         }
 
         if (traceMonitor.get(frameId) == 0) {
-            List<List<Serializable.CvPoint2D32f>> traceRecords = new ArrayList<>(
-                    traceData.entrySet().stream()
-                            .filter(e -> (drawTrajSampleRate == 1 || Math.abs(e.getKey().hashCode()) % drawTrajSampleRate > 0))
-                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).values());
-            //List<List<Serializable.CvPoint2D32f>> traceRecords = new ArrayList<>(traceData.values());
+//            List<List<Serializable.CvPoint2D32f>> traceRecords = new ArrayList<>(
+//                    traceData.entrySet().stream()
+//                            .filter(e -> (drawTrajSampleRate == 1 || Math.abs(e.getKey().hashCode()) % drawTrajSampleRate > 0))
+//                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).values());
+            List<List<Serializable.CvPoint2D32f>> traceRecords = new ArrayList<>(traceData.values());
             collector.emit(STREAM_PLOT_TRACE, new Values(frameId, traceRecords));
 
             List<Integer> feedbackIndicators = new ArrayList<>();

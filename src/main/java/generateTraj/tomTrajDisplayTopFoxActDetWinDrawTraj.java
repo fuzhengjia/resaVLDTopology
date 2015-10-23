@@ -6,6 +6,7 @@ import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.tuple.Fields;
 import tool.FrameImplImageSourceFox;
 import tool.RedisFrameOutputFox;
 import tool.Serializable;
@@ -46,6 +47,8 @@ public class tomTrajDisplayTopFoxActDetWinDrawTraj {
         String frameDisplay = "TrajDisplay";
         String redisFrameOut = "RedisFrameOut";
         String featurePooling = "featurePooling";
+        String featureGenBolt = "featureGen";
+
 
         builder.setSpout(spoutName, new FrameImplImageSourceFox(host, port, queueName), getInt(conf, spoutName + ".parallelism"))
                 .setNumTasks(getInt(conf, spoutName + ".tasks"));
@@ -71,7 +74,7 @@ public class tomTrajDisplayTopFoxActDetWinDrawTraj {
                 .directGrouping(traceGenBolt, STREAM_NEW_TRACE)
                 .directGrouping(traceAggregator, STREAM_RENEW_TRACE)
                 .directGrouping(optFlowTrans, STREAM_OPT_FLOW)
-                .allGrouping(frameDisplay, STREAM_CACHE_CLEAN)
+                .allGrouping(featureGenBolt, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
 
         builder.setBolt(traceAggregator, new traceAggFoxActDetWithTraj(traceGenBolt, optFlowTracker), getInt(conf, traceAggregator + ".parallelism"))
@@ -79,19 +82,24 @@ public class tomTrajDisplayTopFoxActDetWinDrawTraj {
                 .directGrouping(optFlowTracker, STREAM_EXIST_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
 
-        builder.setBolt(frameDisplay, new featureGenFox(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
+        builder.setBolt(featureGenBolt, new featureGenFox(traceAggregator), getInt(conf, featureGenBolt + ".parallelism"))
                 .globalGrouping(optFlowGenBolt, STREAM_FEATURE_FLOW)
                 .globalGrouping(traceAggregator, STREAM_FEATURE_TRACE)
-                .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
+                .setNumTasks(getInt(conf, featureGenBolt + ".tasks"));
 
-        builder.setBolt(featurePooling, new frameDisplayPolingFoxWithTraj(), getInt(conf, featurePooling + ".parallelism"))
+        builder.setBolt(featurePooling, new frameDisplayPolingFoxTraj(), getInt(conf, featurePooling + ".parallelism"))
                 .globalGrouping(imgPrepareBolt, STREAM_FRAME_OUTPUT)
-                .globalGrouping(frameDisplay, STREAM_FRAME_FV)
-                .globalGrouping(traceAggregator, STREAM_PLOT_TRACE)
+                .globalGrouping(featureGenBolt, STREAM_FRAME_FV)
                 .setNumTasks(getInt(conf, featurePooling + ".tasks"));
 
-        builder.setBolt(redisFrameOut, new RedisFrameOutputFox(), getInt(conf, redisFrameOut + ".parallelism"))
-                .globalGrouping(featurePooling, STREAM_FRAME_DISPLAY)
+        builder.setBolt(frameDisplay, new frameDisplayMultiFox(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
+                .fieldsGrouping(imgPrepareBolt, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
+                .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
+
+        builder.setBolt(redisFrameOut, new RedisFrameOutputActWithTraj(), getInt(conf, redisFrameOut + ".parallelism"))
+                .globalGrouping(featurePooling, STREAM_FRAME_ACTDET_DISPLAY)
+                .globalGrouping(frameDisplay, STREAM_FRAME_DISPLAY)
                 .setNumTasks(getInt(conf, redisFrameOut + ".tasks"));
 
         StormTopology topology = builder.createTopology();
