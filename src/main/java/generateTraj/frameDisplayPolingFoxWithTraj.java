@@ -191,7 +191,7 @@ public class frameDisplayPolingFoxWithTraj extends BaseRichBolt {
             cvInitFont(font, CV_FONT_VECTOR0, 1.2f, 1.2f, 0, 2, 8);
             CvPoint showPos = cvPoint(5, 40);
             ///CvScalar showColor = CV_RGB(0, 0, 0);
-            CvScalar showColor = CvScalar.YELLOW;
+            CvScalar showColor = CvScalar.GREEN;
             //CvPoint showPos2 = cvPoint(5, 465);
             CvPoint showPos2 = cvPoint(5, this.outputH - 15);
 
@@ -207,7 +207,7 @@ public class frameDisplayPolingFoxWithTraj extends BaseRichBolt {
                     int showSecondInfo = this.countDownSeconds - secPos;
                     int t = this.windowInSeconds - showSecondInfo;
                     int percent = t * 100 / this.windowInSeconds;
-                    cvPutText(actFrame, "Detecting action... " + percent + "%", showPos2, font, CvScalar.BLUE);
+                    cvPutText(actFrame, "Detecting action... " + percent + "%", showPos2, font, showColor);
                 } else {
                     int getClassificationID = fvResult.containsKey(winIndex) == true ? fvResult.get(winIndex) : -1;
                     cvPutText(actFrame, "Action: " + NewMethod.getClassificationString(getClassificationID, actionNameList), showPos, font, showColor);
@@ -250,15 +250,16 @@ public class frameDisplayPolingFoxWithTraj extends BaseRichBolt {
             opencv_imgproc.resize(actMat, combineMat, size);
 
             opencv_core.Mat dst_roi1 = new opencv_core.Mat(combineMat, new opencv_core.Rect(0, 0, outputW, outputH));
-            actMat.copyTo(dst_roi1);
+            trajMat.copyTo(dst_roi1);
 
             opencv_core.Mat dst_roi2 = new opencv_core.Mat(combineMat, new opencv_core.Rect(0, outputH, outputW, outputH));
-            trajMat.copyTo(dst_roi2);
+            actMat.copyTo(dst_roi2);
 
             Serializable.Mat sMat = new Serializable.Mat(combineMat);
             collector.emit(STREAM_FRAME_DISPLAY, tuple, new Values(frameId, sMat));
             rawFrameMap.remove(frameId);
             traceMonitor.remove(frameId);
+            traceData.remove(frameId);
             if (toDebug) {
                 System.out.println("FrameDisplay-finishedAdd: " + frameId + ", tCnt: " + traceMonitor.size()
                         + "@" + System.currentTimeMillis());
