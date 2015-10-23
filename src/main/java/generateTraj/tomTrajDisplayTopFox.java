@@ -106,8 +106,9 @@ public class tomTrajDisplayTopFox {
         int procH = getInt(conf, "procHeight");
         int outW = getInt(conf, "outputW");
         int outH = getInt(conf, "outputH");
+        int drawTrajSampleRate = getInt(conf, "drawTrajSampleRate");
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tTrajTopFox-" + init_counter + "-" + min_dis
+        StormSubmitter.submitTopology("tTrajTopFox-" + init_counter + "-" + min_dis + "-" + drawTrajSampleRate
                 + "-" + inW + "-" + inH + "-" + procW + "-" + procH+ "-" + outW + "-" + outH, conf, topology);    }
 }

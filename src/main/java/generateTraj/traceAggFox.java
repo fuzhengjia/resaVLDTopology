@@ -11,9 +11,11 @@ import tool.Serializable;
 import util.ConfigUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.bytedeco.javacpp.opencv_core.*;
 import static tool.Constants.*;
+import static topology.StormConfigManager.getInt;
 
 /**
  * Created by Tom Fu
@@ -35,6 +37,7 @@ public class traceAggFox extends BaseRichBolt {
     int maxTrackerLength;
     double min_distance;
     int init_counter;
+    int drawTrajSampleRate = 1;
 
 
     String traceGenBoltNameString;
@@ -58,6 +61,7 @@ public class traceAggFox extends BaseRichBolt {
         this.min_distance = ConfigUtil.getDouble(map, "min_distance", 5.0);
         this.maxTrackerLength = ConfigUtil.getInt(map, "maxTrackerLength", 15);
         this.init_counter = ConfigUtil.getInt(map, "init_counter", 1);
+        this.drawTrajSampleRate = getInt(map, "drawTrajSampleRate");
 
         this.traceGenBoltTaskNumber = topologyContext.getComponentTasks(traceGenBoltNameString).size();
         flowTrackerTasks = topologyContext.getComponentTasks(flowTrackerName);
@@ -144,7 +148,10 @@ public class traceAggFox extends BaseRichBolt {
         }
 
         if (traceMonitor.get(frameId) == 0) {
-            List<List<Serializable.CvPoint2D32f>> traceRecords = new ArrayList<>(traceData.values());
+            List<List<Serializable.CvPoint2D32f>> traceRecords = new ArrayList<>(
+            traceData.entrySet().stream().filter(e -> Math.abs(e.getKey().hashCode()) % drawTrajSampleRate == 0)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).values());
+            //List<List<Serializable.CvPoint2D32f>> traceRecords = new ArrayList<>(traceData.values());
             collector.emit(STREAM_PLOT_TRACE, new Values(frameId, traceRecords));
 
             List<Integer> feedbackIndicators = new ArrayList<>();
