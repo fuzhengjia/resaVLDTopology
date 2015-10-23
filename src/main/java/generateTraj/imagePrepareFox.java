@@ -41,6 +41,9 @@ public class imagePrepareFox extends BaseRichBolt {
     double quality;
     int init_counter;
 
+    int procWidth;
+    int procHeight;
+
     List<Integer> traceGeneratorTasks;
     String traceGeneratorName;
 
@@ -63,6 +66,9 @@ public class imagePrepareFox extends BaseRichBolt {
         this.quality = ConfigUtil.getDouble(map, "quality", 0.001);
         this.init_counter = ConfigUtil.getInt(map, "init_counter", 1);
 
+        procWidth = ConfigUtil.getInt(map, "procWidth", 160);
+        procHeight = ConfigUtil.getInt(map, "procHeight", 120);
+
         traceGeneratorTasks = topologyContext.getComponentTasks(traceGeneratorName);
 
         IplImage imageFK = new IplImage();
@@ -73,12 +79,19 @@ public class imagePrepareFox extends BaseRichBolt {
         int frameId = tuple.getIntegerByField(FIELD_FRAME_ID);
 
         Serializable.Mat sMat = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT);
-        IplImage frame = sMat.toJavaCVMat().asIplImage();
+        IplImage orgframe = sMat.toJavaCVMat().asIplImage();
 
         collector.emit(STREAM_FRAME_OUTPUT, tuple, new Values(frameId, sMat));
 
+        ///resize to procW and procH
         Serializable.Mat sMatPrev = (Serializable.Mat) tuple.getValueByField(FIELD_FRAME_MAT_PREV);
-        IplImage framePrev = sMatPrev.toJavaCVMat().asIplImage();
+        IplImage orgframePrev = sMatPrev.toJavaCVMat().asIplImage();
+
+        IplImage frame = cvCreateImage(cvSize(procWidth, procHeight), orgframe.depth(), orgframe.nChannels());
+        opencv_imgproc.cvResize(orgframe, frame, opencv_imgproc.CV_INTER_AREA);
+
+        IplImage framePrev = cvCreateImage(cvSize(procWidth, procHeight), orgframePrev.depth(), orgframePrev.nChannels());
+        opencv_imgproc.cvResize(orgframePrev, framePrev, opencv_imgproc.CV_INTER_AREA);
 
         if (this.image == null || frameId == 1) { //only first time
             image = cvCreateImage(cvGetSize(frame), 8, 3);

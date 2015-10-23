@@ -31,6 +31,7 @@ import static topology.StormConfigManager.*;
  * TODO: 大bug！ 5. 在imagePrep中的width 和height = cvFloor(grey.width() / min_distance); 不是真正的 frame的 width 和height，
  * TODO: 包括后来传到 traceAgg做feedback用的，不能在agg里面直接用来产生renew的点的taskID！！！
  * Comparing to tomTrajDisplayTopFoxActDet, this version does not show trajectories, just output detection results.
+ * todo: 有三个width 和 height， 第一是输入的原始wh， 一个是要缩小到供process的wh，最后是需要在最后输出时的wh
  */
 public class tomTrajDisplayTopFoxActDetWin {
 
