@@ -74,7 +74,7 @@ public class tomTrajDisplayTopFoxActDetWinDrawTraj {
                 .allGrouping(frameDisplay, STREAM_CACHE_CLEAN)
                 .setNumTasks(getInt(conf, optFlowTracker + ".tasks"));
 
-        builder.setBolt(traceAggregator, new traceAggFoxActDet(traceGenBolt, optFlowTracker), getInt(conf, traceAggregator + ".parallelism"))
+        builder.setBolt(traceAggregator, new traceAggFoxActDetWithTraj(traceGenBolt, optFlowTracker), getInt(conf, traceAggregator + ".parallelism"))
                 .directGrouping(traceGenBolt, STREAM_REGISTER_TRACE)
                 .directGrouping(optFlowTracker, STREAM_EXIST_REMOVE_TRACE)
                 .setNumTasks(getInt(conf, traceAggregator + ".tasks"));
@@ -84,7 +84,7 @@ public class tomTrajDisplayTopFoxActDetWinDrawTraj {
                 .globalGrouping(traceAggregator, STREAM_FEATURE_TRACE)
                 .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
 
-        builder.setBolt(featurePooling, new frameDisplayPolingFoxSimple(), getInt(conf, featurePooling + ".parallelism"))
+        builder.setBolt(featurePooling, new frameDisplayPolingFoxWithTraj(), getInt(conf, featurePooling + ".parallelism"))
                 .globalGrouping(imgPrepareBolt, STREAM_FRAME_OUTPUT)
                 .globalGrouping(frameDisplay, STREAM_FRAME_FV)
                 .globalGrouping(traceAggregator, STREAM_PLOT_TRACE)
