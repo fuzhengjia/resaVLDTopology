@@ -603,7 +603,7 @@ public class NewMethod {
 
     public static String getClassificationString(int result, List<String> actionNames) {
 
-        if (result < actionNames.size()){
+        if (result >= 0 && result < actionNames.size()){
             return actionNames.get(result);
         }
         return "unknown";
