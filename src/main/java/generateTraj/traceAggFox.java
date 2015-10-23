@@ -149,7 +149,8 @@ public class traceAggFox extends BaseRichBolt {
 
         if (traceMonitor.get(frameId) == 0) {
             List<List<Serializable.CvPoint2D32f>> traceRecords = new ArrayList<>(
-            traceData.entrySet().stream().filter(e -> Math.abs(e.getKey().hashCode()) % drawTrajSampleRate == 0)
+            traceData.entrySet().stream()
+                    .filter(e -> (drawTrajSampleRate == 1 || Math.abs(e.getKey().hashCode()) % drawTrajSampleRate > 0))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).values());
             //List<List<Serializable.CvPoint2D32f>> traceRecords = new ArrayList<>(traceData.values());
             collector.emit(STREAM_PLOT_TRACE, new Values(frameId, traceRecords));
