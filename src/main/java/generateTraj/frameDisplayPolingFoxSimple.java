@@ -113,6 +113,8 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
 
         trainingResult = NewMethod.getTrainingResult_float(trainDataFile, fvLength);
         actionNameList = getListOfStrings(map, "actionNames");
+
+        toDebug = ConfigUtil.getBoolean(map, "debugTopology", false);
     }
 
     @Override
@@ -139,7 +141,7 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
                 if (fvCounter.get(winIndex) == this.windowInFrames) {
 
                     Object[] result = NewMethod.checkNew_float(rawFeatureDataList.get(winIndex), trainingResult,
-                            numDimension, hogPca, mbhxPca, mbhyPca, hogGmm, mbhxGmm, mbhyGmm, true);
+                            numDimension, hogPca, mbhxPca, mbhyPca, hogGmm, mbhxGmm, mbhyGmm, toDebug);
                     int getClassificationID = (int) result[0];
                     float sim = (float) result[1];
 

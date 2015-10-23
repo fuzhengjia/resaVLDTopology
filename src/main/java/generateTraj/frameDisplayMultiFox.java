@@ -7,6 +7,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import org.bytedeco.javacpp.opencv_imgproc;
 import tool.Serializable;
 import util.ConfigUtil;
 
@@ -16,7 +17,7 @@ import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.*;
 import static tool.Constants.*;
-
+import static topology.StormConfigManager.*;
 /**
  * Created by Tom Fu
  * Input is raw video frames, output optical flow results between every two consecutive frames.
@@ -39,6 +40,17 @@ public class frameDisplayMultiFox extends BaseRichBolt {
     static float[] fscales;
     static int ixyScale = 0;
 
+
+    int procWidth;
+    int procHeight;
+    int outputW;
+    int outputH;
+    int inHeight;
+    int inWidth;
+
+    float adjRatioX = 1.0f;
+    float adjRatioY = 1.0f;
+
     String traceAggBoltNameString;
     int traceAggBoltTaskNumber;
     private boolean toDebug = false;
@@ -56,6 +68,16 @@ public class frameDisplayMultiFox extends BaseRichBolt {
 
         this.traceAggBoltTaskNumber = topologyContext.getComponentTasks(traceAggBoltNameString).size();
         toDebug = ConfigUtil.getBoolean(map, "debugTopology", false);
+
+        procWidth = getInt(map, "procWidth");
+        procHeight = getInt(map, "procHeight");
+        inWidth = getInt(map, "inWidth");
+        inHeight = getInt(map, "inHeight");
+        outputW = getInt(map, "outputW");
+        outputH = getInt(map, "outputH");
+
+        adjRatioX = (float)inWidth / (float)procWidth;
+        adjRatioY = (float)inHeight / (float)procHeight;
 
         fscales = new float[scale_num];
         for (int i = 0; i < scale_num; i++) {
@@ -102,16 +124,16 @@ public class frameDisplayMultiFox extends BaseRichBolt {
                 float point0_x = fscales[ixyScale] * trace.get(0).x();
                 float point0_y = fscales[ixyScale] * trace.get(0).y();
                 CvPoint2D32f point0 = new CvPoint2D32f();
-                point0.x(point0_x);
-                point0.y(point0_y);
+                point0.x(point0_x * adjRatioX);
+                point0.y(point0_y * adjRatioY);
 
                 float jIndex = 0;
                 for (int jj = 1; jj < length; jj++, jIndex++) {
                     float point1_x = fscales[ixyScale] * trace.get(jj).x();
                     float point1_y = fscales[ixyScale] * trace.get(jj).y();
                     CvPoint2D32f point1 = new CvPoint2D32f();
-                    point1.x(point1_x);
-                    point1.y(point1_y);
+                    point1.x(point1_x * adjRatioX);
+                    point1.y(point1_y * adjRatioY);
 
                     cvLine(frame, cvPointFrom32f(point0), cvPointFrom32f(point1),
                             CV_RGB(0, cvFloor(255.0 * (jIndex + 1.0) / length), 0), 1, 8, 0);
@@ -119,7 +141,10 @@ public class frameDisplayMultiFox extends BaseRichBolt {
                 }
             }
 
-            Mat mat = new Mat(frame);
+            IplImage frameOutput = cvCreateImage(cvSize(this.outputW, this.outputH), 8, 3);
+            opencv_imgproc.cvResize(frame, frameOutput, opencv_imgproc.CV_INTER_AREA);
+
+            Mat mat = new Mat(frameOutput);
             Serializable.Mat sMat = new Serializable.Mat(mat);
             collector.emit(STREAM_FRAME_DISPLAY, tuple, new Values(frameId, sMat));
             rawFrameMap.remove(frameId);

@@ -19,6 +19,7 @@ import java.util.Map;
 
 import static org.bytedeco.javacpp.opencv_core.*;
 import static tool.Constants.*;
+import static topology.StormConfigManager.*;
 
 /**
  * Created by Tom Fu, July 30, 2015
@@ -66,8 +67,8 @@ public class imagePrepareFox extends BaseRichBolt {
         this.quality = ConfigUtil.getDouble(map, "quality", 0.001);
         this.init_counter = ConfigUtil.getInt(map, "init_counter", 1);
 
-        procWidth = ConfigUtil.getInt(map, "procWidth", 160);
-        procHeight = ConfigUtil.getInt(map, "procHeight", 120);
+        procWidth = getInt(map, "procWidth");
+        procHeight = getInt(map, "procHeight");
 
         traceGeneratorTasks = topologyContext.getComponentTasks(traceGeneratorName);
 

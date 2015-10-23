@@ -100,10 +100,14 @@ public class tomTrajDisplayTopFox {
 
         int min_dis = getInt(conf, "min_distance");
         int init_counter = getInt(conf, "init_counter");
-        int w = ConfigUtil.getInt(conf, "inWidth", 640);
-        int h = ConfigUtil.getInt(conf, "inHeight", 480);
+        int inW = getInt(conf, "inWidth");
+        int inH = getInt(conf, "inHeight");
+        int procW = getInt(conf, "procWidth");
+        int procH = getInt(conf, "procHeight");
+        int outW = getInt(conf, "outputW");
+        int outH = getInt(conf, "outputH");
         conf.registerSerialization(Serializable.Mat.class);
         conf.setStatsSampleRate(1.0);
-        StormSubmitter.submitTopology("tTrajTopFox-" + init_counter + "-" + min_dis + "-" + w + "-" + h, conf, topology);
-    }
+        StormSubmitter.submitTopology("tTrajTopFox-" + init_counter + "-" + min_dis
+                + "-" + inW + "-" + inH + "-" + procW + "-" + procH+ "-" + outW + "-" + outH, conf, topology);    }
 }
