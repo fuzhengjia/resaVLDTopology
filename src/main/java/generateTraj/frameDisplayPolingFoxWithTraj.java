@@ -177,7 +177,8 @@ public class frameDisplayPolingFoxWithTraj extends BaseRichBolt {
             }
         }
 
-        if (frameId < this.maxTrackerLength || (rawFrameMap.containsKey(frameId) && traceMonitor.containsKey(frameId) && traceData.containsKey(frameId))) {
+        if ((rawFrameMap.containsKey(frameId) && traceData.containsKey(frameId)) && (frameId < this.maxTrackerLength || traceMonitor.containsKey(frameId))){
+        //if (frameId < this.maxTrackerLength || (rawFrameMap.containsKey(frameId) && traceMonitor.containsKey(frameId) && traceData.containsKey(frameId))) {
 
             Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
             IplImage orgFrame = orgMat.asIplImage();

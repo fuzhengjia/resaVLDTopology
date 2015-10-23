@@ -157,6 +157,9 @@ public class frameDisplayPolingFoxSimple extends BaseRichBolt {
             }
         }
 
+        //TODO: here is a bug!! this if has some problem!
+        //todo, try this:
+        // if (rawFrameMap.containsKey(frameId) && (frameId < this.maxTrackerLength || traceMonitor.containsKey(frameId))){
         if (frameId < this.maxTrackerLength || (rawFrameMap.containsKey(frameId) && traceMonitor.containsKey(frameId))) {
 
             Mat orgMat = rawFrameMap.get(frameId).toJavaCVMat();
