@@ -8,7 +8,6 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import tool.FrameImplImageSourceFox;
-import tool.RedisFrameOutputFox;
 import tool.Serializable;
 
 import java.io.FileNotFoundException;
@@ -20,7 +19,8 @@ import static topology.StormConfigManager.*;
  * Created by Tom Fu on Oct 23, 2015
  * 有三个width 和 height， 第一是输入的原始wh， 一个是要缩小到供process的wh，最后是需要在最后输出时的wh
  * 这个版本同时输出traj和action detection结果
- *
+ * another implementation for ActDetWithTraj
+ * 此版本效果更好
  */
 public class tomTrajDisplayTopFoxActDetWinDrawTraj {
 
@@ -87,14 +87,19 @@ public class tomTrajDisplayTopFoxActDetWinDrawTraj {
                 .globalGrouping(traceAggregator, STREAM_FEATURE_TRACE)
                 .setNumTasks(getInt(conf, featureGenBolt + ".tasks"));
 
-        builder.setBolt(featurePooling, new frameDisplayPolingFoxTraj(traceAggregator), getInt(conf, featurePooling + ".parallelism"))
+        builder.setBolt(featurePooling, new frameDisplayPolingFoxTraj(), getInt(conf, featurePooling + ".parallelism"))
                 .globalGrouping(imgPrepareBolt, STREAM_FRAME_OUTPUT)
                 .globalGrouping(featureGenBolt, STREAM_FRAME_FV)
-                .globalGrouping(traceAggregator, STREAM_PLOT_TRACE)
                 .setNumTasks(getInt(conf, featurePooling + ".tasks"));
 
-        builder.setBolt(redisFrameOut, new RedisFrameOutputFox(), getInt(conf, redisFrameOut + ".parallelism"))
-                .globalGrouping(featurePooling, STREAM_FRAME_DISPLAY)
+        builder.setBolt(frameDisplay, new frameDisplayMultiFox(traceAggregator), getInt(conf, frameDisplay + ".parallelism"))
+                .fieldsGrouping(imgPrepareBolt, STREAM_FRAME_OUTPUT, new Fields(FIELD_FRAME_ID))
+                .fieldsGrouping(traceAggregator, STREAM_PLOT_TRACE, new Fields(FIELD_FRAME_ID))
+                .setNumTasks(getInt(conf, frameDisplay + ".tasks"));
+
+        builder.setBolt(redisFrameOut, new RedisFrameOutputActWithTraj(), getInt(conf, redisFrameOut + ".parallelism"))
+                .globalGrouping(featurePooling, STREAM_FRAME_ACTDET_DISPLAY)
+                .globalGrouping(frameDisplay, STREAM_FRAME_DISPLAY)
                 .setNumTasks(getInt(conf, redisFrameOut + ".tasks"));
 
         StormTopology topology = builder.createTopology();
@@ -119,7 +124,7 @@ public class tomTrajDisplayTopFoxActDetWinDrawTraj {
         int windowInSeconds = getInt(conf, "windowInSeconds"); ///windowInFrames = windowInSeconds * frameRate
         int resultLastSeconds = getInt(conf, "resultLastSeconds"); /// Countdown seconds = windowInseconds - resultLastSeconds
 
-        StormSubmitter.submitTopology("tTrajTopFoxActDetWinTraj-" + init_counter + "-" + min_dis + "-" + drawTrajSampleRate
+        StormSubmitter.submitTopology("tTrajTopFoxActDetWinTrajBeta-" + init_counter + "-" + min_dis + "-" + drawTrajSampleRate
                 + "-" + inW + "-" + inH + "-" + procW + "-" + procH+ "-" + outW + "-" + outH
                 + "-" + frameRate + "-" + windowInSeconds + "-" + resultLastSeconds, conf, topology);
     }
