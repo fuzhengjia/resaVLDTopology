@@ -51,6 +51,9 @@ public class TAExpServWCLoop {
                 .setNumTasks(defaultTaskNum)
                 .shuffleGrouping("loop-BoltA")
                 .shuffleGrouping("loop-BoltB", "P-Stream");
+
+        conf.setNumWorkers(getInt(conf, "loop-NumOfWorkers"));
+        conf.setMaxSpoutPending(getInt(conf, "loop-MaxSpoutPending"));
         conf.setDebug(ConfigUtil.getBoolean(conf, "DebugTopology", false));
 
         if (ConfigUtil.getBoolean(conf, "EnableLoggingMetricsConsumer", false)) {
