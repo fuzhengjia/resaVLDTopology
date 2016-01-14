@@ -40,10 +40,14 @@ public class SimpleImageSenderFox {
         this.queueName = qName.getBytes();
     }
 
+    ///TODO: here is a bug, on int generatedFrames = st; int targetCount = end - st; while (generatedFrames < targetCount) {
+    ///TODO: when st is not zero, then bug appears!
+    ///Here we need to define the physical meaning of st, end, whether they are absolution file index, or relative index.
     public void send2Queue(int st, int end, int fps) throws IOException {
         Jedis jedis = new Jedis(host, port);
         int generatedFrames = st;
         int targetCount = end - st;
+//        int generatedFrames = st;
 
         try {
             long start = System.currentTimeMillis();
@@ -51,9 +55,11 @@ public class SimpleImageSenderFox {
             long qLen = 0;
 
             while (generatedFrames < targetCount) {
+//shall be like this:  while (generatedFrames < end) {
 
                 String fileName = path + imageFolder + System.getProperty("file.separator")
                         + String.format("%s%06d.jpg", filePrefix, (generatedFrames + 1));
+//                        + String.format("%s%06d.jpg", filePrefix, generatedFrames);
                 File f = new File(fileName);
                 if (f.exists() == false) {
                     System.out.println("File not exist: " + fileName);

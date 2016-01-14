@@ -21,6 +21,12 @@ import static topology.StormConfigManager.*;
  * 这个版本同时输出traj和action detection结果
  * another implementation for ActDetWithTraj
  * 此版本效果更好
+ *
+ * 记录于 Dec 15, 2015
+ * TODO: action detection的输出window的设计，是否可以做成moving window，每次有新的trajectory到来，就把旧的trajectory去掉
+ * TODO: redisFrameOutput的改进问题，priorityQueue和时序管理问题，是否可以放到redisQueue以后的程序做？这样需要在输出到redisQueue的Frame里面带上FrameID的信息
+ * TODO: 这样就引出了一个新问题，是否需要重新设计Serializable这个类，让它继承自opencv_core.Mat()同时implement Serializable的一些接口？
+ * TODO: FeatureGen和frameDisplayPolingFoxTraj 目前都是globalGrouping，无法实现分布式，是否可以设计成支持分布式？
  */
 public class tomTrajDisplayTopFoxActDetWinDrawTraj {
 

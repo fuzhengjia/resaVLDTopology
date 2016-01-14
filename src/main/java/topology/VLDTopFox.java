@@ -32,6 +32,11 @@ import static topology.StormConfigManager.*;
  *
  * Enabling sampling features. Sampling problem is solved!
  * through testing
+ *
+ * Write on Dec 15, 2015
+ * TODO: some new improvement point: 1. re-design of redisFrameOutput, the sorting queue can be moved out to the explicit programme.
+ * TODO: the output can be frameID + frame to the redis queue, (need to modify serializableMat), so that when the explicit programme pop from redis queue, it can do the sorting
+ * TODO: a question? can we re-write serializableMat, which is extended from opencv_core.Mat, implements io.serializable and kysto?
  */
 public class VLDTopFox {
 
