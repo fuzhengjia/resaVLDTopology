@@ -51,9 +51,9 @@ public class RedisFrameOutputFox extends BaseRichBolt {
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 
         this.collector = outputCollector;
-        this.host = (String) map.get("vout.redis.host");
-        this.port = getInt(map, "vout.redis.port", 6379);
-        this.queueName = (String) map.get("vout.redis.queue");
+        this.host = (String) map.get("redis.host");
+        this.port = getInt(map, "redis.port", 6379);
+        this.queueName = (String) map.get("redis.queueName");
 
         this.sleepTime = getInt(map, "sleepTime", 10);
         this.startFrameID = getInt(map, "startFrameID", 1);

@@ -48,9 +48,9 @@ public class VLDTopFox {
         }
         Config conf = readConfig(args[0]);
 
-        String host = getString(conf, "vin.redis.host");
-        int port = getInt(conf, "vin.redis.port");
-        String queueName = getString(conf, "vin.redis.queue");
+        String host = getString(conf, "redis.host");
+        int port = getInt(conf, "redis.port");
+        String queueName = getString(conf, "tVLDQueueName");
 
         TopologyBuilder builder = new TopologyBuilder();
         String spoutName = "tVLDSpout";
