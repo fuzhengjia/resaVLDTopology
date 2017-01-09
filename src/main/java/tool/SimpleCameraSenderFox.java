@@ -44,11 +44,13 @@ public class SimpleCameraSenderFox {
             if (inputStream == null) {
                 camera = new opencv_highgui.VideoCapture(0);
             } else {
-                camera = new opencv_highgui.VideoCapture(inputStream);
+                camera = new opencv_highgui.VideoCapture();
+                camera.open(inputStream);
             }
             Thread.sleep(1000);
             if (!camera.isOpened()) {
                 System.out.println("Camera Error");
+
             } else {
                 System.out.println("Camera OK?");
             }
