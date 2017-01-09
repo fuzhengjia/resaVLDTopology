@@ -101,19 +101,12 @@ public class SimpleCameraSenderFox {
             return;
         }
 
-        if (args.length == 4) {
-            sender = new SimpleCameraSenderFox(args[0]);
-            //System.out.println("Redis queueName for video input: " + sender.queueName.toString());
-            startFrameID = Integer.parseInt(args[1]);
-            targetCount = Integer.parseInt(args[2]);
-            fps = Integer.parseInt(args[3]);
-        } else {
-            sender = new SimpleCameraSenderFox(args[0]);
-            //System.out.println("Redis queueName for video input: " + sender.queueName.toString());
-            startFrameID = Integer.parseInt(args[2]);
-            targetCount = Integer.parseInt(args[3]);
-            fps = Integer.parseInt(args[4]);
-            videoInputStream = args[5];
+        sender = new SimpleCameraSenderFox(args[0]);
+        startFrameID = Integer.parseInt(args[1]);
+        targetCount = Integer.parseInt(args[2]);
+        fps = Integer.parseInt(args[3]);
+        if (args.length > 4) {
+            videoInputStream = args[4];
         }
         System.out.println("start sender, Redis queueName for video input:: "
                 + sender.queueName.toString() + ", fps: " + fps + ", start: " + startFrameID + ", target: " + targetCount + ", video input String: " + videoInputStream );
