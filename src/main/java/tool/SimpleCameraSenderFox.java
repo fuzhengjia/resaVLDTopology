@@ -23,6 +23,7 @@ public class SimpleCameraSenderFox {
     private String host;
     private int port;
     private byte[] queueName;
+    private String videoSourceStream;
 
     private opencv_highgui.VideoCapture camera;
 
@@ -33,18 +34,18 @@ public class SimpleCameraSenderFox {
         this.queueName = getString(conf, "redis.sourceQueueName").getBytes();
     }
 
-    public SimpleCameraSenderFox(String confile, String qName) throws FileNotFoundException {
-        this(confile);
-        this.queueName = qName.getBytes();
-    }
-
-    public void send2Queue(int fps, int adjustTime, int targetCount) throws IOException {
+    public void send2Queue(int fps, int adjustTime, int targetCount, String inputStream) throws IOException {
         Jedis jedis = new Jedis(host, port);
         int generatedFrames = 0;
         opencv_core.IplImage fk = new opencv_core.IplImage();
 
         try {
-            camera = new opencv_highgui.VideoCapture(0);
+            //camera = new opencv_highgui.VideoCapture(0);
+            if (inputStream == null) {
+                camera = new opencv_highgui.VideoCapture(0);
+            } else {
+                camera = new opencv_highgui.VideoCapture(inputStream);
+            }
             Thread.sleep(1000);
             if (!camera.isOpened()) {
                 System.out.println("Camera Error");
@@ -94,28 +95,29 @@ public class SimpleCameraSenderFox {
         int fps;
         int startFrameID;
         int targetCount;
+        String videoInputStream = null;
         if (args.length < 4 || args.length > 5) {
-            System.out.println("usage: ImageSender <confFile> [queueName] <fps> <startFrame> <targetCount>");
+            System.out.println("usage: ImageSender <confFile> <fps> <startFrame> <targetCount> [videoInputStream]");
             return;
         }
 
         if (args.length == 4) {
             sender = new SimpleCameraSenderFox(args[0]);
-            System.out.println("Default queueName: " + sender.queueName.toString());
+            //System.out.println("Redis queueName for video input: " + sender.queueName.toString());
             startFrameID = Integer.parseInt(args[1]);
             targetCount = Integer.parseInt(args[2]);
             fps = Integer.parseInt(args[3]);
-
         } else {
-            sender = new SimpleCameraSenderFox(args[0], args[1]);
-            System.out.println("User-defined queueName: " + args[1]);
+            sender = new SimpleCameraSenderFox(args[0]);
+            //System.out.println("Redis queueName for video input: " + sender.queueName.toString());
             startFrameID = Integer.parseInt(args[2]);
             targetCount = Integer.parseInt(args[3]);
             fps = Integer.parseInt(args[4]);
+            videoInputStream = args[5];
         }
-        System.out.println("start sender, queueName: "
-                + sender.queueName.toString() + ", fps: " + fps + ", start: " + startFrameID + ", target: " + targetCount);
-        sender.send2Queue(fps, startFrameID, targetCount);
+        System.out.println("start sender, Redis queueName for video input:: "
+                + sender.queueName.toString() + ", fps: " + fps + ", start: " + startFrameID + ", target: " + targetCount + ", video input String: " + videoInputStream );
+        sender.send2Queue(fps, startFrameID, targetCount, videoInputStream);
         System.out.println("end sender");
     }
 
