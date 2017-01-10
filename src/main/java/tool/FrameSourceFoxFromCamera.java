@@ -41,6 +41,7 @@ public class FrameSourceFoxFromCamera extends BaseRichSpout {
 
     private long startTime;
     private long lastTime;
+    private int initTime;
 
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
@@ -53,6 +54,7 @@ public class FrameSourceFoxFromCamera extends BaseRichSpout {
         videoSourceStream = getString(conf, "rtsp.camera.out.sourceStream");
         targetW = getInt(conf, "rtsp.camera.out.width");
         targetH = getInt(conf, "rtsp.camera.out.height");
+        initTime = getInt(conf, "rtsp.camera.init.wait.seconds");
 
         streamGrabber = new FFmpegFrameGrabber(videoSourceStream);
         streamGrabber.setFrameRate(fps);
@@ -63,7 +65,7 @@ public class FrameSourceFoxFromCamera extends BaseRichSpout {
 
         try {
             streamGrabber.start();
-            Thread.sleep(1000);
+            Thread.sleep(initTime * 1000);
 
             startTime = System.currentTimeMillis();
             lastTime = startTime;
