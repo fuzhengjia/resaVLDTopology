@@ -28,6 +28,8 @@ public class RtspCameraSenderFox {
     public int fps;
     public int adjustTime;
     public int targetCount;
+    public int targetH;
+    public int targetW;
 
     private FFmpegFrameGrabber streamGrabber;
 
@@ -40,6 +42,8 @@ public class RtspCameraSenderFox {
         adjustTime = getInt(conf, "rtsp.camera.out.adjustTime");
         targetCount = getInt(conf, "rtsp.camera.out.targetCount");
         videoSourceStream = getString(conf, "rtsp.camera.out.sourceStream");
+        targetW = getInt(conf, "rtsp.camera.out.width");
+        targetH = getInt(conf, "rtsp.camera.out.height");
     }
 
     public void send2Queue() throws IOException {
@@ -48,6 +52,10 @@ public class RtspCameraSenderFox {
         opencv_core.IplImage fk = new opencv_core.IplImage();
         streamGrabber = new FFmpegFrameGrabber(videoSourceStream);
         streamGrabber.setFrameRate(fps);
+        if (targetW > 0 && targetH > 0){
+            streamGrabber.setImageWidth(targetW);
+            streamGrabber.setImageHeight(targetH);
+        }
         try {
 
             streamGrabber.start();
@@ -79,9 +87,6 @@ public class RtspCameraSenderFox {
                             + ",totalSend: " + generatedFrames+ ", remain: " + remain + ", sendQLen: " + qLen
                             + ", W: " + mat.cols() + ", H: " + mat.rows());
                 }
-//                else {
-//                    Thread.sleep(toWait);
-//                }
             }
         } catch (InterruptedException e){
             e.printStackTrace();
