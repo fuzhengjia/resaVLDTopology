@@ -94,7 +94,8 @@ public class VLDTopFoxFromCamera {
 
         List<String> templateFiles = getListOfStrings(conf, "originalTemplateFileNames");
 
-        StormSubmitter.submitTopology("VLDTopFoxFromCamera-s" + sampleFrames + "-" + W + "-" + H + "-L" + templateFiles.size(), conf, topology);
-
+        //StormSubmitter.submitTopology("VLDTopFoxFromCamera-s" + sampleFrames + "-" + W + "-" + H + "-L" + templateFiles.size(), conf, topology);
+        System.out.println("submitting topology: " + "VLDTopFoxFromCamera-s" + sampleFrames + "-" + W + "-" + H + "-L" + templateFiles.size());
+        StormSubmitter.submitTopology("VLDTopFoxFromCamera", conf, topology);
     }
 }
